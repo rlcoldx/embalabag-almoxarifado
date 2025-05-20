@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <link rel="icon" href="{{ PATH }}/view/assets/img/favicon.png" type="image/x-icon" />
+    <!-- Title -->
+    <title>Site - {% block title %}{% endblock %}</title>
+</head>
+
+<body class="ltr main-body leftmenu">
+
+    <!-- Page -->
+    <div class="page">
+
+        {% block body %}{% endblock %}
+
+    </div>
+    <!-- End Page -->
+
+    <script src="{{ PATH }}/{{ 'main.js'|hash }}"></script>
+    
+</body>
+
+</html>
