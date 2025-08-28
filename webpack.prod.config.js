@@ -1,7 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
-require('graceful-fs').gracefulify(require('fs'));
 
 let ASSET_PATH = '';
 module.exports = env => {
@@ -13,6 +12,7 @@ module.exports = env => {
     }
 
     return {
+        mode: 'production',
         entry: {
             main: './view/assets/js/init.js',
         },
@@ -25,6 +25,7 @@ module.exports = env => {
         plugins: [
             new webpack.DefinePlugin({
                 DOMAIN,
+                'process.env.NODE_ENV': JSON.stringify('production')
             }),
             new webpack.ProvidePlugin({
                 $: 'jquery',
@@ -41,8 +42,16 @@ module.exports = env => {
                     use: {
                         loader: 'babel-loader',
                         options: {
-                            presets: ['@babel/preset-env'],
-                            cacheDirectory: true,
+                            presets: [
+                                ['@babel/preset-env', {
+                                    targets: {
+                                        browsers: ['> 1%', 'last 2 versions']
+                                    },
+                                    useBuiltIns: 'usage',
+                                    corejs: 3
+                                }]
+                            ],
+                            cacheDirectory: false,
                             cacheCompression: false
                         }
                     }
@@ -51,40 +60,58 @@ module.exports = env => {
         },
         resolve: {
             extensions: ['.js'],
+            fallback: {
+                fs: false,
+                path: false,
+                crypto: false
+            }
         },
         optimization: {
             minimize: true,
             splitChunks: {
                 chunks: 'all',
+                minSize: 20000,
+                maxSize: 244000,
                 cacheGroups: {
                     vendor: {
                         test: /[\\/]node_modules[\\/]/,
                         name: 'vendors',
                         chunks: 'all',
+                        priority: 10
                     },
+                    common: {
+                        name: 'common',
+                        minChunks: 2,
+                        chunks: 'all',
+                        priority: 5
+                    }
                 },
             },
         },
         experiments: {
-            topLevelAwait: true,
+            topLevelAwait: false,
         },
-        cache: {
-            type: 'filesystem',
-            buildDependencies: {
-                config: [__filename],
-            },
-        },
+        cache: false,
         performance: {
             hints: false,
             maxEntrypointSize: 512000,
             maxAssetSize: 512000
         },
-        // Configurações para evitar problemas de memória no servidor
         infrastructureLogging: {
             level: 'error'
         },
         stats: {
-            errorDetails: false
+            errorDetails: false,
+            children: false
         },
+        // Configurações específicas para servidores com limitação de memória
+        node: {
+            global: true
+        },
+        target: 'web',
+        externals: {
+            fs: 'commonjs fs',
+            path: 'commonjs path'
+        }
     }
 }

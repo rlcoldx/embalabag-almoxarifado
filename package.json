@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "npx --node-options=\"--max-old-space-size=4096\" webpack --env NODE_ENV=local --mode development",
     "watch": "npx --node-options=\"--max-old-space-size=4096\" webpack --watch --env NODE_ENV=local --mode development",
-    "prod": "npx --node-options=\"--max-old-space-size=4096\" webpack --env NODE_ENV=erp --mode production"
+    "prod": "npx --node-options=\"--max-old-space-size=4096\" webpack --config webpack.prod.config.js --env NODE_ENV=erp"
   },
   "author": "Tronic Sites",
   "license": "ISC",
@@ -21,6 +21,7 @@
     "chart.js": "^4.4.9",
     "choices.js": "^11.1.0",
     "cleave.js": "^1.6.0",
+    "core-js": "^3.36.0",
     "datatables.net-bs5": "^2.3.1",
     "dragula": "^3.7.3",
     "dropzone": "^6.0.0-beta.2",
