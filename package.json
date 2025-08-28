@@ -6,10 +6,7 @@
   "scripts": {
     "dev": "npx --node-options=\"--max-old-space-size=4096 --disable-wasm-trap-handler\" webpack --env NODE_ENV=local --mode development",
     "watch": "npx --node-options=\"--max-old-space-size=4096 --disable-wasm-trap-handler\" webpack --watch --env NODE_ENV=local --mode development",
-    "prod": "npx --node-options=\"--max-old-space-size=4096 --disable-wasm-trap-handler\" webpack --config webpack.prod.config.js --env NODE_ENV=erp",
-    "prod-minimal": "npx --node-options=\"--max-old-space-size=4096 --disable-wasm-trap-handler\" webpack --config webpack.minimal.config.js --env NODE_ENV=erp",
-    "prod-basic": "npx --node-options=\"--max-old-space-size=4096 --disable-wasm-trap-handler\" webpack --config webpack.basic.config.js --env NODE_ENV=erp",
-    "prod-simple": "node build-simple.js"
+    "prod": "npx --node-options=\"--max-old-space-size=4096 --disable-wasm-trap-handler\" webpack --config webpack.prod.config.js --env NODE_ENV=erp"
   },
   "author": "Tronic Sites",
   "license": "ISC",
