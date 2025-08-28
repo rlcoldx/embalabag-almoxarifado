@@ -87,8 +87,7 @@ module.exports = env => {
             syncWebAssembly: false,
             layers: false,
             lazyCompilation: false,
-            outputModule: false,
-            newNextPlugins: false
+            outputModule: false
         },
         cache: false,
         performance: {

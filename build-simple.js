@@ -7,7 +7,7 @@ const path = require('path');
 console.log('🚀 Iniciando build ultra-simples...');
 
 try {
-    // Comando webpack com configuração inline mínima
+    // Comando webpack com configuração inline mínima e opções válidas
     const webpackCommand = [
         'npx',
         '--node-options="--max-old-space-size=4096"',
@@ -18,16 +18,12 @@ try {
         '--output-filename=main.js',
         '--output-public-path=/view/assets/dist/',
         '--no-devtool',
-        '--optimization-minimize=false',
-        '--optimization-split-chunks=false',
-        '--experiments-top-level-await=false',
-        '--experiments-async-web-assembly=false',
-        '--experiments-sync-web-assembly=false',
-        '--cache=false',
         '--env', 'NODE_ENV=erp'
     ].join(' ');
 
     console.log('📦 Executando webpack com configuração inline...');
+    console.log('🔧 Comando:', webpackCommand);
+    
     execSync(webpackCommand, { stdio: 'inherit', shell: true });
     
     console.log('✅ Build concluído com sucesso!');
