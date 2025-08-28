@@ -85,18 +85,6 @@
     margin-bottom: 0;
 }
 
-.table th {
-    border-top: none;
-    font-weight: 600;
-    color: #495057;
-    background-color: #f8f9fa;
-}
-
-.table td {
-    vertical-align: middle;
-    border-top: 1px solid #dee2e6;
-}
-
 /* Cards de ações rápidas */
 .btn-lg {
     padding: 0.75rem 1.5rem;

@@ -4,8 +4,8 @@
   "description": "",
   "private": true,
   "scripts": {
-    "dev": "npx --node-options=\"--max-old-space-size=4096 --disable-wasm-trap-handler\" webpack --env NODE_ENV=local --mode development",
-    "watch": "npx --node-options=\"--max-old-space-size=4096 --disable-wasm-trap-handler\" webpack --watch --env NODE_ENV=local --mode development",
+    "dev": "npx --node-options=\"--max-old-space-size=4096\" webpack --env NODE_ENV=local --mode development",
+    "watch": "npx --node-options=\"--max-old-space-size=4096\" webpack --watch --env NODE_ENV=local --mode development",
     "prod": "npx --node-options=\"--max-old-space-size=4096 --disable-wasm-trap-handler\" webpack --config webpack.prod.config.js --env NODE_ENV=erp"
   },
   "author": "Tronic Sites",
