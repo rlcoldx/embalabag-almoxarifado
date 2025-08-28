@@ -21,6 +21,9 @@ module.exports = env => {
             path: path.resolve(__dirname, 'view/assets/dist'),
             publicPath: ASSET_PATH + '/view/assets/dist/',
             clean: true,
+            hashFunction: 'xxhash64',
+            hashDigest: 'hex',
+            hashDigestLength: 8
         },
         plugins: [
             new webpack.DefinePlugin({
@@ -63,7 +66,15 @@ module.exports = env => {
             fallback: {
                 fs: false,
                 path: false,
-                crypto: false
+                crypto: false,
+                stream: false,
+                util: false,
+                buffer: false,
+                process: false
+            },
+            alias: {
+                crypto: false,
+                stream: false
             }
         },
         optimization: {
@@ -90,6 +101,10 @@ module.exports = env => {
         },
         experiments: {
             topLevelAwait: false,
+            asyncWebAssembly: false,
+            syncWebAssembly: false,
+            layers: false,
+            lazyCompilation: false
         },
         cache: false,
         performance: {

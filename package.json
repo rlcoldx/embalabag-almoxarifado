@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "npx --node-options=\"--max-old-space-size=4096\" webpack --env NODE_ENV=local --mode development",
     "watch": "npx --node-options=\"--max-old-space-size=4096\" webpack --watch --env NODE_ENV=local --mode development",
-    "prod": "npx --node-options=\"--max-old-space-size=4096\" webpack --config webpack.prod.config.js --env NODE_ENV=erp"
+    "prod": "npx --node-options=\"--max-old-space-size=4096\" webpack --config webpack.prod.config.js --env NODE_ENV=erp",
+    "prod-minimal": "npx --node-options=\"--max-old-space-size=4096\" webpack --config webpack.minimal.config.js --env NODE_ENV=erp"
   },
   "author": "Tronic Sites",
   "license": "ISC",
