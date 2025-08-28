@@ -8,8 +8,8 @@ let ASSET_PATH = '';
 module.exports = env => {
 
     let DOMAIN = JSON.stringify('http://localhost/embalabag-almoxarifado');
-    if (env.NODE_ENV === 'sampel') {
-        DOMAIN = JSON.stringify('https://embalabag.com.br/almoxarifado');
+    if (env.NODE_ENV === 'erp') {
+        DOMAIN = JSON.stringify('https://erp.embalabag.com.br');
         ASSET_PATH = '';
     }
 
