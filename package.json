@@ -1,14 +1,14 @@
 {
-  "name": "felmework/site",
+  "name": "embalabag/erp",
   "version": "1.0.0",
   "description": "",
   "private": true,
   "scripts": {
     "dev": "webpack --env NODE_ENV=local --mode development",
     "watch": "webpack --watch --env NODE_ENV=local --mode development",
-    "prod": "webpack --env NODE_ENV=site --mode production"
+    "prod": "webpack --env NODE_ENV=erp --mode production"
   },
-  "author": "Agencia Close",
+  "author": "Tronic Sites",
   "license": "ISC",
   "homepage": "",
   "dependencies": {
