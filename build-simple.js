@@ -10,7 +10,7 @@ try {
     // Comando webpack com configuração inline mínima e opções válidas
     const webpackCommand = [
         'npx',
-        '--node-options="--max-old-space-size=4096"',
+        '--node-options="--max-old-space-size=4096 --disable-wasm-trap-handler"',
         'webpack',
         '--mode=production',
         '--entry=./view/assets/js/init.js',

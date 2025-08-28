@@ -17,6 +17,10 @@ module.exports = env => {
             filename: 'main.js',
             path: path.resolve(__dirname, 'view/assets/dist'),
             publicPath: ASSET_PATH + '/view/assets/dist/',
+            // Configurações para evitar WebAssembly
+            hashFunction: 'xxhash64',
+            hashDigest: 'hex',
+            hashDigestLength: 8
         },
         plugins: [
             new webpack.DefinePlugin({
@@ -38,7 +42,13 @@ module.exports = env => {
             ]
         },
         resolve: {
-            extensions: ['.js']
+            extensions: ['.js'],
+            fallback: {
+                crypto: false,
+                stream: false,
+                util: false,
+                buffer: false
+            }
         },
         optimization: {
             minimize: false
