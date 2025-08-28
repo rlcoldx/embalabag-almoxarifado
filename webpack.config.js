@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const ManifestPlugin = require('webpack-manifest-plugin');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 require('graceful-fs').gracefulify(require('fs'));
 
@@ -21,6 +21,7 @@ module.exports = env => {
             filename: "[name].[contenthash].js",
             path: path.resolve(__dirname, 'view/assets/dist'),
             publicPath: ASSET_PATH + '/view/assets/dist/',
+            clean: true,
         },
         plugins: [
             new webpack.DefinePlugin({
@@ -30,7 +31,7 @@ module.exports = env => {
                 $: 'jquery',
                 jQuery: 'jquery'
             }),
-            new ManifestPlugin(),
+            new WebpackManifestPlugin(),
             new MiniCssExtractPlugin({
                 filename: '[name].[contenthash].css',
             }),
@@ -40,7 +41,7 @@ module.exports = env => {
             rules: [
                 {
                     test: /\.js$/,
-                    exclude: /nodemodules/,
+                    exclude: /node_modules/,
                     use: {
                         loader: 'babel-loader',
                         options: {
@@ -59,6 +60,9 @@ module.exports = env => {
         },
         optimization: {
             minimize: true,
+        },
+        experiments: {
+            topLevelAwait: true,
         },
     }
 }
