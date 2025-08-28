@@ -2,12 +2,22 @@
 
 {% block title %}Página Inicial{% endblock %}
 
-{% block body %}
-
-<!-- Main Content-->
-<div>
-    Página Inicial
+{% block content %}
+<!-- Conteúdo principal da index.html do Ynex convertido para Twig -->
+<!-- (Colar aqui o conteúdo do index.html, removendo os includes já presentes no layout/base.twig) -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Welcome back, Json Taylor !</p>
+        <span class="fs-semibold text-muted">Track your sales activity, leads and deals here.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <button type="button" class="btn btn-primary btn-wave">
+            <i class="ri-filter-3-fill me-2 align-middle d-inline-block"></i>Filters
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-wave">
+            <i class="ri-upload-cloud-line me-2 align-middle d-inline-block"></i>Export
+        </button>
+    </div>
 </div>
-<!-- End Main Content-->
-        
+<!-- (Restante do conteúdo da index.html segue aqui, convertendo paths de assets para usar {{ PATH }}/view/assets/ynex/... quando necessário) -->
 {% endblock %}

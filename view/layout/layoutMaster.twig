@@ -2,26 +2,28 @@
 <html lang="pt-BR">
 
 <head>
-
-    <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
-    <link rel="icon" href="{{ PATH }}/view/assets/img/favicon.png" type="image/x-icon" />
-    <!-- Title -->
-    <title>Site - {% block title %}{% endblock %}</title>
+    {% include 'components/partials/mainhead.twig' %}
+    {% block head %}{% endblock %}
 </head>
 
-<body class="ltr main-body leftmenu">
-
-    <!-- Page -->
+<body>
+    {% include 'components/partials/switcher.twig' %}
+    {% include 'components/partials/loader.twig' %}
     <div class="page">
-
-        {% block body %}{% endblock %}
-
+        {% include 'components/partials/header.twig' %}
+        {% include 'components/partials/sidebar.twig' %}
+        <div class="main-content app-content">
+            <div class="container-fluid">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+        {% include 'components/partials/headersearch_modal.twig' %}
+        {% include 'components/partials/footer.twig' %}
     </div>
-    <!-- End Page -->
-
-    <script src="{{ PATH }}/{{ 'main.js'|hash }}"></script>
-    
+    {% include 'components/partials/commonjs.twig' %}
+    <script src="{{ PATH }}/view/assets/ynex/assets/libs/jsvectormap/js/jsvectormap.min.js?v={{ VERSION }}"></script>
+    <script src="{{ PATH }}/view/assets/ynex/assets/libs/jsvectormap/maps/world-merc.js?v={{ VERSION }}"></script>
+    <script src="{{ PATH }}/view/assets/ynex/assets/js/custom.js?v={{ VERSION }}"></script>
 </body>
 
 </html>

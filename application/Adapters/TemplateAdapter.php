@@ -50,5 +50,6 @@ class TemplateAdapter
         $this->twig->addGlobal('_post', $_POST);
         $this->twig->addGlobal('_get', $_GET);
         $this->twig->addGlobal('_cookie', $_COOKIE);
+        $this->twig->addGlobal('VERSION', defined('VERSION') ? VERSION : '1.0.0');
     }
 }
