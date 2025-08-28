@@ -1,7 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 require('graceful-fs').gracefulify(require('fs'));
 
 let ASSET_PATH = '';
@@ -32,9 +31,6 @@ module.exports = env => {
                 jQuery: 'jquery'
             }),
             new WebpackManifestPlugin(),
-            new MiniCssExtractPlugin({
-                filename: '[name].[contenthash].css',
-            }),
         ],
         devtool: false,
         module: {
@@ -45,13 +41,11 @@ module.exports = env => {
                     use: {
                         loader: 'babel-loader',
                         options: {
-                            presets: ['@babel/preset-env']
+                            presets: ['@babel/preset-env'],
+                            cacheDirectory: true,
+                            cacheCompression: false
                         }
                     }
-                },
-                {
-                    test: /\.css$/i,
-                    use: [MiniCssExtractPlugin.loader, 'css-loader'],
                 },
             ]
         },
@@ -60,9 +54,30 @@ module.exports = env => {
         },
         optimization: {
             minimize: true,
+            splitChunks: {
+                chunks: 'all',
+                cacheGroups: {
+                    vendor: {
+                        test: /[\\/]node_modules[\\/]/,
+                        name: 'vendors',
+                        chunks: 'all',
+                    },
+                },
+            },
         },
         experiments: {
             topLevelAwait: true,
+        },
+        cache: {
+            type: 'filesystem',
+            buildDependencies: {
+                config: [__filename],
+            },
+        },
+        performance: {
+            hints: false,
+            maxEntrypointSize: 512000,
+            maxAssetSize: 512000
         },
     }
 }
