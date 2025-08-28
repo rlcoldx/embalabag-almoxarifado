@@ -1,0 +1,201 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Nova Nota Fiscal - EmbalaBag{% endblock %}
+
+
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Nova Nota Fiscal</p>
+        <span class="fs-semibold text-muted">Registre uma nova nota fiscal no sistema.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-arrow-left me-2 align-middle d-inline-block"></i>Voltar para Recebimento
+        </a>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<!-- Início::row -->
+<div class="row">
+    <form id="formNotaFiscal">
+        <div class="col-xl-8 col-lg-12">
+            <!-- Dados da Nota Fiscal -->
+            <div class="card custom-card mb-4">
+                <div class="card-header justify-content-between align-items-center">
+                    <div class="card-title">
+                        <i class="fas fa-list-alt me-2"></i>Dados da Nota Fiscal
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label required">Número da NF</label>
+                            <input type="text" class="form-control" name="numero" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Série</label>
+                            <input type="text" class="form-control" name="serie">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required">Fornecedor</label>
+                            <input type="text" class="form-control" name="fornecedor" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label required">Data de Emissão</label>
+                            <input type="date" class="form-control" name="data_emissao" required value="{{ "now"|date("Y-m-d") }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label required">Valor Total</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$ </span>
+                                <input type="text" class="form-control" name="valor_total" required placeholder="0,00">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Tipo de Documento</label>
+                            <select class="form-select" name="tipo_documento">
+                                <option value="nfe">NFe</option>
+                                <option value="nfce">NFCe</option>
+                                <option value="nfc">NFC</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="3" placeholder="Informações adicionais sobre a nota fiscal"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produtos da Nota -->
+            <div class="card custom-card mb-4">
+                <div class="card-header justify-content-between align-items-center">
+                    <div class="card-title">
+                        <i class="fas fa-shopping-basket me-2"></i>Produtos da Nota
+                    </div>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-primary btn-sm" id="btn-add-produto">
+                            <i class="fas fa-plus me-1"></i>Adicionar Produto
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="table-produtos">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Quantidade</th>
+                                    <th>Valor Unitário</th>
+                                    <th>Subtotal</th>
+                                    <th width="100">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-produtos">
+                                <tr class="empty-row">
+                                    <td colspan="5" class="text-center py-4">
+                                        <i class="fas fa-shopping-basket fs-24 text-muted mb-1 d-block"></i>
+                                        <p class="text-muted mb-0">Nenhum produto adicionado</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-end">
+                    <div class="text-end">
+                        <div class="fs-12 text-muted mb-1">Total</div>
+                        <div class="fs-18 fw-semibold" id="total-nota">R$  0,00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-12">
+            <!-- Informações Adicionais -->
+            <div class="card custom-card mb-4">
+                <div class="card-header justify-content-between align-items-center">
+                    <div class="card-title">
+                        <i class="fas fa-info-circle me-2"></i>Informações Adicionais
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Data de Recebimento</label>
+                        <input type="date" class="form-control" name="data_recebimento" value="{{ "now"|date("Y-m-d") }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Responsável pelo Recebimento</label>
+                        <input type="text" class="form-control" name="responsavel_recebimento">
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="conferida" name="conferida">
+                            <label class="form-check-label" for="conferida">
+                                Nota conferida
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-danger btn-wave" id="btn-cancelar">
+                        <i class="fas fa-times me-1"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-wave">
+                        <i class="fas fa-save me-1"></i>Salvar Nota
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- Fim::row -->
+
+<!-- Modal para adicionar produtos -->
+<div class="modal fade" id="modal-add-produto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adicionar Produto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label required">Produto</label>
+                        <select class="form-select" id="produto_id" required>
+                            <option value="">Selecione um produto...</option>
+                            <!-- Opções de produtos serão carregadas dinamicamente -->
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label required">Quantidade</label>
+                        <input type="number" class="form-control" id="quantidade" min="1" value="1">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label required">Valor Unitário</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$ </span>
+                            <input type="text" class="form-control" id="valor_unitario" placeholder="0,00">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-confirmar-produto">Adicionar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% include "components/partials/sweetalert.twig" %}
+<script src="{{ PATH }}/view/assets/js/recebimento/create.js?v={{ VERSION }}"></script>
+{% endblock %}

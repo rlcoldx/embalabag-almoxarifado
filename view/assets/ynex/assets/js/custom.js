@@ -82,19 +82,17 @@
     nanoButtons1.push(button);
 
     button.addEventListener("click", () => {
+      if (!pickrContainerBackground) return;
       const el = document.createElement("p");
       pickrContainerBackground.appendChild(el);
-
       /* Delete previous instance */
       if (nanoPickr1) {
         nanoPickr1.destroyAndRemove();
       }
-
       /* Apply active class */
       for (const btn of nanoButtons) {
         btn.classList[btn === button ? "add" : "remove"]("active");
       }
-
       /* Create fresh instance */
       nanoPickr1 = new Pickr(
         Object.assign(
@@ -106,7 +104,6 @@
           config
         )
       );
-
       /* Set events */
       nanoPickr1.on("changestop", (source, instance) => {
         let color = instance.getColor().toRGBA();
@@ -138,7 +135,8 @@
         html.setAttribute("data-theme-mode", "dark");
         html.setAttribute("data-menu-styles", "dark");
         html.setAttribute("data-header-styles", "dark");
-        document.querySelector("#switcher-dark-theme").checked = true;
+        const el137 = document.querySelector("#switcher-dark-theme");
+        if (el137) el137.checked = true;
         localStorage.setItem(
           "bodyBgRGB",
           `${color[0]}, ${color[1]}, ${color[2]}`
@@ -149,7 +147,9 @@
         );
       });
     });
-    themeContainerBackground.appendChild(button);
+    if (themeContainerBackground) {
+      themeContainerBackground.appendChild(button);
+    }
   }
   nanoButtons1[0].click();
   /* for theme background */
@@ -165,8 +165,10 @@
         html.setAttribute("style", "");
       }
       html.removeAttribute("data-bg-theme");
-      document.querySelector("#switcher-light-theme").checked = true;
-      document.querySelector("#switcher-menu-light").checked = true;
+      const el166 = document.querySelector("#switcher-light-theme");
+      if (el166) el166.checked = true;
+      const el167 = document.querySelector("#switcher-menu-light");
+      if (el167) el167.checked = true;
       document
         .querySelector("html")
         .style.removeProperty("--body-bg-rgb", localStorage.bodyBgRGB);
@@ -175,14 +177,22 @@
       html.style.removeProperty("--light-rgb");
       html.style.removeProperty("--form-control-bg");
       html.style.removeProperty("--input-border");
-      document.querySelector("#switcher-header-light").checked = true;
-      document.querySelector("#switcher-menu-light").checked = true;
-      document.querySelector("#switcher-light-theme").checked = true;
-      document.querySelector("#switcher-background4").checked = false;
-      document.querySelector("#switcher-background3").checked = false;
-      document.querySelector("#switcher-background2").checked = false;
-      document.querySelector("#switcher-background1").checked = false;
-      document.querySelector("#switcher-background").checked = false;
+      const el176 = document.querySelector("#switcher-header-light");
+      if (el176) el176.checked = true;
+      const el177 = document.querySelector("#switcher-menu-light");
+      if (el177) el177.checked = true;
+      const el178 = document.querySelector("#switcher-light-theme");
+      if (el178) el178.checked = true;
+      const el179 = document.querySelector("#switcher-background4");
+      if (el179) el179.checked = false;
+      const el180 = document.querySelector("#switcher-background3");
+      if (el180) el180.checked = false;
+      const el181 = document.querySelector("#switcher-background2");
+      if (el181) el181.checked = false;
+      const el182 = document.querySelector("#switcher-background1");
+      if (el182) el182.checked = false;
+      const el183 = document.querySelector("#switcher-background");
+      if (el183) el183.checked = false;
       localStorage.removeItem("ynexdarktheme");
       localStorage.removeItem("ynexMenu");
       localStorage.removeItem("ynexHeader");
@@ -199,18 +209,29 @@
         html.setAttribute("style", "");
       }
       html.setAttribute("data-menu-styles", "dark");
-      document.querySelector("#switcher-dark-theme").checked = true;
-      document.querySelector("#switcher-menu-dark").checked = true;
-      document.querySelector("#switcher-header-dark").checked = true;
+      const el200 = document.querySelector("#switcher-dark-theme");
+      if (el200) el200.checked = true;
+      const el201 = document.querySelector("#switcher-menu-dark");
+      if (el201) el201.checked = true;
+      const el202 = document.querySelector("#switcher-header-dark");
+      if (el202) el202.checked = true;
       checkOptions();
-      document.querySelector("#switcher-menu-dark").checked = true;
-      document.querySelector("#switcher-header-dark").checked = true;
-      document.querySelector("#switcher-dark-theme").checked = true;
-      document.querySelector("#switcher-background4").checked = false;
-      document.querySelector("#switcher-background3").checked = false;
-      document.querySelector("#switcher-background2").checked = false;
-      document.querySelector("#switcher-background1").checked = false;
-      document.querySelector("#switcher-background").checked = false;
+      const el204 = document.querySelector("#switcher-menu-dark");
+      if (el204) el204.checked = true;
+      const el205 = document.querySelector("#switcher-header-dark");
+      if (el205) el205.checked = true;
+      const el206 = document.querySelector("#switcher-dark-theme");
+      if (el206) el206.checked = true;
+      const el207 = document.querySelector("#switcher-background4");
+      if (el207) el207.checked = false;
+      const el208 = document.querySelector("#switcher-background3");
+      if (el208) el208.checked = false;
+      const el209 = document.querySelector("#switcher-background2");
+      if (el209) el209.checked = false;
+      const el210 = document.querySelector("#switcher-background1");
+      if (el210) el210.checked = false;
+      const el211 = document.querySelector("#switcher-background");
+      if (el211) el211.checked = false;
       localStorage.setItem("ynexdarktheme", "true");
       localStorage.setItem("ynexMenu", "dark");
       localStorage.setItem("ynexHeader", "dark");
@@ -323,7 +344,7 @@
 
 /* full screen */
 var elem = document.documentElement;
-function openFullscreen() {
+window.openFullscreen = function () {
   let open = document.querySelector(".full-screen-open");
   let close = document.querySelector(".full-screen-close");
 
@@ -423,60 +444,14 @@ headerbtn1.forEach((button) => {
 });
 /* for notifications dropdown */
 
+function checkOptions() {
+  // dark
+  if (localStorage.getItem("ynexdarktheme")) {
+    document.querySelector("#switcher-dark-theme").checked = true;
+  }
 
-const values = [
-  {
-    value: "1",
-    label:
-      '<img class="avatar avatar-xs avatar-rounded" src="../assets/images/flags/us_flag.jpg" alt=""> <span class="mx-1">United States</span>',
-    id: 1,
-  },
-  {
-    value: "2",
-    label:
-      '<img class="avatar avatar-xs avatar-rounded" src="../assets/images/flags/spain_flag.jpg"  alt=""> <span class="ms-1">Spain</span>',
-    id: 2,
-  },
-  {
-    value: "3",
-    label:
-      '<img class="avatar avatar-xs avatar-rounded" src="../assets/images/flags/french_flag.jpg" alt=""> <span class="ms-1">France</span>',
-    id: 3,
-  },
-  {
-    value: "4",
-    label:
-      '<img class="avatar avatar-xs avatar-rounded" src="../assets/images/flags/germany_flag.jpg" alt=""> <span class="ms-1">Germany</span>',
-    id: 4,
-  },
-  {
-    value: "5",
-    label:
-      '<img class="avatar avatar-xs avatar-rounded" src="../assets/images/flags/italy_flag.jpg" alt=""> <span class="ms-1">Italy</span>',
-    id: 5,
-  },
-  {
-    value: "6",
-    label:
-      '<img class="avatar avatar-xs avatar-rounded" src="../assets/images/flags/russia_flag.jpg" alt=""> <span class="ms-1">Netherlands</span>',
-    id: 6,
-  },
-  {
-    value: "7",
-    label:
-      '<img class="avatar avatar-xs avatar-rounded" src="../assets/images/flags/argentina_flag.jpg" alt=""> <span class="ms-1">Argentina</span>',
-    id: 7,
-  },
-  {
-    value: "8",
-    label:
-      '<img class="avatar avatar-xs avatar-rounded" src="../assets/images/flags/argentina_flag.jpg" alt=""> <span class="ms-1">Argentina</span>',
-    id: 8,
-  },
-];
-const elements = document.querySelectorAll(".choices-images");
-elements.forEach(function (element) {
-  const choices = new Choices(element, {
-    choices: values,
-  });
-});
+  //RTL
+  if (localStorage.getItem("ynexrtl")) {
+    document.querySelector("#switcher-rtl").checked = true;
+  }
+}

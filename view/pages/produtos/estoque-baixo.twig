@@ -1,0 +1,185 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Estoque Baixo - EmbalaBag{% endblock %}
+
+{% block styles %}
+{% include "components/partials/sweetalert.twig" %}
+<style>
+    .estoque-critico {
+        background-color: rgba(220, 53, 69, 0.1);
+        border-left: 4px solid #dc3545;
+    }
+    .estoque-atencao {
+        background-color: rgba(255, 193, 7, 0.1);
+        border-left: 4px solid #ffc107;
+    }
+    .produto-card {
+        transition: all 0.3s ease;
+    }
+    .produto-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Estoque Baixo</p>
+        <span class="fs-semibold text-muted">Gerencie produtos com estoque abaixo do mínimo</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <button type="button" class="btn btn-outline-primary btn-wave" id="btn-export">
+            <i class="fas fa-download me-2 align-middle d-inline-block"></i>Exportar CSV
+        </button>
+        <a href="{{ DOMAIN }}/produtos" class="btn btn-primary btn-wave">
+            <i class="fas fa-box me-2 align-middle d-inline-block"></i>Ver Todos os Produtos
+        </a>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<!-- Início::row -->
+<div class="row">
+    <div class="col-xl-12">
+        {% if produtos|length > 0 %}
+            <div class="row row-cards">
+                {% for produto in produtos %}
+                    {% set diferenca = produto.estoque_atual - produto.estoque_minimo %}
+                    {% set status_class = diferenca < 0 ? 'estoque-critico' : 'estoque-atencao' %}
+                    {% set status_text = diferenca < 0 ? 'CRÍTICO' : 'ATENÇÃO' %}
+                    {% set status_badge = diferenca < 0 ? 'bg-danger' : 'bg-warning' %}
+                    
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card produto-card {{ status_class }}">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar avatar-md rounded me-3">
+                                        {% if produto.imagem %}
+                                            <img src="{{ PATH }}/{{ produto.imagem }}" alt="{{ produto.nome }}">
+                                        {% else %}
+                                            <span class="avatar-initials bg-light text-muted">
+                                                <i class="fas fa-box"></i>
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-fill">
+                                        <h3 class="card-title mb-1">{{ produto.nome }}</h3>
+                                        <div class="text-muted">Código: {{ produto.codigo }}</div>
+                                        {% if produto.categoria_nome %}
+                                            <div class="text-muted">{{ produto.categoria_nome }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-icon" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="{{ DOMAIN }}/produtos/edit/{{ produto.id }}">
+                                                <i class="fas fa-edit me-2"></i>
+                                                Editar Produto
+                                            </a>
+                                            <a class="dropdown-item" href="#" onclick="abrirModalCompra({{ produto.id }})">
+                                                <i class="fas fa-plus me-2"></i>
+                                                Adicionar Estoque
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row g-3 mb-3">
+                                    <div class="col-6">
+                                        <div class="text-center">
+                                            <div class="text-muted fs-12">Estoque Atual</div>
+                                            <div class="fs-24 fw-bold text-danger">{{ produto.estoque_atual }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-center">
+                                            <div class="text-muted fs-12">Estoque Mínimo</div>
+                                            <div class="fs-24 fw-bold text-info">{{ produto.estoque_minimo }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge {{ status_badge }}">{{ status_text }}</span>
+                                    <button class="btn btn-primary btn-sm" onclick="abrirModalCompra({{ produto.id }})">
+                                        <i class="fas fa-plus me-1"></i>
+                                        Comprar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card custom-card">
+                <div class="card-body">
+                    <div class="empty">
+                        <div class="empty-img">
+                            <img src="{{ PATH }}/view/assets/ynex/assets/images/undraw_printing_invoices_5r4r.svg" height="128" alt="">
+                        </div>
+                        <p class="empty-title">Nenhum produto com estoque baixo</p>
+                        <p class="empty-subtitle text-muted">
+                            Todos os produtos estão com estoque adequado.
+                        </p>
+                        <div class="empty-action">
+                            <a href="{{ DOMAIN }}/produtos" class="btn btn-primary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Ver Todos os Produtos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<!-- Fim::row -->
+
+<!-- Modal de Compra -->
+<div class="modal fade" id="modal-compra" tabindex="-1" aria-labelledby="modal-compra-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-compra-label">Adicionar Estoque</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="form-compra">
+                <div class="modal-body">
+                    <input type="hidden" id="produto_id" name="produto_id">
+                    
+                    <div id="modal-produto-info" class="text-center mb-4">
+                        <!-- Informações do produto serão inseridas aqui via JavaScript -->
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="quantidade" class="form-label">Quantidade a Adicionar</label>
+                        <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="observacao" class="form-label">Observação (opcional)</label>
+                        <textarea class="form-control" id="observacao" name="observacao" rows="3" placeholder="Ex: Compra de fornecedor XYZ, nota fiscal 123..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" id="btn-salvar-compra" class="btn btn-primary">
+                        <i class="fas fa-check me-1"></i>
+                        Confirmar Compra
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/produtos/estoque-baixo.js?v={{ VERSION }}"></script>
+{% endblock %} 

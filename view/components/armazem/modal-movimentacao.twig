@@ -1,0 +1,119 @@
+<!-- Modal de Movimentação -->
+<div class="modal fade" id="modalMovimentacao" aria-labelledby="modalMovimentacaoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalMovimentacaoLabel">
+                    <i class="fas fa-exchange-alt me-2"></i>
+                    <span id="movimentacaoTitulo">Nova Movimentação</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formMovimentacao">
+                    <input type="hidden" id="movimentacaoTipo" name="tipo">
+                    <input type="hidden" id="movimentacaoArmazenagemId" name="armazenagem_id">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="movimentacaoProduto" class="form-label required">Produto (SKU)</label>
+                                <select class="form-control select2-ajax" id="movimentacaoProduto" name="id_produto" 
+                                        data-placeholder="Digite para buscar o produto..." required>
+                                    <option value=""></option>
+                                </select>
+                                <small class="form-hint">Digite o nome ou SKU do produto para buscar</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="movimentacaoVariacao" class="form-label required">Variação</label>
+                                <select class="form-control" id="movimentacaoVariacao" name="variacao_id" required disabled>
+                                    <option value="">Selecione primeiro o produto</option>
+                                </select>
+                                <small class="form-hint">Tamanho, cor ou variação do produto</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="movimentacaoQuantidade" class="form-label required">Quantidade</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="movimentacaoQuantidade" name="quantidade" 
+                                           min="1" required>
+                                    <span class="input-group-text">unidades</span>
+                                </div>
+                                <small class="form-hint">Quantidade a movimentar</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="movimentacaoEstoqueAtual" class="form-label">Estoque Atual</label>
+                                <input type="text" class="form-control" id="movimentacaoEstoqueAtual" readonly>
+                                <small class="form-hint">Quantidade atual na variação selecionada</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="movimentacaoMotivo" class="form-label">Motivo</label>
+                                <select class="form-control" id="movimentacaoMotivo" name="motivo">
+                                    <option value="">Selecione o motivo</option>
+                                    <option value="recebimento">Recebimento</option>
+                                    <option value="pedido">Saída por Pedido</option>
+                                    <option value="ajuste">Ajuste de Estoque</option>
+                                    <option value="inventario">Inventário</option>
+                                    <option value="transferencia">Transferência</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                                <small class="form-hint">Motivo da movimentação</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="movimentacaoDocumento" class="form-label">Documento de Referência</label>
+                                <input type="text" class="form-control" id="movimentacaoDocumento" name="documento_referencia" 
+                                       placeholder="NF, Pedido, etc.">
+                                <small class="form-hint">Número da nota fiscal, pedido ou documento</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="movimentacaoObservacoes" class="form-label">Observações</label>
+                        <textarea class="form-control" id="movimentacaoObservacoes" name="observacoes" rows="3" 
+                                  placeholder="Observações adicionais sobre a movimentação"></textarea>
+                    </div>
+                    
+                    <!-- Informações do Produto -->
+                    <div id="infoProduto" class="alert alert-info" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Produto:</strong> <span id="infoNomeProduto"></span><br>
+                                <strong>Categoria:</strong> <span id="infoCategoria"></span><br>
+                                <strong>SKU:</strong> <span id="infoSku"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Marca:</strong> <span id="infoMarca"></span><br>
+                                <strong>Material:</strong> <span id="infoMaterial"></span><br>
+                                <strong>Valor Unitário:</strong> <span id="infoValor"></span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-info" onclick="salvarMovimentacao()">
+                    <i class="fas fa-save me-2"></i>Salvar Movimentação
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

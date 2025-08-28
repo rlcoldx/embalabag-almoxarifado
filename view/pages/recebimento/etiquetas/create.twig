@@ -1,0 +1,137 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Nova Etiqueta - EmbalaBag{% endblock %}
+
+
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Nova Etiqueta</p>
+        <span class="fs-semibold text-muted">Crie uma nova etiqueta interna.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento/etiquetas" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-arrow-left me-2 align-middle d-inline-block"></i>Voltar
+        </a>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<!-- Início::row -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Etiqueta Interna</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="formEtiqueta" method="POST" action="{{ DOMAIN }}/recebimento/etiquetas/store">
+                    <!-- Tipo de Etiqueta -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Etiqueta <span class="text-danger">*</span></label>
+                            <select class="form-select" name="tipo_etiqueta" id="tipoEtiqueta" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="localizacao">Localização</option>
+                                <option value="palete">Palete</option>
+                                <option value="caixa">Caixa</option>
+                                <option value="produto">Produto</option>
+                                <option value="armazenagem">Armazenagem</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Código</label>
+                            <input type="text" class="form-control" name="codigo" id="codigoEtiqueta" placeholder="Código será gerado automaticamente" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Referência -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Referência</label>
+                            <select class="form-select" name="referencia_tipo" id="referenciaTipo">
+                                <option value="">Selecione o tipo de referência</option>
+                                <option value="armazenagem">Armazenagem</option>
+                                <option value="item_nf">Item da NF</option>
+                                <option value="palete">Palete</option>
+                                <option value="caixa">Caixa</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Referência</label>
+                            <select class="form-select" name="referencia_id" id="referenciaId">
+                                <option value="">Selecione primeiro o tipo de referência</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Conteúdo da Etiqueta -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Conteúdo da Etiqueta <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="conteudo" rows="5" placeholder="Conteúdo que será impresso na etiqueta" required></textarea>
+                            <small class="form-text text-muted">
+                                Você pode usar as seguintes variáveis: {CODIGO}, {TIPO}, {REFERENCIA}, {DATA}, {USUARIO}
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Código de Barras e QR Code -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Código de Barras</label>
+                            <input type="text" class="form-control" name="codigo_barras" placeholder="Código de barras (opcional)">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">QR Code</label>
+                            <input type="text" class="form-control" name="qr_code" placeholder="Conteúdo do QR Code (opcional)">
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="criada">Criada</option>
+                                <option value="impressa">Impressa</option>
+                                <option value="aplicada">Aplicada</option>
+                                <option value="inativa">Inativa</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Observações -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="3" placeholder="Observações sobre a etiqueta"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-wave">
+                                <i class="fas fa-save me-2"></i>Salvar Etiqueta
+                            </button>
+                            <a href="{{ DOMAIN }}/recebimento/etiquetas" class="btn btn-outline-secondary btn-wave">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fim::row -->
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ DOMAIN }}/view/assets/js/recebimento/etiquetas/create.js"></script>
+{% endblock %} 

@@ -1,0 +1,373 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Detalhes da Armazenagem - {{ armazenagem.codigo }} - EmbalaBag{% endblock %}
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Detalhes da Armazenagem</p>
+        <span class="fs-semibold text-muted">{{ armazenagem.codigo }} - {{ armazenagem.descricao }}</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/armazenagens/mapa" class="btn btn-outline-info btn-wave me-2">
+            <i class="fas fa-map-marker-alt me-2 align-middle d-inline-block"></i>Mapa
+        </a>
+        <a href="{{ DOMAIN }}/armazenagens/{{ armazenagem.id }}/edit" class="btn btn-outline-primary btn-wave me-2">
+            <i class="fas fa-edit me-2 align-middle d-inline-block"></i>Editar
+        </a>
+        <a href="{{ DOMAIN }}/armazenagens" class="btn btn-outline-secondary btn-wave">
+            <i class="fas fa-list-check me-2 align-middle d-inline-block"></i>Listar
+        </a>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<!-- Início::row - Informações Gerais -->
+<div class="row">
+    <div class="col-xl-8">
+        <!-- Card de Informações da Armazenagem -->
+        <div class="card custom-card">
+            <div class="card-header justify-content-between align-items-center">
+                <div class="card-title">
+                    <i class="fas fa-info-circle me-2"></i>Informações Gerais
+                </div>
+                <div class="card-tools">
+                    <span class="badge bg-{{ armazenagem.status == 'ativo' ? 'success' : (armazenagem.status == 'manutencao' ? 'warning' : 'danger') }}-transparent">
+                        {{ armazenagem.status|capitalize }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted">Código:</label>
+                            <p class="mb-0 fs-16 fw-semibold">{{ armazenagem.codigo }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted">Descrição:</label>
+                            <p class="mb-0 fs-16">{{ armazenagem.descricao }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted">Tipo:</label>
+                            <p class="mb-0">
+                                <span class="badge bg-primary-transparent">
+                                    <i class="fas fa-{{ armazenagem.tipo == 'prateleira' ? 'layer-group' : 
+                                              (armazenagem.tipo == 'gaveta' ? 'inbox' : 
+                                              (armazenagem.tipo == 'caixa' ? 'box' : 
+                                              (armazenagem.tipo == 'pallet' ? 'th' : 'map-marker-alt'))) }} me-1"></i>
+                                    {{ armazenagem.tipo|capitalize }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted">Setor:</label>
+                            <p class="mb-0 fs-16">{{ armazenagem.setor }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted">Capacidade:</label>
+                            <p class="mb-0 fs-16">
+                                {{ armazenagem.quantidade_ocupada|default(0) }} / {{ armazenagem.capacidade_maxima|default('Ilimitada') }}
+                                {% if armazenagem.capacidade_maxima > 0 %}
+                                    <span class="text-muted">({{ ((armazenagem.quantidade_ocupada|default(0) / armazenagem.capacidade_maxima) * 100)|round }}%)</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted">Observações:</label>
+                            <p class="mb-0 fs-16">{{ armazenagem.observacoes|default('Nenhuma observação') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4">
+        <!-- Card de Estatísticas -->
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fas fa-chart-bar me-2"></i>Estatísticas
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="p-3 bg-primary-transparent rounded">
+                            <h3 class="mb-1 fw-bold text-primary">{{ produtos|length }}</h3>
+                            <p class="mb-0 text-muted fs-12">Produtos</p>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="p-3 bg-success-transparent rounded">
+                            <h3 class="mb-1 fw-bold text-success">{{ total_quantidade|default(0) }}</h3>
+                            <p class="mb-0 text-muted fs-12">Unidades</p>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="p-3 bg-warning-transparent rounded">
+                            <h3 class="mb-1 fw-bold text-warning">{{ movimentacoes_entrada|default(0) }}</h3>
+                            <p class="mb-0 text-muted fs-12">Entradas</p>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="p-3 bg-danger-transparent rounded">
+                            <h3 class="mb-1 fw-bold text-danger">{{ movimentacoes_saida|default(0) }}</h3>
+                            <p class="mb-0 text-muted fs-12">Saídas</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Barra de Capacidade -->
+                {% if armazenagem.capacidade_maxima > 0 %}
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted fs-12">Capacidade Utilizada</span>
+                        <span class="fw-semibold fs-12">{{ ((armazenagem.quantidade_ocupada|default(0) / armazenagem.capacidade_maxima) * 100)|round }}%</span>
+                    </div>
+                    <div class="progress progress-sm">
+                        {% set percentOcupado = (armazenagem.quantidade_ocupada|default(0) / armazenagem.capacidade_maxima) * 100 %}
+                        {% set capacidadeClass = 'bg-success' %}
+                        {% if percentOcupado >= 90 %}
+                            {% set capacidadeClass = 'bg-danger' %}
+                        {% elseif percentOcupado >= 70 %}
+                            {% set capacidadeClass = 'bg-warning' %}
+                        {% endif %}
+                        <div class="progress-bar {{ capacidadeClass }}" role="progressbar" style="width: {{ percentOcupado }}%"></div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fim::row - Informações Gerais -->
+
+<!-- Início::row - Produtos e Movimentações -->
+<div class="row">
+    <div class="col-xl-12">
+        <!-- Tabs de Navegação -->
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fas fa-tasks me-2"></i>Gerenciamento
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <ul class="nav nav-tabs nav-tabs-custom" id="armazenagemTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="rounded-0 nav-link active" id="produtos-tab" data-bs-toggle="tab" data-bs-target="#produtos" type="button" role="tab">
+                            <i class="fas fa-boxes me-2"></i>Produtos ({{ produtos|length }})
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="rounded-0 nav-link" id="movimentacoes-tab" data-bs-toggle="tab" data-bs-target="#movimentacoes" type="button" role="tab">
+                            <i class="fas fa-exchange-alt me-2"></i>Movimentações
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="rounded-0 nav-link" id="transferencias-tab" data-bs-toggle="tab" data-bs-target="#transferencias" type="button" role="tab">
+                            <i class="fas fa-arrows-alt me-2"></i>Transferências
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="rounded-0 nav-link" id="historico-tab" data-bs-toggle="tab" data-bs-target="#historico" type="button" role="tab">
+                            <i class="fas fa-history me-2"></i>Histórico
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="armazenagemTabsContent">
+                    <!-- Tab Produtos -->
+                    <div class="tab-pane rounded-0 fade show active" id="produtos" role="tabpanel">
+                        <div class="">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">Produtos Armazenados</h6>
+                                <div class="btn-list">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="ModaisArmazem.abrirNovaEntrada({{ armazenagem.id }})">
+                                        <i class="fas fa-plus me-1"></i>Nova Entrada
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="ModaisArmazem.abrirNovaSaida({{ armazenagem.id }})">
+                                        <i class="fas fa-minus me-1"></i>Nova Saída
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {% if produtos|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Nome do Produto</th>
+                                            <th>Nome da Cor</th>
+                                            <th>Qtd Estoque</th>
+                                            <th>Código Armazenagem</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for produto in produtos %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="avatar avatar-sm rounded-circle bg-primary-transparent me-2">
+                                                        <i class="fas fa-box fs-12"></i>
+                                                    </span>
+                                                    <div>
+                                                        <span class="fw-semibold">{{ produto.nome_produto }}</span>
+                                                        <br><small class="text-muted">{{ produto.sku }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info-transparent">{{ produto.nome_cor }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="fw-semibold">{{ produto.quantidade }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary-transparent">{{ produto.codigo_armazenagem }}</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-list">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="verDetalhesProduto({{ produto.estoque_id }})">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="movimentarProduto({{ produto.estoque_id }}, '{{ produto.sku }}')">
+                                                        <i class="fas fa-exchange-alt"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-boxes text-muted fs-48 mb-3"></i>
+                                <h5 class="text-muted">Nenhum produto armazenado</h5>
+                                <p class="text-muted">Esta armazenagem ainda não possui produtos alocados.</p>
+                                <button type="button" class="btn btn-primary" onclick="ModaisArmazem.abrirNovaEntrada({{ armazenagem.id }})">
+                                    <i class="fas fa-plus me-2"></i>Adicionar Primeiro Produto
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Movimentações -->
+                    <div class="tab-pane rounded-0 fade" id="movimentacoes" role="tabpanel">
+                        <div class="">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">Histórico de Movimentações</h6>
+                                <div class="btn-list">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="ModaisArmazem.abrirNovaEntrada({{ armazenagem.id }})">
+                                        <i class="fas fa-plus me-1"></i>Nova Entrada
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="ModaisArmazem.abrirNovaSaida({{ armazenagem.id }})">
+                                        <i class="fas fa-minus me-1"></i>Nova Saída
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Data/Hora</th>
+                                            <th>Tipo</th>
+                                            <th>Produto</th>
+                                            <th>Quantidade</th>
+                                            <th>Motivo</th>
+                                            <th>Usuário</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="movimentacoesTableBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Carregando...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Transferências -->
+                    <div class="tab-pane rounded-0 fade" id="transferencias" role="tabpanel">
+                        <div class="">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">Transferências de Produtos</h6>
+                                <button type="button" class="btn btn-sm btn-primary" onclick="abrirModalTransferencia()">
+                                    <i class="fas fa-arrows-alt me-1"></i>Nova Transferência
+                                </button>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Produto</th>
+                                            <th>Quantidade</th>
+                                            <th>Origem</th>
+                                            <th>Destino</th>
+                                            <th>Status</th>
+                                            <th>Usuário</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transferenciasTableBody">
+                                        <tr>
+                                            <td colspan="7" class="text-center py-4">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Carregando...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Histórico -->
+                    <div class="tab-pane rounded-0 fade" id="historico" role="tabpanel">
+                        <div class="">
+                            <h6 class="mb-3">Histórico Completo</h6>
+                            <div class="timeline" id="historicoTimeline">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Carregando...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fim::row - Produtos e Movimentações -->
+
+<!-- Modais -->
+{% include 'components/armazem/modal-nova-entrada.twig' %}
+{% include 'components/armazem/modal-nova-saida.twig' %}
+{% include 'components/armazem/modal-movimentacao.twig' %}
+{% include 'components/partials/modal-produto-detalhes.twig' %}
+
+{% endblock %}
+
+{% block scripts %}
+{% include "components/partials/sweetalert.twig" %}
+<script src="{{ PATH }}/view/assets/js/armazenagens/modais.js?v={{ VERSION }}"></script>
+<script src="{{ PATH }}/view/assets/js/armazenagens/show.js?v={{ VERSION }}"></script>
+{% endblock %}

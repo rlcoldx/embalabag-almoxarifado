@@ -2,6 +2,13 @@
 
 namespace Agencia\Close\Adapters;
 
+use Agencia\Close\Adapters\Twig\EmpresaNome;
+use Agencia\Close\Adapters\Twig\PrecoEmpresa;
+use Agencia\Close\Adapters\Twig\ColorVariation;
+use Agencia\Close\Adapters\Twig\PedidoStatusColor;
+use Agencia\Close\Adapters\Twig\PedidoStatusName;
+use Agencia\Close\Adapters\Twig\PedidoStatusIcone;
+use Agencia\Close\Adapters\Twig\PedidoStatus;
 use Agencia\Close\Adapters\Twig\PayStatus;
 use Agencia\Close\Adapters\Twig\DayTranslate;
 use Agencia\Close\Adapters\Twig\MonthTranslate;
@@ -28,6 +35,13 @@ class TemplateAdapter
         $this->twig->addExtension(new MonthTranslate());
         $this->twig->addExtension(new DayTranslate());
         $this->twig->addExtension(new PayStatus());
+        $this->twig->addExtension(new PedidoStatus());
+        $this->twig->addExtension(new PedidoStatusIcone());
+        $this->twig->addExtension(new PedidoStatusName());
+        $this->twig->addExtension(new PedidoStatusColor());
+        $this->twig->addExtension(new ColorVariation());
+        $this->twig->addExtension(new PrecoEmpresa());
+        $this->twig->addExtension(new EmpresaNome());
         $this->globals();
 
         return $this->twig;

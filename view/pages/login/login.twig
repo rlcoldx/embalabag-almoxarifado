@@ -1,0 +1,95 @@
+{% extends "layout/layoutLogin.twig" %}
+{% block content %}
+<div class="row authentication mx-0">
+    <div class="col-xxl-7 col-xl-7 col-lg-12">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-xxl-6 col-xl-7 col-lg-7 col-md-7 col-sm-8 col-12">
+                <div class="p-5">
+                    <div class="mb-3 text-center">
+                        <img src="{{ DOMAIN}}/view/assets/ynex/assets/images/brand-logos/logo.svg" alt="Logo" class="authentication-brand img-fluid">
+                    </div>
+                    <p class="mb-3 text-muted op-7 fw-normal">Bem-vindo! Faça login para continuar.</p>
+                    {% if error %}
+                        <div class="alert alert-danger">{{ error }}</div>
+                    {% endif %}
+                    <form id="loginForm" action="javascript:void(0);" method="post">
+                        <div class="mb-3">
+                            <label for="email" class="form-label text-default">E-mail</label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="email" placeholder="Digite seu e-mail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label text-default d-block">Senha</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="Digite sua senha" required>
+                                <button class="btn btn-light" type="button" onclick="createpassword('password',this)"><i class="fas fa-eye-slash align-middle"></i></button>
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                            <label class="form-check-label text-muted fw-normal" for="remember">Lembrar-me</label>
+                        </div>
+                        <div class="d-grid mt-2">
+                            <button type="submit" class="btn btn-lg btn-primary" id="loginBtn">
+                                <span class="btn-text">Entrar</span>
+                                <span class="btn-loading d-none">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Entrando...
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                    <div id="loginError" class="mt-3 alert alert-danger d-none"></div>
+                    <div id="loginSuccess" class="mt-3 alert alert-success d-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xxl-5 col-xl-5 col-lg-5 d-xl-block d-none px-0">
+        <div class="authentication-cover">
+            <div class="aunthentication-cover-content rounded">
+                <div class="swiper keyboard-control">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div class="text-fixed-white text-center p-5 d-flex align-items-center justify-content-center">
+                                <div>
+                                    <div class="mb-5">
+                                        <img src="{{ DOMAIN}}/view/assets/ynex/assets/images/authentication/2.png" class="authentication-image" alt="">
+                                    </div>
+                                    <h6 class="fw-semibold text-fixed-white">Entrar</h6>
+                                    <p class="fw-normal fs-14 op-7"> Faça login para acessar o sistema. Suas informações estão seguras conosco.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="text-fixed-white text-center p-5 d-flex align-items-center justify-content-center">
+                                <div>
+                                    <div class="mb-5">
+                                        <img src="{{ DOMAIN}}/view/assets/ynex/assets/images/authentication/3.png" class="authentication-image" alt="">
+                                    </div>
+                                    <h6 class="fw-semibold text-fixed-white">Entrar</h6>
+                                    <p class="fw-normal fs-14 op-7"> Gerencie seu acesso de forma rápida e segura. Bem-vindo ao Embala Bag!</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="text-fixed-white text-center p-5 d-flex align-items-center justify-content-center">
+                                <div>
+                                    <div class="mb-5">
+                                        <img src="{{ DOMAIN}}/view/assets/ynex/assets/images/authentication/2.png" class="authentication-image" alt="">
+                                    </div>
+                                    <h6 class="fw-semibold text-fixed-white">Entrar</h6>
+                                    <p class="fw-normal fs-14 op-7"> Acesse sua conta para continuar. Se tiver problemas, entre em contato com o suporte.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

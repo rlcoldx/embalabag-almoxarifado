@@ -1,23 +1,541 @@
 {% extends "layout/layoutMaster.twig" %}
-
-{% block title %}Página Inicial{% endblock %}
-
+{% block title %}Dashboard - Sistema de Almoxarifado{% endblock %}
 {% block content %}
-<!-- Conteúdo principal da index.html do Ynex convertido para Twig -->
-<!-- (Colar aqui o conteúdo do index.html, removendo os includes já presentes no layout/base.twig) -->
-<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-    <div>
-        <p class="fw-semibold fs-18 mb-0">Welcome back, Json Taylor !</p>
-        <span class="fs-semibold text-muted">Track your sales activity, leads and deals here.</span>
+
+    {% block styles %}
+        <link rel="stylesheet" href="{{ PATH }}/view/assets/css/home.css?v={{ VERSION }}">
+    {% endblock %}
+
+    <!-- Início::page-header -->
+    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <div>
+            {% set nome = session[BASE ~ 'user_nome'] %}
+            <p class="fw-semibold fs-18 mb-0">Bem-vindo de volta, {{ nome }}!</p>
+            <span class="fs-semibold text-muted">Visão geral do sistema de almoxarifado e controle de estoque.</span>
+        </div>
+        <div class="btn-list mt-md-0 mt-2">
+            <button type="button" class="btn btn-primary btn-wave" onclick="window.location.reload()">
+                <i class="fas fa-sync-alt me-2 align-middle d-inline-block"></i>Atualizar
+            </button>
+        </div>
     </div>
-    <div class="btn-list mt-md-0 mt-2">
-        <button type="button" class="btn btn-primary btn-wave">
-            <i class="ri-filter-3-fill me-2 align-middle d-inline-block"></i>Filters
-        </button>
-        <button type="button" class="btn btn-outline-secondary btn-wave">
-            <i class="ri-upload-cloud-line me-2 align-middle d-inline-block"></i>Export
-        </button>
+    <!-- Fim::page-header -->
+
+    <!-- Início::Cards de Estatísticas Principais -->
+    <div class="row">
+        <!-- Total de Produtos -->
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="card custom-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="avatar avatar-rounded bg-primary-transparent">
+                                <i class="fas fa-boxes fs-18"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="fw-semibold mb-0" id="contador-produtos-total">{{ stats.produtos.total|number_format(0, ',', '.') }}</h6>
+                            <span class="text-muted fs-12">Total de Produtos</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success-transparent">{{ stats.produtos.ativos|number_format(0, ',', '.') }} Ativos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Armazenagens -->
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="card custom-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="avatar avatar-rounded bg-warning-transparent">
+                                <i class="fas fa-warehouse fs-18"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="fw-semibold mb-0" id="contador-armazenagens-total">{{ stats.armazenagens.total|number_format(0, ',', '.') }}</h6>
+                            <span class="fs-12 text-muted">Armazenagens</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-info-transparent">{{ stats.armazenagens.percentual_ocupacao }}% Ocupado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Valor do Estoque -->
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="card custom-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="avatar avatar-rounded bg-success-transparent">
+                                <i class="fas fa-dollar-sign fs-18"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="fw-semibold mb-0" id="contador-estoque-valor">R$ {{ stats.estoque.valor_total|number_format(2, ',', '.') }}</h6>
+                            <span class="fs-12 text-muted">Valor do Estoque</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-danger-transparent">{{ stats.estoque.critico }} Crítico</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usuários -->
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="card custom-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="avatar avatar-rounded bg-info-transparent">
+                                <i class="fas fa-users fs-18"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="fw-semibold mb-0" id="contador-usuarios-total">{{ stats.usuarios.total|number_format(0, ',', '.') }}</h6>
+                            <span class="fs-12 text-muted">Usuários</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success-transparent">{{ stats.usuarios.online }} Online</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-<!-- (Restante do conteúdo da index.html segue aqui, convertendo paths de assets para usar {{ PATH }}/view/assets/ynex/... quando necessário) -->
+    <!-- Fim::Cards de Estatísticas Principais -->
+
+    <!-- Início::Row de Estatísticas Detalhadas -->
+    <div class="row">
+        <!-- Estatísticas de Produtos -->
+        <div class="col-xl-6 col-lg-12">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-boxes me-2 text-primary"></i>
+                        Estatísticas de Produtos
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="text-center p-3 border-end">
+                                <h4 class="fw-bold text-success" id="contador-produtos-ativos">{{ stats.produtos.ativos|number_format(0, ',', '.') }}</h4>
+                                <p class="mb-0 text-muted">Produtos Ativos</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3">
+                                <h4 class="fw-bold text-warning" id="contador-produtos-rascunho">{{ stats.produtos.rascunho|number_format(0, ',', '.') }}</h4>
+                                <p class="mb-0 text-muted">Em Rascunho</p>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="text-center p-3 border-end">
+                                <h4 class="fw-bold text-danger" id="contador-produtos-estoque-baixo">{{ stats.produtos.estoque_baixo|number_format(0, ',', '.') }}</h4>
+                                <p class="mb-0 text-muted">Estoque Baixo</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3">
+                                <h4 class="fw-bold text-secondary" id="contador-produtos-sem-estoque">{{ stats.produtos.sem_estoque|number_format(0, ',', '.') }}</h4>
+                                <p class="mb-0 text-muted">Sem Estoque</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estatísticas de Armazenagem -->
+        <div class="col-xl-6 col-lg-12">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-warehouse me-2 text-warning"></i>
+                        Top 5 Armazéns Mais Lotados
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-semibold">Ocupação Atual</span>
+                            <span class="fw-semibold">{{ stats.armazenagens.percentual_ocupacao }}%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-{{ stats.armazenagens.percentual_ocupacao > 80 ? 'danger' : stats.armazenagens.percentual_ocupacao > 60 ? 'warning' : 'success' }}" 
+                                 style="width: {{ stats.armazenagens.percentual_ocupacao }}%"></div>
+                        </div>
+                    </div>
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <h5 class="fw-bold text-primary" id="contador-armazenagens-capacidade-total">{{ stats.armazenagens.capacidade_total|number_format(0, ',', '.') }}</h5>
+                            <p class="mb-0 text-muted">Capacidade Total</p>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="fw-bold text-info" id="contador-armazenagens-capacidade-utilizada">{{ stats.armazenagens.capacidade_utilizada|number_format(0, ',', '.') }}</h5>
+                            <p class="mb-0 text-muted">Utilizada</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Top 5 Armazéns Mais Lotados -->
+                    <div class="mt-4">
+                        {% if stats.armazenagens.top_5_lotados %}
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-start">Armazém</th>
+                                            <th class="text-center">Tipo</th>
+                                            <th class="text-center">Utilizado</th>
+                                            <th class="text-center">Total</th>
+                                            <th class="text-center">%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for armazem in stats.armazenagens.top_5_lotados %}
+                                            <tr>
+                                                <td>
+                                                    <div>
+                                                        <span class="fw-semibold">{{ armazem.nome_armazem }}</span>
+                                                        {% if armazem.setor_armazem %}
+                                                                                                                         <br><small class="text-muted">{{ armazem.setor_armazem }}</small>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-secondary-transparent">{{ armazem.tipo_armazem|title }}</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="fw-semibold text-info">{{ armazem.capacidade_utilizada|number_format(0, ',', '.') }}</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="text-muted">{{ armazem.capacidade_total|number_format(0, ',', '.') }}</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-{{ armazem.percentual_ocupacao > 80 ? 'danger' : armazem.percentual_ocupacao > 60 ? 'warning' : 'success' }}-transparent">
+                                                        {{ armazem.percentual_ocupacao }}%
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-3">
+                                                             <i class="fas fa-warehouse fa-2x text-muted mb-2"></i>
+                             <p class="text-muted mb-0">Nenhum armazém com estoque encontrado</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fim::Row de Estatísticas Detalhadas -->
+
+    <!-- Início::Row de Atividades -->
+    <div class="row">
+        <!-- Atividades do Dia -->
+        <div class="col-xl-4 col-lg-6">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-calendar-day me-2 text-success"></i>
+                        Atividades de Hoje
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="avatar avatar-sm avatar-rounded bg-success-transparent">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-0">{{ stats.recebimentos.hoje|number_format(0, ',', '.') }}</h6>
+                            <span class="text-muted fs-12">Recebimentos</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="avatar avatar-sm avatar-rounded bg-info-transparent">
+                                <i class="fas fa-exchange-alt"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-0">{{ stats.movimentacoes.hoje|number_format(0, ',', '.') }}</h6>
+                            <span class="text-muted fs-12">Movimentações</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="avatar avatar-sm avatar-rounded bg-warning-transparent">
+                                <i class="fas fa-clipboard-check"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-0">{{ stats.conferencias.hoje|number_format(0, ',', '.') }}</h6>
+                            <span class="text-muted fs-12">Conferências</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movimentações -->
+        <div class="col-xl-4 col-lg-6">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-exchange-alt me-2 text-info"></i>
+                        Movimentações
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="avatar avatar-sm avatar-rounded bg-success-transparent">
+                                <i class="fas fa-arrow-down"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-0">{{ stats.movimentacoes.entradas|number_format(0, ',', '.') }}</h6>
+                            <span class="text-muted fs-12">Entradas</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="avatar avatar-sm avatar-rounded bg-danger-transparent">
+                                <i class="fas fa-arrow-up"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-0">{{ stats.movimentacoes.saidas|number_format(0, ',', '.') }}</h6>
+                            <span class="text-muted fs-12">Saídas</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="avatar avatar-sm avatar-rounded bg-primary-transparent">
+                                <i class="fas fa-calendar-alt"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-0">{{ stats.movimentacoes.este_mes|number_format(0, ',', '.') }}</h6>
+                            <span class="text-muted fs-12">Este Mês</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notas Fiscais -->
+        <div class="col-xl-4 col-lg-6">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-file-invoice-dollar me-2 text-primary"></i>
+                        Notas Fiscais
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="avatar avatar-sm avatar-rounded bg-primary-transparent">
+                                <i class="fas fa-file-alt"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-0">{{ stats.notas_fiscais.total|number_format(0, ',', '.') }}</h6>
+                            <span class="text-muted fs-12">Total</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="avatar avatar-sm avatar-rounded bg-warning-transparent">
+                                <i class="fas fa-clock"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-0">{{ stats.notas_fiscais.pendentes|number_format(0, ',', '.') }}</h6>
+                            <span class="text-muted fs-12">Pendentes</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="avatar avatar-sm avatar-rounded bg-success-transparent">
+                                <i class="fas fa-dollar-sign"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-0">R$ {{ stats.notas_fiscais.valor_total|number_format(2, ',', '.') }}</h6>
+                            <span class="text-muted fs-12">Valor Total</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fim::Row de Atividades -->
+
+    <!-- Início::Row de Atividades Recentes -->
+    <div class="row">
+        <!-- Movimentações Recentes -->
+        <div class="col-xl-6 col-lg-12">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-history me-2 text-info"></i>
+                        Últimas Movimentações
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if stats.recentes.movimentacoes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Tipo</th>
+                                        <th>Quantidade</th>
+                                        <th>Usuário</th>
+                                        <th>Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for mov in stats.recentes.movimentacoes %}
+                                        <tr>
+                                            <td>
+                                                <span class="fw-semibold">{{ mov.produto_nome|default('N/A') }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ mov.tipo == 'entrada' ? 'success' : 'danger' }}-transparent">
+                                                    {{ mov.tipo|title }}
+                                                </span>
+                                            </td>
+                                            <td>{{ mov.quantidade|number_format(0, ',', '.') }}</td>
+                                            <td>{{ mov.usuario_nome|default('N/A') }}</td>
+                                            <td>{{ mov.created_at|date("d/m/Y H:i") }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Nenhuma movimentação recente</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recebimentos Recentes -->
+        <div class="col-xl-6 col-lg-12">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-truck me-2 text-success"></i>
+                        Últimos Recebimentos
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if stats.recentes.recebimentos %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Status</th>
+                                        <th>Usuário</th>
+                                        <th>Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for rec in stats.recentes.recebimentos %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-{{ rec.status == 'recebida' ? 'success' : rec.status == 'pendente' ? 'warning' : 'info' }}-transparent">
+                                                    {{ rec.status|title }}
+                                                </span>
+                                            </td>
+                                            <td>{{ rec.usuario_nome|default('N/A') }}</td>
+                                            <td>{{ rec.data_recebimento|date("d/m/Y H:i") }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-truck fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Nenhum recebimento recente</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fim::Row de Atividades Recentes -->
+
+    <!-- Início::Row de Ações Rápidas -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-bolt me-2 text-warning"></i>
+                        Ações Rápidas
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{{ DOMAIN }}/produtos/new" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-plus me-2"></i>
+                                Novo Produto
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{{ DOMAIN }}/recebimento/novo" class="btn btn-success btn-lg w-100">
+                                <i class="fas fa-truck me-2"></i>
+                                Novo Recebimento
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{{ DOMAIN }}/armazenagens/nova" class="btn btn-warning btn-lg w-100">
+                                <i class="fas fa-warehouse me-2"></i>
+                                Nova Armazenagem
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{{ DOMAIN }}/conferencia/nova" class="btn btn-info btn-lg w-100">
+                                <i class="fas fa-clipboard-check me-2"></i>
+                                Nova Conferência
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fim::Row de Ações Rápidas -->
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ DOMAIN }}/view/assets/js/home/home.js"></script>
 {% endblock %}

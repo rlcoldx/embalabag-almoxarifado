@@ -1,0 +1,117 @@
+<!-- Modal de Nova Entrada -->
+<div class="modal fade" id="modalNovaEntrada" aria-labelledby="modalNovaEntradaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNovaEntradaLabel">
+                    <i class="fas fa-plus-circle me-2 text-success"></i>
+                    Nova Entrada de Estoque
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formNovaEntrada">
+                    <input type="hidden" id="entradaArmazenagemId" name="armazenagem_id">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="entradaProduto" class="form-label required">Produto (SKU)</label>
+                                <select class="form-control select2-ajax" id="entradaProduto" name="id_produto" 
+                                        data-placeholder="Digite para buscar o produto..." required>
+                                    <option value=""></option>
+                                </select>
+                                <small class="form-hint">Digite o nome ou SKU do produto para buscar</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="entradaVariacao" class="form-label required">Variação</label>
+                                <select class="form-control" id="entradaVariacao" name="variacao_id" required disabled>
+                                    <option value="">Selecione primeiro o produto</option>
+                                </select>
+                                <small class="form-hint">Tamanho, cor ou variação do produto</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="entradaQuantidade" class="form-label required">Quantidade</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="entradaQuantidade" name="quantidade" 
+                                           min="1" required>
+                                    <span class="input-group-text">unidades</span>
+                                </div>
+                                <small class="form-hint">Quantidade a adicionar ao estoque</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="entradaEstoqueAtual" class="form-label">Estoque Atual</label>
+                                <input type="text" class="form-control" id="entradaEstoqueAtual" readonly>
+                                <small class="form-hint">Quantidade atual na variação selecionada</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="entradaMotivo" class="form-label">Motivo da Entrada</label>
+                                <select class="form-control" id="entradaMotivo" name="motivo">
+                                    <option value="">Selecione o motivo</option>
+                                    <option value="recebimento">Recebimento de Fornecedor</option>
+                                    <option value="devolucao">Devolução de Cliente</option>
+                                    <option value="transferencia">Transferência de Outro Armazém</option>
+                                    <option value="ajuste">Ajuste de Inventário</option>
+                                    <option value="producao">Produção Interna</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="entradaDocumento" class="form-label">Documento de Referência</label>
+                                <input type="text" class="form-control" id="entradaDocumento" name="documento_referencia" 
+                                       placeholder="NF, Pedido, etc.">
+                                <small class="form-hint">Número da nota fiscal, pedido ou documento</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="entradaObservacoes" class="form-label">Observações</label>
+                        <textarea class="form-control" id="entradaObservacoes" name="observacoes" rows="3" 
+                                  placeholder="Observações adicionais sobre a entrada"></textarea>
+                    </div>
+                    
+                    <!-- Informações do Produto -->
+                    <div id="infoProdutoEntrada" class="alert alert-info" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Produto:</strong> <span id="infoNomeProdutoEntrada"></span><br>
+                                <strong>Categoria:</strong> <span id="infoCategoriaEntrada"></span><br>
+                                <strong>SKU:</strong> <span id="infoSkuEntrada"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Marca:</strong> <span id="infoMarcaEntrada"></span><br>
+                                <strong>Material:</strong> <span id="infoMaterialEntrada"></span><br>
+                                <strong>Valor Unitário:</strong> <span id="infoValorEntrada"></span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="salvarEntrada()">
+                    <i class="fas fa-plus me-2"></i>Registrar Entrada
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

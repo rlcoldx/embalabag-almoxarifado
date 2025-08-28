@@ -1,0 +1,100 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Nova Armazenagem - EmbalaBag{% endblock %}
+
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Nova Armazenagem</p>
+        <span class="fs-semibold text-muted">Adicione um novo local de armazenamento ao sistema.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/armazenagens" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-arrow-left me-2 align-middle d-inline-block"></i>Voltar para Armazenagens
+        </a>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<!-- Início::row -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card custom-card">
+            <div class="card-header justify-content-between align-items-center">
+                <div class="card-title">
+                    <i class="fas fa-archive me-2"></i>Informações da Armazenagem
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="formArmazenagem" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label required">Código</label>
+                        <input type="text" class="form-control" name="codigo" required autocomplete="off" placeholder="Ex: A01, PRAT-01">
+                        <small class="form-hint">Código único de identificação</small>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label required">Descrição</label>
+                        <input type="text" class="form-control" name="descricao" required autocomplete="off" placeholder="Ex: Prateleira A, Gaveta 01">
+                        <small class="form-hint">Nome descritivo da localização</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label required">Tipo</label>
+                        <select class="form-select" name="tipo" required>
+                            <option value="">Selecione...</option>
+                            <option value="corredor">Corredor</option>
+                            <option value="prateleira">Prateleira</option>
+                            <option value="gaveta">Gaveta</option>
+                            <option value="caixa">Caixa</option>
+                            <option value="pallet">Pallet</option>
+                            <option value="area">Área</option>
+                        </select>
+                        <small class="form-hint">Tipo de armazenagem</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label required">Setor</label>
+                        <input type="text" class="form-control" name="setor" required autocomplete="off" placeholder="Ex: Almoxarifado, Estoque, Expedição">
+                        <small class="form-hint">Setor onde está localizado</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Capacidade Máxima</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="capacidade_maxima" min="0" placeholder="0">
+                            <span class="input-group-text">Unidades</span>
+                        </div>
+                        <small class="form-hint">Deixe em branco para capacidade ilimitada</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Status</label>
+                        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                            <input type="radio" name="status" value="ativo" class="btn-check" id="btnradio1" checked>
+                            <label class="btn btn-outline-primary" for="btnradio1">Ativo</label>
+                            <input type="radio" name="status" value="inativo" class="btn-check" id="btnradio2">
+                            <label class="btn btn-outline-primary" for="btnradio2">Inativo</label>
+                            <input type="radio" name="status" value="manutencao" class="btn-check" id="btnradio3">
+                            <label class="btn btn-outline-primary" for="btnradio3">Manutenção</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Observações</label>
+                        <textarea class="form-control" name="observacoes" rows="3" placeholder="Informações adicionais sobre a localização de armazenagem"></textarea>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end mt-4">
+                        <a href="{{ DOMAIN }}/armazenagens" class="btn btn-outline-primary me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary btn-wave">
+                            <i class="fas fa-save me-2 align-middle d-inline-block"></i>Salvar Armazenagem
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fim::row -->
+{% endblock %}
+
+{% block scripts %}
+{% include "components/partials/sweetalert.twig" %}
+<script src="{{ PATH }}/view/assets/js/armazenagens/create.js?v={{ VERSION }}"></script>
+{% endblock %}

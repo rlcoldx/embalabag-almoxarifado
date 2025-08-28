@@ -1,0 +1,180 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Mapa de Armazenagens - EmbalaBag{% endblock %}
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Mapa de Armazenagens</p>
+        <span class="fs-semibold text-muted">Visualização dos locais de armazenagem e suas capacidades.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/armazenagens/create" class="btn btn-primary btn-wave">
+            <i class="fas fa-plus me-2 align-middle d-inline-block"></i>Nova Armazenagem
+        </a>
+        <a href="{{ DOMAIN }}/armazenagens" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-list-check me-2 align-middle d-inline-block"></i>Listar Armazenagens
+        </a>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<!-- Início::row -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card custom-card mb-3">
+            <div class="card-header justify-content-between align-items-center">
+                <div class="card-title">
+                    <i class="fas fa-filter me-2"></i>Filtros
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="btn-group">
+                                <button class="btn btn-outline-primary btn-sm btn-wave active" data-filter="all">Todos</button>
+                                <button class="btn btn-outline-primary btn-sm btn-wave" data-filter="tipo-corredor">Corredores</button>
+                                <button class="btn btn-outline-primary btn-sm btn-wave" data-filter="tipo-prateleira">Prateleiras</button>
+                                <button class="btn btn-outline-primary btn-sm btn-wave" data-filter="tipo-gaveta">Gavetas</button>
+                                <button class="btn btn-outline-primary btn-sm btn-wave" data-filter="tipo-caixa">Caixas</button>
+                                <button class="btn btn-outline-primary btn-sm btn-wave" data-filter="tipo-pallet">Pallets</button>
+                                <button class="btn btn-outline-primary btn-sm btn-wave" data-filter="tipo-area">Áreas</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="btn-group">
+                                <button class="btn btn-outline-primary btn-sm btn-wave active" data-capacity="all">Todas</button>
+                                <button class="btn btn-outline-danger btn-sm btn-wave" data-capacity="baixa">Baixa</button>
+                                <button class="btn btn-outline-warning btn-sm btn-wave" data-capacity="media">Média</button>
+                                <button class="btn btn-outline-success btn-sm btn-wave" data-capacity="alta">Alta</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        {% if mapa|length > 0 %}
+            {# Agrupar por setor #}
+            {% set setores = {} %}
+            {% for item in mapa %}
+                {% if item.setor not in setores|keys %}
+                    {% set setores = setores|merge({(item.setor): []}) %}
+                {% endif %}
+                {% set setores = setores|merge({
+                    (item.setor): setores[item.setor]|merge([item])
+                }) %}
+            {% endfor %}
+
+            {% for setor, armazenagens in setores %}
+            <!-- Início::row - Setor {{ setor }} -->
+            <div class="card custom-card mb-4">
+                <div class="card-header justify-content-between">
+                    <div class="card-title">
+                        <i class="fas fa-map-marker-alt me-2"></i>Setor: {{ setor }}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for armazenagem in armazenagens %}
+                            {% set percentOcupado = armazenagem.capacidade_maxima > 0 
+                                ? (armazenagem.quantidade_ocupada / armazenagem.capacidade_maxima * 100)|round 
+                                : 0 %}
+                            
+                            {% set capacidadeClass = 'bg-info' %}
+                            {% if armazenagem.capacidade_maxima > 0 %}
+                                {% if percentOcupado >= 90 %}
+                                    {% set capacidadeClass = 'bg-danger' %}
+                                {% elseif percentOcupado >= 70 %}
+                                    {% set capacidadeClass = 'bg-warning' %}
+                                {% else %}
+                                    {% set capacidadeClass = 'bg-success' %}
+                                {% endif %}
+                            {% endif %}
+                            
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-3" 
+                                 data-filter="tipo-{{ armazenagem.tipo }}"
+                                 data-capacity="{{ capacidadeClass|replace({'bg-': ''}) }}">
+                                <div class="card mb-0 overflow-hidden">
+                                    <div class="card-header pb-1 border-bottom-0 d-flex justify-content-between align-items-center pt-2">
+                                        <div class="card-title fs-15 fw-semibold d-flex align-items-center">
+                                            <span class="fw-bold">{{ armazenagem.codigo }}</span>
+                                        </div>
+                                        <div class="ms-auto">
+                                            <span class="badge bg-{{ armazenagem.status == 'ativo' ? 'success' : (armazenagem.status == 'manutencao' ? 'warning' : 'danger') }}-transparent">
+                                                {{ armazenagem.status|capitalize }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="card-body pt-2">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <span class="avatar avatar-sm rounded-circle bg-{{ armazenagem.tipo == 'prateleira' ? 'primary' : (armazenagem.tipo == 'gaveta' ? 'info' : (armazenagem.tipo == 'caixa' ? 'success' : (armazenagem.tipo == 'pallet' ? 'warning' : 'secondary'))) }}-transparent me-2">
+                                                <i class="fas fa-{{ armazenagem.tipo == 'prateleira' ? 'layer-group' : 
+                                                          (armazenagem.tipo == 'gaveta' ? 'inbox' : 
+                                                          (armazenagem.tipo == 'caixa' ? 'box' : 
+                                                          (armazenagem.tipo == 'pallet' ? 'th' : 'map-marker-alt'))) }} fs-16"></i>
+                                            </span>
+                                            <div>
+                                                <span class="d-block fw-semibold mb-0 fs-14">{{ armazenagem.descricao }}</span>
+                                                <span class="d-block text-muted fs-12">{{ armazenagem.tipo|capitalize }}</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                                <span class="text-muted fs-12">
+                                                    {{ armazenagem.capacidade_maxima > 0 ? 'Capacidade:' : 'Ocupação:' }}
+                                                </span>
+                                                <span class="fw-semibold fs-12">
+                                                    {{ armazenagem.capacidade_maxima > 0 ? armazenagem.quantidade_ocupada ~ '/' ~ armazenagem.capacidade_maxima : armazenagem.quantidade_ocupada ~ ' unidades' }}
+                                                </span>
+                                            </div>
+                                            <div class="progress progress-sm mb-0">
+                                                <div class="progress-bar {{ capacidadeClass }}" role="progressbar" style="width: {{ armazenagem.capacidade_maxima > 0 ? percentOcupado : 100 }}%"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-flex mt-3">
+                                            <a href="{{ DOMAIN }}/armazenagens/{{ armazenagem.id }}/edit" class="btn btn-sm btn-primary-light btn-wave me-2">
+                                                <i class="fas fa-edit me-1"></i>Editar
+                                            </a>
+                                            <a href="{{ DOMAIN }}/armazenagens/{{ armazenagem.id }}" class="btn btn-sm btn-outline-primary btn-wave">
+                                                <i class="fas fa-eye me-1"></i>Detalhes
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- Fim::row - Setor {{ setor }} -->
+            {% endfor %}
+        {% else %}
+            <div class="card custom-card">
+                <div class="card-body text-center p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-map-marker-alt text-primary fs-5 mb-2 d-block"></i>
+                        <h4 class="fw-semibold mb-1">Nenhum local de armazenagem cadastrado</h4>
+                        <p class="text-muted mb-4">Adicione novos locais de armazenagem para visualizá-los aqui.</p>
+                        <a href="{{ DOMAIN }}/armazenagens/create" class="btn btn-primary btn-wave">
+                            <i class="fas fa-plus me-2 align-middle d-inline-block"></i>Adicionar Local
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<!-- Fim::row -->
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/armazenagens/mapa.js?v={{ VERSION }}"></script>
+{% endblock %}

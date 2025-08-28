@@ -31,4 +31,35 @@ class Strings
          return "('" . implode("','", $arrayString) . "')";
     }
 
+    public static function abreviarNomeEmpresa(string $nome): string
+    {
+        // Lista de palavras para abreviar
+        $abreviacoes = [
+            'LINHAS AEREAS' => 'L.A.',
+            'LINHAS AÉREAS' => 'L.A.',
+            'LINHAS AEREO' => 'L.A.',
+            'LINHAS AÉREO' => 'L.A.',
+            'LINHAS AEREA' => 'L.A.',
+            'LINHAS AÉREA' => 'L.A.',
+            'LINHAS AEREAS' => 'L.A.',
+            'LINHAS AÉREAS' => 'L.A.',
+        ];
+
+        $nomeOriginal = $nome;
+        $nome = strtoupper($nome);
+
+        // Aplica as abreviações
+        foreach ($abreviacoes as $palavra => $abreviacao) {
+            $nome = str_replace($palavra, $abreviacao, $nome);
+        }
+
+        // Se houve mudança, retorna o nome abreviado
+        if ($nome !== strtoupper($nomeOriginal)) {
+            return $nome;
+        }
+
+        // Se não houve mudança, retorna o nome original
+        return $nomeOriginal;
+    }
+
 }

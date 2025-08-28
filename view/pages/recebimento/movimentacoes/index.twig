@@ -1,0 +1,115 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Movimentações Internas - EmbalaBag{% endblock %}
+
+{% block styles %}
+{% include "components/partials/datatable.twig" %}
+{% include "components/partials/sweetalert.twig" %}
+{% endblock %}
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Movimentações Internas</p>
+        <span class="fs-semibold text-muted">Gerencie as movimentações internas de produtos.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento/movimentacoes/create" class="btn btn-primary btn-wave">
+            <i class="fas fa-plus me-2 align-middle d-inline-block"></i>Nova Movimentação
+        </a>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<!-- Início::row -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Lista de Movimentações</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Filtros -->
+                <div class="row mb-3">
+                    <div class="col-md-2">
+                        <label class="form-label">Tipo</label>
+                        <select class="form-select" id="filtroTipo">
+                            <option value="">Todos</option>
+                            <option value="put_away">Put-away</option>
+                            <option value="transferencia">Transferência</option>
+                            <option value="reposicao">Reposição</option>
+                            <option value="ajuste">Ajuste</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="filtroStatus">
+                            <option value="">Todos</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="em_andamento">Em Andamento</option>
+                            <option value="concluida">Concluída</option>
+                            <option value="cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Produto</label>
+                        <input type="text" class="form-control" id="filtroProduto" placeholder="Nome do produto">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Data Início</label>
+                        <input type="date" class="form-control" id="filtroDataInicio">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Data Fim</label>
+                        <input type="date" class="form-control" id="filtroDataFim">
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="button" class="btn btn-primary btn-wave w-100" id="btnFiltrar">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <button type="button" class="btn btn-outline-secondary btn-wave" id="btnLimparFiltros">
+                            <i class="fas fa-times me-2"></i>Limpar Filtros
+                        </button>
+                    </div>
+                </div>
+
+                <!-- DataTable -->
+                <div class="table-responsive">
+                    <table id="tableMovimentacoes" class="table table-bordered text-nowrap">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tipo</th>
+                                <th>Produto</th>
+                                <th>Origem</th>
+                                <th>Destino</th>
+                                <th>Quantidade</th>
+                                <th>Status</th>
+                                <th>Usuário</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dados carregados via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fim::row -->
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ DOMAIN }}/view/assets/js/recebimento/movimentacoes/index.js"></script>
+{% endblock %} 

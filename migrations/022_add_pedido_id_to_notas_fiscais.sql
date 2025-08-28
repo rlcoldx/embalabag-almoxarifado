@@ -1,0 +1,87 @@
+-- Migration: 022_add_pedido_id_to_notas_fiscais.sql
+-- Descrição: Adicionar vinculação de pedidos às notas fiscais
+
+-- Primeiro, criar a tabela pedidos se não existir
+CREATE TABLE IF NOT EXISTS `pedidos` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `id_user` INT(11) NULL DEFAULT NULL,
+  `qtd_opcoes_p` INT(11) NULL DEFAULT '0',
+  `qtd_opcoes_m` INT(11) NULL DEFAULT '0',
+  `qtd_opcoes_g` INT(11) NULL DEFAULT '0',
+  `qtd_opcoes_bordo` INT(11) NULL DEFAULT '0',
+  `codigo` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `codigo_privado` LONGTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `codigoSige` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `status_sige` LONGTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `email_cliente` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `nome_cliente` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `telefone_cliente` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `cpf_cliente` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `cep_cliente` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `endereco_cliente` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `numero_cliente` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `complemento_cliente` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `bairro_cliente` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `cidade_cliente` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `estado_cliente` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `localizador` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `processo` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `base_solicitante` VARCHAR(50) NOT NULL COLLATE 'latin1_swedish_ci',
+  `base_destino` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `numero_re` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `nome_colaborador` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `voo_1` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `voo_2` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `previsao_entrega` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `etiqueta_interna` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `observacoes` LONGTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `observacoes_cliente` LONGTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `observacao_adicional` LONGTEXT NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `pedido_adicional` ENUM('yes','no') NULL DEFAULT 'no' COLLATE 'latin1_swedish_ci',
+  `valor_total` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `prioridade` ENUM('Normal','Urgente') NULL DEFAULT 'Normal' COLLATE 'latin1_swedish_ci',
+  `cliente_endereco` ENUM('yes','no') NULL DEFAULT 'no' COLLATE 'latin1_swedish_ci',
+  `pre_aprovado` ENUM('yes','no') NULL DEFAULT 'no' COLLATE 'latin1_swedish_ci',
+  `status_pedido` ENUM('0','1','2','3','4','5','6','7','8','9') NOT NULL DEFAULT '1' COMMENT '0 - Cancelado\r\n1 - Pendente\r\n2 - Aprovado\r\n3 - Em andamento\r\n4 - Em Preparacao\r\n5 - Aguardando Retorno Base\r\n6 - Enviado\r\n7 - Disponivel para Retirada\r\n8 - Em Rota para Entrega\r\n9 - Concluido' COLLATE 'latin1_swedish_ci',
+  `date_create` TIMESTAMP NULL DEFAULT current_timestamp(),
+  `date_update` TIMESTAMP NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `dx_id_user` (`id_user`) USING BTREE,
+  INDEX `idx_id` (`id`) USING BTREE,
+  CONSTRAINT `fk_pedidos_user` FOREIGN KEY (`id_user`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) COLLATE='latin1_swedish_ci' ENGINE=InnoDB;
+
+-- Criar a tabela pedidos_itens seguindo o padrão fornecido
+CREATE TABLE IF NOT EXISTS `pedidos_itens` (
+  `id_pedido` INT(11) NULL DEFAULT NULL,
+  `id_user` INT(11) NULL DEFAULT NULL,
+  `id_produto` INT(11) NULL DEFAULT NULL,
+  `qty` INT(11) NULL DEFAULT NULL,
+  `qty_base` INT(11) NULL DEFAULT NULL,
+  `variavel` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `valor_unidade` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `valor_total` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `gerenciar_estoque` ENUM('yes','no') NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `encomenda` ENUM('yes','no') NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+  `atraso` INT(11) NULL DEFAULT NULL,
+  `escolhido` ENUM('yes','no') NULL DEFAULT 'no' COLLATE 'latin1_swedish_ci',
+  `data` TIMESTAMP NULL DEFAULT current_timestamp(),
+  INDEX `dx_id_produto` (`id_produto`) USING BTREE,
+  INDEX `dx_id_user` (`id_user`) USING BTREE,
+  INDEX `idx_id` (`id_pedido`) USING BTREE,
+  CONSTRAINT `fk_pedidos_itens_pedido` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_pedidos_itens_user` FOREIGN KEY (`id_user`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_pedidos_itens_produto` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) COLLATE='latin1_swedish_ci' ENGINE=InnoDB;
+
+-- Agora adicionar as colunas na tabela notas_fiscais
+ALTER TABLE `notas_fiscais` 
+ADD COLUMN `pedido_id` INT(11) NULL DEFAULT NULL AFTER `numero`,
+ADD COLUMN `tipo_nf` ENUM('entrada', 'devolucao', 'transferencia') NOT NULL DEFAULT 'entrada' AFTER `pedido_id`,
+ADD COLUMN `chave_acesso` VARCHAR(44) NULL DEFAULT NULL AFTER `tipo_nf`,
+ADD COLUMN `protocolo_autorizacao` VARCHAR(50) NULL DEFAULT NULL AFTER `chave_acesso`,
+ADD COLUMN `data_autorizacao` DATETIME NULL DEFAULT NULL AFTER `protocolo_autorizacao`,
+ADD INDEX `idx_pedido_id` (`pedido_id`),
+ADD INDEX `idx_tipo_nf` (`tipo_nf`),
+ADD INDEX `idx_chave_acesso` (`chave_acesso`),
+ADD CONSTRAINT `fk_nf_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE SET NULL ON UPDATE CASCADE; 

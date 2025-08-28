@@ -63,6 +63,16 @@ class Read extends Conn {
         return $this->Result;
     }
 
+    public function getResultSingle()
+    {
+        if ($this->Result) {
+            return $this->Result[0];
+        } else {
+            return [];
+        }
+    }
+
+
     /**
      * <b>Contar Registros: </b> Retorna o número de registros encontrados pelo select!
      * @return INT $Var = Quantidade de registros encontrados
@@ -106,6 +116,11 @@ class Read extends Conn {
     private function getSyntax() {
         if ($this->Places):
             foreach ($this->Places as $Vinculo => $Valor):
+                // Verificar se o valor é escalar (string, int, float, bool)
+                if (!is_scalar($Valor)) {
+                    continue; // Pular valores que não são escalares
+                }
+                
                 if ($Vinculo == 'limit' || $Vinculo == 'offset'):
                     $Valor = (int) $Valor;
                 endif;

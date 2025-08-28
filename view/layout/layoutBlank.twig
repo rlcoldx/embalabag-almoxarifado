@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-BR" loader="disable">
+
+<head>
+    {% include 'components/partials/mainhead.twig' %}
+    {% block head %}{% endblock %}
+</head>
+
+<body data-domain="{{ DOMAIN }}" data-path="{{ PATH }}" data-version="{{ VERSION }}" data-lang="{{ LANGUAGE }}">
+    <div class="page">
+        <div class="main-content p-0">
+            <div class="container-fluid p-0">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    {% include 'components/partials/commonjs.twig' %}
+    <script src="{{ PATH }}{{ 'main.js'|hash }}"></script>
+</body>
+
+</html>

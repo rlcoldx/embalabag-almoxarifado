@@ -1,0 +1,178 @@
+<!-- Modal para Criação de NF-e -->
+<div class="modal fade" id="modalNfeCreate" tabindex="-1" aria-labelledby="modalNfeCreateLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNfeCreateLabel">
+                    <i class="fas fa-file-invoice"></i> Nova Nota Fiscal Eletrônica
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formNfeCreate" method="POST" action="{{ DOMAIN }}/recebimento/nfe/store">
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Informações da NF-e -->
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-info-circle"></i> Informações da NF-e</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="numero_nfe" class="form-label">Número da NF-e *</label>
+                                        <input type="text" class="form-control" id="numero_nfe" name="numero_nfe" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="chave_acesso" class="form-label">Chave de Acesso *</label>
+                                        <input type="text" class="form-control" id="chave_acesso" name="chave_acesso" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="data_emissao" class="form-label">Data de Emissão *</label>
+                                        <input type="date" class="form-control" id="data_emissao" name="data_emissao" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="valor_total" class="form-label">Valor Total *</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">R$</span>
+                                            <input type="number" class="form-control" id="valor_total" name="valor_total" step="0.01" min="0" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fornecedor e Pedido -->
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-building"></i> Fornecedor e Pedido</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="fornecedor_id" class="form-label">Fornecedor *</label>
+                                        <select class="form-select" id="fornecedor_id" name="fornecedor_id" required>
+                                            <option value="">Selecione o fornecedor</option>
+                                            {% for fornecedor in fornecedores %}
+                                                <option value="{{ fornecedor.id }}">{{ fornecedor.nome }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="pedido_id" class="form-label">Pedido (Opcional)</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="numero_pedido" placeholder="Digite o número do pedido">
+                                            <button class="btn btn-outline-secondary" type="button" id="btnBuscarPedido">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                        <input type="hidden" id="pedido_id" name="pedido_id">
+                                        <div id="pedidoInfo" class="mt-2" style="display: none;">
+                                            <div class="alert alert-info">
+                                                <strong>Pedido encontrado:</strong> <span id="pedidoNumero"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="observacoes" class="form-label">Observações</label>
+                                        <textarea class="form-control" id="observacoes" name="observacoes" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Itens da NF-e -->
+                    <div class="card mt-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0"><i class="fas fa-boxes"></i> Itens da NF-e</h6>
+                            <button type="button" class="btn btn-primary btn-sm" id="btnAddItem">
+                                <i class="fas fa-plus"></i> Adicionar Item
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="itensContainer">
+                                <!-- Os itens serão adicionados aqui dinamicamente -->
+                            </div>
+                            <div class="text-center text-muted" id="semItens">
+                                <i class="fas fa-inbox fa-2x mb-2"></i>
+                                <p>Nenhum item adicionado</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar NF-e
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Adicionar Item -->
+<div class="modal fade" id="modalAddItem" tabindex="-1" aria-labelledby="modalAddItemLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAddItemLabel">
+                    <i class="fas fa-plus"></i> Adicionar Item
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formAddItem">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="item_sku" class="form-label">SKU do Produto *</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="item_sku" placeholder="Digite ou escaneie o SKU">
+                                    <button class="btn btn-outline-secondary" type="button" id="btnScanSKU">
+                                        <i class="fas fa-barcode"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="item_produto" class="form-label">Produto</label>
+                                <input type="text" class="form-control" id="item_produto" readonly>
+                                <input type="hidden" id="item_produto_id">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="item_variacao" class="form-label">Variação (Tamanho/Cor) *</label>
+                                <select class="form-select" id="item_variacao" required>
+                                    <option value="">Selecione a variação</option>
+                                </select>
+                                <input type="hidden" id="item_variacao_id">
+                            </div>
+                            <div class="mb-3">
+                                <label for="item_quantidade" class="form-label">Quantidade *</label>
+                                <input type="number" class="form-control" id="item_quantidade" min="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="item_valor_unitario" class="form-label">Valor Unitário *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="number" class="form-control" id="item_valor_unitario" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmarItem">
+                        <i class="fas fa-check"></i> Adicionar Item
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

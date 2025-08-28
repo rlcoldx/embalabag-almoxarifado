@@ -1,0 +1,152 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Nova Movimentação - EmbalaBag{% endblock %}
+
+
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Nova Movimentação</p>
+        <span class="fs-semibold text-muted">Crie uma nova movimentação interna de produtos.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento/movimentacoes" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-arrow-left me-2 align-middle d-inline-block"></i>Voltar
+        </a>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<!-- Início::row -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Movimentação Interna</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="formMovimentacao" method="POST" action="{{ DOMAIN }}/recebimento/movimentacoes/store">
+                    <!-- Tipo de Movimentação -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Movimentação <span class="text-danger">*</span></label>
+                            <select class="form-select" name="tipo_movimentacao" id="tipoMovimentacao" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="put_away">Put-away (Recebimento → Armazenagem)</option>
+                                <option value="transferencia">Transferência (Armazenagem → Armazenagem)</option>
+                                <option value="reposicao">Reposição (Reposição de estoque)</option>
+                                <option value="ajuste">Ajuste (Ajuste de inventário)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="pendente">Pendente</option>
+                                <option value="em_andamento">Em Andamento</option>
+                                <option value="concluida">Concluída</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Seleção do Produto -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nota Fiscal</label>
+                            <select class="form-select" name="nota_fiscal_id" id="selectNotaFiscal">
+                                <option value="">Selecione uma NF (opcional)</option>
+                                <!-- Opções carregadas via AJAX -->
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Item da NF <span class="text-danger">*</span></label>
+                            <select class="form-select" name="item_nf_id" id="selectItemNF" required>
+                                <option value="">Selecione um item</option>
+                                <!-- Opções carregadas via AJAX -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Informações do Produto -->
+                    <div class="row mb-3" id="infoProduto" style="display: none;">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">Informações do Produto</h6>
+                                <div id="detalhesProduto">
+                                    <!-- Detalhes carregados via AJAX -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Armazenagens -->
+                    <div class="row mb-3">
+                        <div class="col-md-6" id="divArmazenagemOrigem" style="display: none;">
+                            <label class="form-label">Armazenagem de Origem</label>
+                            <select class="form-select" name="armazenagem_origem_id" id="selectArmazenagemOrigem">
+                                <option value="">Selecione a origem</option>
+                                <!-- Opções carregadas via AJAX -->
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Armazenagem de Destino <span class="text-danger">*</span></label>
+                            <select class="form-select" name="armazenagem_destino_id" id="selectArmazenagemDestino" required>
+                                <option value="">Selecione o destino</option>
+                                <!-- Opções carregadas via AJAX -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Quantidade -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Quantidade Disponível</label>
+                            <input type="number" class="form-control" id="quantidadeDisponivel" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Quantidade a Movimentar <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" name="quantidade_movimentada" required min="1">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Capacidade Destino</label>
+                            <input type="number" class="form-control" id="capacidadeDestino" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Motivo e Observações -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Motivo</label>
+                            <input type="text" class="form-control" name="motivo" placeholder="Motivo da movimentação">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="3" placeholder="Observações adicionais"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-wave">
+                                <i class="fas fa-save me-2"></i>Salvar Movimentação
+                            </button>
+                            <a href="{{ DOMAIN }}/recebimento/movimentacoes" class="btn btn-outline-secondary btn-wave">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fim::row -->
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ DOMAIN }}/view/assets/js/recebimento/movimentacoes/create.js"></script>
+{% endblock %} 

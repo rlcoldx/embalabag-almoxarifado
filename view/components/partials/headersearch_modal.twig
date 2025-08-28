@@ -1,84 +1,85 @@
 {# Adaptado de headersearch_modal.html do Ynex #}
-<!-- Header Search Modal --> 
+<!-- Modal de Busca no Cabeçalho --> 
 
-<!--Search Modal Popup-->
+<!--Popup Modal de Busca-->
 <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModal" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-body">
           <div class="input-group">
             <a href="javascript:void(0);" class="input-group-text" id="Search-Grid"><i class="fe fe-search header-link-icon fs-18"></i></a>
-            <input type="search" class="form-control border-0 px-2" placeholder="Search" aria-label="Username">
+            <input type="search" class="form-control border-0 px-2" placeholder="Buscar" aria-label="Buscar">
             <a href="javascript:void(0);" class="input-group-text" id="voice-search"><i class="fe fe-mic header-link-icon"></i></a>
             <a href="javascript:void(0);" class="btn btn-light btn-icon" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="fe fe-more-vertical"></i>
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="javascript:void(0);">Action</a></li>
-              <li><a class="dropdown-item" href="javascript:void(0);">Another action</a></li>
-              <li><a class="dropdown-item" href="javascript:void(0);">Something else here</a></li>
+              <li><a class="dropdown-item" href="javascript:void(0);">Ação</a></li>
+              <li><a class="dropdown-item" href="javascript:void(0);">Outra ação</a></li>
+              <li><a class="dropdown-item" href="javascript:void(0);">Algo mais aqui</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="javascript:void(0);">Separated link</a></li>
+              <li><a class="dropdown-item" href="javascript:void(0);">Link separado</a></li>
             </ul>
           </div>
           <div class="mt-4">
-            <p class="font-weight-semibold text-muted mb-2">Are You Looking For...</p>
-            <span class="search-tags alert"><i class="fe fe-user me-2"></i>People<a href="javascript:void(0)" class="tag-addon" data-bs-dismiss="alert"><i class="fe fe-x"></i></a></span>
-            <span class="search-tags alert"><i class="fe fe-file-text me-2"></i>Pages<a href="javascript:void(0)" class="tag-addon" data-bs-dismiss="alert"><i class="fe fe-x"></i></a></span>
-            <span class="search-tags alert"><i class="fe fe-align-left me-2"></i>Articles<a href="javascript:void(0)" class="tag-addon" data-bs-dismiss="alert"><i class="fe fe-x"></i></a></span>
+            <p class="font-weight-semibold text-muted mb-2">Você está procurando por...</p>
+            <span class="search-tags alert"><i class="fe fe-user me-2"></i>Pessoas<a href="javascript:void(0)" class="tag-addon" data-bs-dismiss="alert"><i class="fe fe-x"></i></a></span>
+            <span class="search-tags alert"><i class="fe fe-file-text me-2"></i>Páginas<a href="javascript:void(0)" class="tag-addon" data-bs-dismiss="alert"><i class="fe fe-x"></i></a></span>
+            <span class="search-tags alert"><i class="fe fe-align-left me-2"></i>Artigos<a href="javascript:void(0)" class="tag-addon" data-bs-dismiss="alert"><i class="fe fe-x"></i></a></span>
             <span class="search-tags alert"><i class="fe fe-server me-2"></i>Tags<a href="javascript:void(0)" class="tag-addon" data-bs-dismiss="alert"><i class="fe fe-x"></i></a></span>
           </div>
           <div class="my-4">
-            <p class="font-weight-semibold text-muted mb-2">Recent Search :</p>
+            <p class="font-weight-semibold text-muted mb-2">Busca recente :</p>
             <div class="p-2 border br-5 d-flex align-items-center text-muted mb-2 alert">
-              <a href="notifications.html"><span>Notifications</span></a>
-              <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Close"><i class="fe fe-x text-muted"></i></a>
+              <a href="notifications.html"><span>Notificações</span></a>
+              <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Fechar"><i class="fe fe-x text-muted"></i></a>
             </div>
             <div class="p-2 border br-5 d-flex align-items-center text-muted mb-2 alert">
-              <a href="alerts.html"><span>Alerts</span></a>
-              <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Close"><i class="fe fe-x text-muted"></i></a>
+              <a href="alerts.html"><span>Alertas</span></a>
+              <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Fechar"><i class="fe fe-x text-muted"></i></a>
             </div>
             <div class="p-2 border br-5 d-flex align-items-center text-muted mb-0 alert">
-              <a href="mail.html"><span>Mail</span></a>
-              <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Close"><i class="fe fe-x text-muted"></i></a>
+              <a href="mail.html"><span>E-mail</span></a>
+              <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Fechar"><i class="fe fe-x text-muted"></i></a>
             </div>
           </div>
         </div>
         <div class="modal-footer">
           <div class="btn-group ms-auto">
-            <button type="button" class="btn btn-sm btn-primary-light">Search</button>
-            <button type="button" class="btn btn-sm btn-primary">Clear Recents</button>
+            <button type="button" class="btn btn-sm btn-primary-light">Buscar</button>
+            <button type="button" class="btn btn-sm btn-primary">Limpar recentes</button>
           </div>
         </div>
       </div>
     </div>
 </div>
-<!--Search Modal Popup-->
+<!--Popup Modal de Busca-->
 
-<!--Country Modal Popup-->
+<!--Popup Modal de País-->
 <div class="modal fade" id="countryModal" tabindex="-1" aria-labelledby="countryModal" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-body p-4">
-        <label class="form-label fs-16">Select Location</label>
+        <label class="form-label fs-16">Selecione a Localização</label>
         <select class="form-control choices-images"></select>
-        <label class="form-label fs-16">Select Language</label>
+        <label class="form-label fs-16">Selecione o Idioma</label>
         <select class="form-control" data-trigger>
-          <option value="1">English (En)</option>
-          <option value="2">Española (ES)</option>
-          <option value="3">Français (FR)</option>
-          <option value="4">Deutsch (DE)</option>
-          <option value="5">Italiana (IT)</option>
-          <option value="6">Русский (RU)</option>
-          <option value="7">عربي (AR)</option>
-          <option value="8">한국인 (KO)</option>
+          <option value="1">Português (BR)</option>
+          <option value="2">Inglês (EN)</option>
+          <option value="3">Espanhol (ES)</option>
+          <option value="4">Francês (FR)</option>
+          <option value="5">Alemão (DE)</option>
+          <option value="6">Italiano (IT)</option>
+          <option value="7">Russo (RU)</option>
+          <option value="8">Árabe (AR)</option>
+          <option value="9">Coreano (KO)</option>
         </select>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary-light" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-primary-light" data-bs-dismiss="modal">Fechar</button>
+        <button type="button" class="btn btn-primary">Salvar alterações</button>
     </div>
     </div>
   </div>
 </div>
-<!--Country Modal Popup--> 
+<!--Popup Modal de País--> 

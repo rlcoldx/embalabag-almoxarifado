@@ -1,0 +1,318 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Relatórios Recebimento - EmbalaBag{% endblock %}
+
+
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Relatórios de Recebimento</p>
+        <span class="fs-semibold text-muted">Relatórios e estatísticas do sistema de recebimento.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento/dashboard" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-tachometer-alt me-2 align-middle d-inline-block"></i>Dashboard
+        </a>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<!-- Início::row -->
+<div class="row">
+    <!-- Relatório de Notas Fiscais -->
+    <div class="col-xl-6 col-lg-6 col-md-12">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Relatório de Notas Fiscais</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="formRelatorioNF" method="POST" action="{{ DOMAIN }}/recebimento/relatorios/notas-fiscais" target="_blank">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Data Início</label>
+                            <input type="date" class="form-control" name="data_inicio" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Data Fim</label>
+                            <input type="date" class="form-control" name="data_fim" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="">Todos</option>
+                                <option value="pendente">Pendente</option>
+                                <option value="recebida">Recebida</option>
+                                <option value="conferida">Conferida</option>
+                                <option value="finalizada">Finalizada</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fornecedor</label>
+                            <input type="text" class="form-control" name="fornecedor" placeholder="Filtrar por fornecedor">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Formato</label>
+                            <select class="form-select" name="formato">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-wave">
+                                <i class="fas fa-download me-2"></i>Gerar Relatório
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Relatório de Conferências -->
+    <div class="col-xl-6 col-lg-6 col-md-12">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Relatório de Conferências</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="formRelatorioConferencia" method="POST" action="{{ DOMAIN }}/recebimento/relatorios/conferencias" target="_blank">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Data Início</label>
+                            <input type="date" class="form-control" name="data_inicio" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Data Fim</label>
+                            <input type="date" class="form-control" name="data_fim" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Status Qualidade</label>
+                            <select class="form-select" name="status_qualidade">
+                                <option value="">Todos</option>
+                                <option value="excelente">Excelente</option>
+                                <option value="bom">Bom</option>
+                                <option value="regular">Regular</option>
+                                <option value="ruim">Ruim</option>
+                                <option value="inutilizavel">Inutilizável</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Conferente</label>
+                            <select class="form-select" name="conferente">
+                                <option value="">Todos</option>
+                                <!-- Opções carregadas via AJAX -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Formato</label>
+                            <select class="form-select" name="formato">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-wave">
+                                <i class="fas fa-download me-2"></i>Gerar Relatório
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Relatório de Movimentações -->
+    <div class="col-xl-6 col-lg-6 col-md-12">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Relatório de Movimentações</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="formRelatorioMovimentacao" method="POST" action="{{ DOMAIN }}/recebimento/relatorios/movimentacoes" target="_blank">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Data Início</label>
+                            <input type="date" class="form-control" name="data_inicio" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Data Fim</label>
+                            <input type="date" class="form-control" name="data_fim" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Movimentação</label>
+                            <select class="form-select" name="tipo_movimentacao">
+                                <option value="">Todos</option>
+                                <option value="put_away">Put-away</option>
+                                <option value="transferencia">Transferência</option>
+                                <option value="reposicao">Reposição</option>
+                                <option value="ajuste">Ajuste</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="">Todos</option>
+                                <option value="pendente">Pendente</option>
+                                <option value="em_andamento">Em Andamento</option>
+                                <option value="concluida">Concluída</option>
+                                <option value="cancelada">Cancelada</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Formato</label>
+                            <select class="form-select" name="formato">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-wave">
+                                <i class="fas fa-download me-2"></i>Gerar Relatório
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Relatório de Etiquetas -->
+    <div class="col-xl-6 col-lg-6 col-md-12">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Relatório de Etiquetas</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="formRelatorioEtiquetas" method="POST" action="{{ DOMAIN }}/recebimento/relatorios/etiquetas" target="_blank">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Data Início</label>
+                            <input type="date" class="form-control" name="data_inicio" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Data Fim</label>
+                            <input type="date" class="form-control" name="data_fim" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Etiqueta</label>
+                            <select class="form-select" name="tipo_etiqueta">
+                                <option value="">Todos</option>
+                                <option value="localizacao">Localização</option>
+                                <option value="palete">Palete</option>
+                                <option value="caixa">Caixa</option>
+                                <option value="produto">Produto</option>
+                                <option value="armazenagem">Armazenagem</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="">Todos</option>
+                                <option value="criada">Criada</option>
+                                <option value="impressa">Impressa</option>
+                                <option value="aplicada">Aplicada</option>
+                                <option value="inativa">Inativa</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Formato</label>
+                            <select class="form-select" name="formato">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-wave">
+                                <i class="fas fa-download me-2"></i>Gerar Relatório
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Relatórios Especiais -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Relatórios Especiais</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <a href="{{ DOMAIN }}/recebimento/relatorios/estoque-armazenagem" class="btn btn-outline-info btn-wave" target="_blank">
+                                <i class="fas fa-warehouse me-2"></i>Relatório de Estoque por Armazenagem
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <a href="{{ DOMAIN }}/recebimento/relatorios/produtos-avariados" class="btn btn-outline-warning btn-wave" target="_blank">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Relatório de Produtos Avariados
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <a href="{{ DOMAIN }}/recebimento/relatorios/performance-conferencia" class="btn btn-outline-success btn-wave" target="_blank">
+                                <i class="fas fa-chart-line me-2"></i>Relatório de Performance de Conferência
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fim::row -->
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ DOMAIN }}/view/assets/js/recebimento/relatorios/index.js"></script>
+{% endblock %} 

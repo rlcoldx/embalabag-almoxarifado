@@ -1,14 +1,15 @@
 const path = require('path');
 const webpack = require('webpack');
 const ManifestPlugin = require('webpack-manifest-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 require('graceful-fs').gracefulify(require('fs'));
 
 let ASSET_PATH = '';
 module.exports = env => {
 
-    let DOMAIN = JSON.stringify('http://localhost/evento');
+    let DOMAIN = JSON.stringify('http://localhost/embalabag-almoxarifado');
     if (env.NODE_ENV === 'sampel') {
-        DOMAIN = JSON.stringify('https://sampel.com.br/evento');
+        DOMAIN = JSON.stringify('https://embalabag.com.br/almoxarifado');
         ASSET_PATH = '';
     }
 
@@ -30,6 +31,9 @@ module.exports = env => {
                 jQuery: 'jquery'
             }),
             new ManifestPlugin(),
+            new MiniCssExtractPlugin({
+                filename: '[name].[contenthash].css',
+            }),
         ],
         devtool: false,
         module: {
@@ -43,6 +47,10 @@ module.exports = env => {
                             presets: ['@babel/preset-env']
                         }
                     }
+                },
+                {
+                    test: /\.css$/i,
+                    use: [MiniCssExtractPlugin.loader, 'css-loader'],
                 },
             ]
         },

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" loader="disable">
 
 <head>
     {% include 'components/partials/mainhead.twig' %}
     {% block head %}{% endblock %}
 </head>
 
-<body>
+<body data-domain="{{ DOMAIN }}" data-path="{{ PATH }}" data-version="{{ VERSION }}" data-lang="{{ LANGUAGE }}">
     {% include 'components/partials/switcher.twig' %}
     {% include 'components/partials/loader.twig' %}
     <div class="page">
@@ -20,10 +20,10 @@
         {% include 'components/partials/headersearch_modal.twig' %}
         {% include 'components/partials/footer.twig' %}
     </div>
+
     {% include 'components/partials/commonjs.twig' %}
-    <script src="{{ PATH }}/view/assets/ynex/assets/libs/jsvectormap/js/jsvectormap.min.js?v={{ VERSION }}"></script>
-    <script src="{{ PATH }}/view/assets/ynex/assets/libs/jsvectormap/maps/world-merc.js?v={{ VERSION }}"></script>
-    <script src="{{ PATH }}/view/assets/ynex/assets/js/custom.js?v={{ VERSION }}"></script>
+    <script src="{{ PATH }}{{ 'main.js'|hash }}"></script>   
+    {% block scripts %}{% endblock %}
 </body>
 
 </html>

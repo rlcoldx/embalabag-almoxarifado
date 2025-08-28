@@ -1,0 +1,240 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Notas Fiscais Eletrônicas - {{ NAME }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header da página -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-file-invoice"></i> Notas Fiscais Eletrônicas
+            </h1>
+            <p class="text-muted">Gerencie as notas fiscais eletrônicas recebidas</p>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary" id="btnNovaNfe">
+                <i class="fas fa-plus"></i> Nova NF-e
+            </button>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="filtroStatus" class="form-label">Status</label>
+                    <select class="form-select" id="filtroStatus">
+                        <option value="">Todos</option>
+                        <option value="pendente">Pendente</option>
+                        <option value="conferida">Conferida</option>
+                        <option value="finalizada">Finalizada</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroFornecedor" class="form-label">Fornecedor</label>
+                    <select class="form-select" id="filtroFornecedor">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroDataInicio" class="form-label">Data Início</label>
+                    <input type="date" class="form-control" id="filtroDataInicio">
+                </div>
+                <div class="col-md-3">
+                    <label for="filtroDataFim" class="form-label">Data Fim</label>
+                    <input type="date" class="form-control" id="filtroDataFim">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <button type="button" class="btn btn-secondary" id="btnAplicarFiltros">
+                        <i class="fas fa-filter"></i> Aplicar Filtros
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="btnLimparFiltros">
+                        <i class="fas fa-times"></i> Limpar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de NF-e -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Lista de Notas Fiscais</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="tabelaNfe">
+                    <thead>
+                        <tr>
+                            <th>Número NF-e</th>
+                            <th>Fornecedor</th>
+                            <th>Pedido</th>
+                            <th>Data Emissão</th>
+                            <th>Data Recebimento</th>
+                            <th>Valor Total</th>
+                            <th>Status</th>
+                            <th>Usuário</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dados serão carregados via AJAX -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginação -->
+            <nav aria-label="Paginação das NF-e">
+                <ul class="pagination justify-content-center" id="paginacaoNfe">
+                    <!-- Paginação será gerada dinamicamente -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Incluir modais -->
+{% include 'components/partials/modal-nfe-create.twig' %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ DOMAIN }}/view/assets/js/recebimento/nfe.js"></script>
+<script>
+$(document).ready(function() {
+    // Inicializar DataTable
+    const table = $('#tabelaNfe').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '{{ DOMAIN }}/datatable/nfe',
+            type: 'POST',
+            data: function(d) {
+                d.status = $('#filtroStatus').val();
+                d.fornecedor = $('#filtroFornecedor').val();
+                d.data_inicio = $('#filtroDataInicio').val();
+                d.data_fim = $('#filtroDataFim').val();
+            }
+        },
+        columns: [
+            { data: 'numero_nfe' },
+            { data: 'fornecedor_nome' },
+            { data: 'numero_pedido', defaultContent: '-' },
+            { data: 'data_emissao' },
+            { data: 'data_recebimento' },
+            { 
+                data: 'valor_total',
+                render: function(data) {
+                    return 'R$ ' + parseFloat(data).toFixed(2);
+                }
+            },
+            { 
+                data: 'status',
+                render: function(data) {
+                    const statusMap = {
+                        'pendente': '<span class="badge bg-warning">Pendente</span>',
+                        'conferida': '<span class="badge bg-info">Conferida</span>',
+                        'finalizada': '<span class="badge bg-success">Finalizada</span>'
+                    };
+                    return statusMap[data] || data;
+                }
+            },
+            { data: 'usuario_nome' },
+            {
+                data: null,
+                render: function(data, type, row) {
+                    return `
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ DOMAIN }}/recebimento/nfe/${row.id}" class="btn btn-outline-primary" title="Visualizar">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ DOMAIN }}/recebimento/nfe/${row.id}/edit" class="btn btn-outline-warning" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-outline-danger" title="Excluir" onclick="excluirNfe(${row.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        ],
+        order: [[4, 'desc']], // Ordenar por data de recebimento
+        language: {
+            url: '{{ DOMAIN }}/view/assets/js/datatables-pt-br.json'
+        }
+    });
+
+    // Aplicar filtros
+    $('#btnAplicarFiltros').click(function() {
+        table.ajax.reload();
+    });
+
+    // Limpar filtros
+    $('#btnLimparFiltros').click(function() {
+        $('#filtroStatus').val('');
+        $('#filtroFornecedor').val('');
+        $('#filtroDataInicio').val('');
+        $('#filtroDataFim').val('');
+        table.ajax.reload();
+    });
+
+    // Carregar fornecedores no filtro
+    carregarFornecedores();
+});
+
+function carregarFornecedores() {
+    $.ajax({
+        url: '{{ DOMAIN }}/usuarios/fornecedores',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                let options = '<option value="">Todos</option>';
+                response.fornecedores.forEach(function(fornecedor) {
+                    options += `<option value="${fornecedor.id}">${fornecedor.nome}</option>`;
+                });
+                $('#filtroFornecedor').html(options);
+            }
+        }
+    });
+}
+
+function excluirNfe(id) {
+    if (confirm('Tem certeza que deseja excluir esta NF-e?')) {
+        $.ajax({
+            url: `{{ DOMAIN }}/recebimento/nfe/${id}/delete`,
+            method: 'POST',
+            success: function(response) {
+                if (response.success) {
+                    // Recarregar tabela
+                    $('#tabelaNfe').DataTable().ajax.reload();
+                    
+                    // Mostrar mensagem de sucesso
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso!',
+                        text: response.message
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro!',
+                        text: response.error
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro!',
+                    text: 'Erro ao excluir NF-e'
+                });
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

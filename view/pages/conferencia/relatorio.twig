@@ -1,0 +1,225 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Relatórios de Conferência{% endblock %}
+{% block content %}
+
+    <!-- Início::page-header -->
+    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <div>
+            <p class="fw-semibold fs-18 mb-0">Relatórios de Conferência</p>
+            <span class="fs-semibold text-muted">Visualize relatórios e estatísticas das conferências de produtos recebidos.</span>
+        </div>
+        <div class="btn-list mt-md-0 mt-2">
+            <a href="{{ DOMAIN }}/conferencia" class="btn btn-outline-secondary btn-wave me-2">
+                <i class="fas fa-arrow-left me-2 align-middle d-inline-block"></i>Voltar
+            </a>
+            <button type="button" class="btn btn-success btn-wave" onclick="exportarRelatorio()">
+                <i class="fas fa-download me-2 align-middle d-inline-block"></i>Exportar
+            </button>
+        </div>
+    </div>
+    <!-- Fim::page-header -->
+
+    <!-- Início::row -->
+    <div class="row">
+        <!-- Estatísticas Gerais -->
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="card custom-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="avatar avatar-md bg-primary">
+                                <i class="fas fa-clipboard-check fs-16"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-1">Total de Conferências</h6>
+                            <h4 class="mb-0" id="total-conferencias">0</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="card custom-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="avatar avatar-md bg-warning">
+                                <i class="fas fa-clock fs-16"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-1">Pendentes</h6>
+                            <h4 class="mb-0" id="conferencias-pendentes">0</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="card custom-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="avatar avatar-md bg-success">
+                                <i class="fas fa-check-circle fs-16"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-1">Concluídas</h6>
+                            <h4 class="mb-0" id="conferencias-concluidas">0</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="card custom-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span class="avatar avatar-md bg-info">
+                                <i class="fas fa-chart-line fs-16"></i>
+                            </span>
+                        </div>
+                        <div class="flex-fill">
+                            <h6 class="mb-1">Em Andamento</h6>
+                            <h4 class="mb-0" id="conferencias-andamento">0</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fim::row -->
+
+    <!-- Início::row -->
+    <div class="row">
+        <!-- Filtros -->
+        <div class="col-xl-12">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-filter me-2"></i>Filtros
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">Período</label>
+                            <select class="form-select" id="periodo-filtro">
+                                <option value="7">Últimos 7 dias</option>
+                                <option value="30" selected>Últimos 30 dias</option>
+                                <option value="90">Últimos 90 dias</option>
+                                <option value="365">Último ano</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="status-filtro">
+                                <option value="">Todos</option>
+                                <option value="pendente">Pendente</option>
+                                <option value="em_andamento">Em Andamento</option>
+                                <option value="concluida">Concluída</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Fornecedor</label>
+                            <input type="text" class="form-control" id="fornecedor-filtro" placeholder="Digite o nome">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="button" class="btn btn-primary w-100" onclick="aplicarFiltros()">
+                                <i class="fas fa-search me-2"></i>Aplicar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fim::row -->
+
+    <!-- Início::row -->
+    <div class="row">
+        <!-- Gráfico de Status -->
+        <div class="col-xl-6">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-chart-pie me-2"></i>Status das Conferências
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chart-status" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Qualidade -->
+        <div class="col-xl-6">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-chart-bar me-2"></i>Qualidade dos Produtos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chart-qualidade" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fim::row -->
+
+    <!-- Início::row -->
+    <div class="row">
+        <!-- Tabela de Conferências -->
+        <div class="col-xl-12">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-table me-2"></i>Conferências
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="tabela-relatorio">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>NFE</th>
+                                    <th>Fornecedor</th>
+                                    <th>Produto</th>
+                                    <th>Status</th>
+                                    <th>Qualidade</th>
+                                    <th>Data</th>
+                                    <th>Usuário</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Carregando...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fim::row -->
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/conferencia/relatorio.js?v={{ VERSION }}"></script>
+{% endblock %}

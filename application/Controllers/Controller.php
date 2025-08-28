@@ -31,6 +31,21 @@ class Controller
         $middlewares->run();
     }
 
+    // Método para verificar sessão - deve ser chamado pelos controllers que precisam
+    protected function checkSession()
+    {
+        if (empty($_SESSION[BASE.'user_id']) && strpos($this->getCurrentUrl(), '/login') === false) {
+            $this->redirectUrlToLogin();
+            exit;
+        }
+    }
+
+    protected function redirectUrlToLogin()
+    {
+        header('Location: ' . DOMAIN . '/login');
+        exit;
+    }
+
     private function isMobileDevice(): bool
     {
         $checkDevice = new CheckDevice();
@@ -67,6 +82,7 @@ class Controller
 
     private function setDefault()
     {
+        $this->dataDefault['BASE'] = BASE;
         $this->dataDefault['mobile'] = $this->isMobileDevice();
         $this->dataDefault['currentUrl'] = $this->getCurrentUrl();
         $this->dataDefault['session'] = $_SESSION;

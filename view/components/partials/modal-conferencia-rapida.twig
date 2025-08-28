@@ -1,0 +1,142 @@
+<div class="modal fade" id="modalConferenciaRapida" tabindex="-1" aria-labelledby="modalConferenciaRapidaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalConferenciaRapidaLabel">
+                    <i class="fe fe-clipboard me-2"></i>Conferência Rápida de Produto
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formConferenciaRapida">
+                    <input type="hidden" id="conferenciaRapidaNfeId" name="nfe_id">
+                    <input type="hidden" id="conferenciaRapidaProdutoId" name="produto_id">
+                    <input type="hidden" id="conferenciaRapidaVariacaoId" name="variacao_id">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="conferenciaRapidaSku" class="form-label">SKU do Produto</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="conferenciaRapidaSku" name="sku" placeholder="Digite ou escaneie o SKU" required>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="abrirScannerConferencia()">
+                                        <i class="fe fe-camera"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="conferenciaRapidaQuantidadePrevista" class="form-label">Quantidade Prevista</label>
+                                <input type="number" class="form-control" id="conferenciaRapidaQuantidadePrevista" name="quantidade_prevista" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="conferenciaRapidaQuantidadeRecebida" class="form-label">Quantidade Recebida</label>
+                                <input type="number" class="form-control" id="conferenciaRapidaQuantidadeRecebida" name="quantidade_recebida" min="0" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="conferenciaRapidaQuantidadeConferida" class="form-label">Quantidade Conferida</label>
+                                <input type="number" class="form-control" id="conferenciaRapidaQuantidadeConferida" name="quantidade_conferida" min="0" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="conferenciaRapidaStatusQualidade" class="form-label">Status Qualidade</label>
+                                <select class="form-select" id="conferenciaRapidaStatusQualidade" name="status_qualidade" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="aprovado">Aprovado</option>
+                                    <option value="reprovado">Reprovado</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="conferenciaRapidaStatusIntegridade" class="form-label">Status Integridade</label>
+                                <select class="form-select" id="conferenciaRapidaStatusIntegridade" name="status_integridade" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="integro">Íntegro</option>
+                                    <option value="parcialmente_danificado">Parcialmente Danificado</option>
+                                    <option value="danificado">Danificado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="conferenciaRapidaObservacoesQualidade" class="form-label">Observações Qualidade</label>
+                                <textarea class="form-control" id="conferenciaRapidaObservacoesQualidade" name="observacoes_qualidade" rows="3" placeholder="Observações sobre a qualidade do produto..."></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="conferenciaRapidaObservacoesIntegridade" class="form-label">Observações Integridade</label>
+                                <textarea class="form-control" id="conferenciaRapidaObservacoesIntegridade" name="observacoes_integridade" rows="3" placeholder="Observações sobre a integridade do produto..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informações do Produto -->
+                    <div id="conferenciaRapidaInfoProduto" class="alert alert-info" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Produto:</strong> <span id="conferenciaRapidaNomeProduto"></span><br>
+                                <strong>Categoria:</strong> <span id="conferenciaRapidaCategoria"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Tamanho:</strong> <span id="conferenciaRapidaTamanho"></span><br>
+                                <strong>Cor:</strong> <span id="conferenciaRapidaCor"></span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fe fe-x me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="salvarConferenciaRapida()">
+                    <i class="fe fe-save me-1"></i>Salvar Conferência
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal do Scanner -->
+<div class="modal fade" id="modalScannerConferencia" tabindex="-1" aria-labelledby="modalScannerConferenciaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalScannerConferenciaLabel">
+                    <i class="fe fe-camera me-2"></i>Scanner de Código de Barras
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <i class="fe fe-camera fs-1 text-primary"></i>
+                    </div>
+                    <p class="text-muted">Digite o código do produto:</p>
+                    <input type="text" class="form-control" id="scannerConferenciaInput" placeholder="Digite o SKU ou código de barras" autofocus>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmarCodigoScannerConferencia()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>

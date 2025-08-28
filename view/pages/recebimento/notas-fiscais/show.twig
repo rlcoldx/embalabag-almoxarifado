@@ -1,0 +1,180 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Detalhes da Nota Fiscal - EmbalaBag{% endblock %}
+
+
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Detalhes da Nota Fiscal</p>
+        <span class="fs-semibold text-muted">Visualize as informações completas da nota fiscal.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento/notas-fiscais" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-arrow-left me-2 align-middle d-inline-block"></i>Voltar
+        </a>
+        <a href="{{ DOMAIN }}/recebimento/notas-fiscais/{{ nota_fiscal.id }}/edit" class="btn btn-primary btn-wave">
+            <i class="fas fa-edit me-2 align-middle d-inline-block"></i>Editar
+        </a>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<!-- Início::row -->
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Informações da Nota Fiscal</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Número da NF-e:</label>
+                        <p class="mb-0">{{ nota_fiscal.numero }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Série:</label>
+                        <p class="mb-0">{{ nota_fiscal.serie ?? 'N/A' }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Data de Emissão:</label>
+                        <p class="mb-0">{{ nota_fiscal.data_emissao|date('d/m/Y') }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Data de Entrada:</label>
+                        <p class="mb-0">{{ nota_fiscal.data_entrada ? nota_fiscal.data_entrada|date('d/m/Y') : 'N/A' }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">CNPJ do Fornecedor:</label>
+                        <p class="mb-0">{{ nota_fiscal.cnpj_fornecedor }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nome do Fornecedor:</label>
+                        <p class="mb-0">{{ nota_fiscal.fornecedor }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Pedido Relacionado:</label>
+                        <p class="mb-0">
+                            {% if nota_fiscal.pedido_id %}
+                                <a href="{{ DOMAIN }}/pedidos/{{ nota_fiscal.pedido_id }}" class="text-primary">
+                                    Pedido #{{ nota_fiscal.pedido_id }}
+                                </a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Valor Total:</label>
+                        <p class="mb-0">R$  {{ nota_fiscal.valor_total|number_format(2, ',', '.') }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Chave de Acesso:</label>
+                        <p class="mb-0">{{ nota_fiscal.chave_acesso ?? 'N/A' }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Observações:</label>
+                        <p class="mb-0">{{ nota_fiscal.observacoes ?? 'Nenhuma observação' }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Status:</label>
+                        <span class="badge bg-{{ nota_fiscal.status == 'pendente' ? 'warning' : (nota_fiscal.status == 'recebida' ? 'info' : (nota_fiscal.status == 'conferida' ? 'success' : 'primary')) }}">
+                            {{ nota_fiscal.status|title }}
+                        </span>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Data de Criação:</label>
+                        <p class="mb-0">{{ nota_fiscal.created_at|date('d/m/Y H:i') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Ações</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if nota_fiscal.status == 'pendente' %}
+                        <a href="{{ DOMAIN }}/recebimento/notas-fiscais/{{ nota_fiscal.id }}/receber" class="btn btn-success btn-wave">
+                            <i class="fas fa-check me-2"></i>Marcar como Recebida
+                        </a>
+                    {% endif %}
+                    
+                    {% if nota_fiscal.status == 'recebida' %}
+                        <a href="{{ DOMAIN }}/recebimento/notas-fiscais/{{ nota_fiscal.id }}/conferir" class="btn btn-info btn-wave">
+                            <i class="fas fa-clipboard-check me-2"></i>Iniciar Conferência
+                        </a>
+                    {% endif %}
+                    
+                    {% if nota_fiscal.status == 'conferida' %}
+                        <a href="{{ DOMAIN }}/recebimento/movimentacoes/create?nf_id={{ nota_fiscal.id }}" class="btn btn-primary btn-wave">
+                            <i class="fas fa-truck me-2"></i>Criar Movimentação
+                        </a>
+                    {% endif %}
+                    
+                    <a href="{{ DOMAIN }}/recebimento/notas-fiscais/{{ nota_fiscal.id }}/edit" class="btn btn-outline-primary btn-wave">
+                        <i class="fas fa-edit me-2"></i>Editar Nota Fiscal
+                    </a>
+                    
+                    <button type="button" class="btn btn-outline-danger btn-wave" onclick="excluirNotaFiscal({{ nota_fiscal.id }})">
+                        <i class="fas fa-trash me-2"></i>Excluir Nota Fiscal
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Itens da NF -->
+        <div class="card custom-card mt-3">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Itens da Nota Fiscal</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="itensNF">
+                    <!-- Itens carregados via AJAX -->
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fim::row -->
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ DOMAIN }}/view/assets/js/recebimento/notas-fiscais/show.js"></script>
+{% endblock %} 

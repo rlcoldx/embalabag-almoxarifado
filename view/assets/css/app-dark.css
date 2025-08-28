@@ -1,0 +1,74 @@
+[data-theme-mode=dark] .card {
+    color: #FFF;
+}
+[data-theme-mode=dark] .select2-container--default .select2-selection--multiple {
+    background-color: #212529;
+    border-color: #495057;
+    padding-bottom: 8px;
+    padding-top: 3px;
+}
+[data-theme-mode=dark] .select2-container--default .select2-search--inline .select2-search__field {
+    color: #e9ecef;
+}
+[data-theme-mode=dark] .select2-dropdown {
+    background-color: #212529;
+    border-color: #495057;
+    color: #e9ecef;
+}
+[data-theme-mode=dark] .select2-container--default .select2-selection--single {
+    border: 1px solid #495057;
+    background-color: #212529;
+}
+[data-theme-mode=dark] .select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #e9ecef;
+}
+
+/* Estilos adicionais para Select2 no tema escuro */
+[data-theme-mode=dark] .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #e9ecef;
+}
+
+[data-theme-mode=dark] .select2-container--default .select2-selection--single .select2-selection__arrow {
+    color: #e9ecef;
+}
+
+[data-theme-mode=dark] .select2-container--default .select2-search--dropdown .select2-search__field {
+    background-color: #212529;
+    border-color: #495057;
+    color: #e9ecef;
+}
+
+[data-theme-mode=dark] .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+[data-theme-mode=dark] .select2-container--default .select2-results__option {
+    color: #e9ecef;
+}
+
+[data-theme-mode=dark] .select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+[data-theme-mode=dark] .select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: #495057;
+    color: #e9ecef;
+}
+
+/* Garantir que o Select2 seja clicável */
+[data-theme-mode=dark] .select2-container {
+    z-index: 9999 !important;
+}
+
+[data-theme-mode=dark] .select2-dropdown {
+    z-index: 10000 !important;
+}
+
+[data-theme-mode=dark] .select2-search--dropdown {
+    z-index: 10001 !important;
+}
+[data-theme-mode=dark] .select2-results__option:hover {
+    background-color: #3b8d7d;
+}

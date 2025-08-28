@@ -674,7 +674,7 @@
   }
 
   &[data-theme-mode="light"] {
-    --menu-bg: #111c43;
+    --menu-bg: #01160c;
 
     &[data-bg-img="bgimg1"] {
       --menu-bg: url(../images/menu-bg-images/bg-img1.jpg);
@@ -713,7 +713,7 @@
   }
 
   &[data-theme-mode="light"] {
-    --menu-bg: #111c43;
+    --menu-bg: #01160c;
     --menu-prime-color: #a3aed1;
   }
 }
@@ -1233,7 +1233,7 @@
   }
 
   &[data-theme-mode="light"] {
-    --header-bg: #111c43;
+    --header-bg: #01160c;
   }
 }
 
@@ -1430,7 +1430,7 @@
 
         &[data-nav-layout="horizontal"][data-menu-styles="dark"][data-theme-mode="light"] {
           .app-sidebar .slide.has-sub .slide-menu {
-            background: #111c43;
+            background: #01160c;
           }
         }
       }
@@ -1565,7 +1565,7 @@
       @media screen and (min-width:992px) {
         &[data-vertical-style="doublemenu"] {
           .slide.has-sub .slide-menu {
-            background-color: #111c43 !important;
+            background-color: #01160c !important;
           }
         }
       }
@@ -1582,7 +1582,7 @@
     &[data-nav-layout="vertical"][data-nav-style="icon-hover"][data-toggled="icon-hover-closed"] {
       .app-sidebar {
         .slide.has-sub .slide-menu {
-          background-color: #111c43;
+          background-color: #01160c;
           background-image: none;
         }
       }

@@ -1,0 +1,219 @@
+<!-- Modal de Detalhes do Produto -->
+<div class="modal fade" id="modalProdutoDetalhes" tabindex="-1" aria-labelledby="modalProdutoDetalhesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalProdutoDetalhesLabel">
+                    <i class="fas fa-box me-2"></i>Detalhes do Produto
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Informações Básicas -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informações Básicas</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold text-muted">Nome:</label>
+                                            <p class="mb-0 fs-16" id="produtoNome"></p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold text-muted">SKU:</label>
+                                            <p class="mb-0"><code id="produtoSku"></code></p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold text-muted">Categoria:</label>
+                                            <p class="mb-0" id="produtoCategoria"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold text-muted">Tamanho:</label>
+                                            <p class="mb-0"><span class="badge bg-info-transparent" id="produtoTamanho"></span></p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold text-muted">Cor:</label>
+                                            <p class="mb-0"><span class="badge bg-secondary-transparent" id="produtoCor"></span></p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold text-muted">Status:</label>
+                                            <p class="mb-0" id="produtoStatus"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Estatísticas</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <div class="p-3 bg-primary-transparent rounded">
+                                            <h4 class="mb-1 fw-bold text-primary" id="produtoEstoqueAtual">0</h4>
+                                            <p class="mb-0 text-muted fs-12">Estoque Atual</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="p-3 bg-warning-transparent rounded">
+                                            <h4 class="mb-1 fw-bold text-warning" id="produtoEstoqueMinimo">0</h4>
+                                            <p class="mb-0 text-muted fs-12">Estoque Mínimo</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="p-3 bg-success-transparent rounded">
+                                            <h4 class="mb-1 fw-bold text-success" id="produtoEntradas">0</h4>
+                                            <p class="mb-0 text-muted fs-12">Entradas</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="p-3 bg-danger-transparent rounded">
+                                            <h4 class="mb-1 fw-bold text-danger" id="produtoSaidas">0</h4>
+                                            <p class="mb-0 text-muted fs-12">Saídas</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Barra de Estoque -->
+                                <div class="mt-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-muted fs-12">Nível de Estoque</span>
+                                        <span class="fw-semibold fs-12" id="produtoNivelEstoque">0%</span>
+                                    </div>
+                                    <div class="progress progress-sm">
+                                        <div class="progress-bar" id="produtoBarraEstoque" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tabs de Informações Detalhadas -->
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs nav-tabs-custom card-header-tabs" id="produtoTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="movimentacoes-tab" data-bs-toggle="tab" data-bs-target="#movimentacoes-produto" type="button" role="tab">
+                                    <i class="fas fa-exchange-alt me-2"></i>Movimentações
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="localizacoes-tab" data-bs-toggle="tab" data-bs-target="#localizacoes-produto" type="button" role="tab">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Localizações
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="historico-tab" data-bs-toggle="tab" data-bs-target="#historico-produto" type="button" role="tab">
+                                    <i class="fas fa-history me-2"></i>Histórico
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="documentos-tab" data-bs-toggle="tab" data-bs-target="#documentos-produto" type="button" role="tab">
+                                    <i class="fas fa-file-alt me-2"></i>Documentos
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="produtoTabsContent">
+                            <!-- Tab Movimentações -->
+                            <div class="tab-pane fade show active" id="movimentacoes-produto" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Histórico de Movimentações</h6>
+                                    <div class="btn-list">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="novaMovimentacaoProduto()">
+                                            <i class="fas fa-plus me-1"></i>Nova Movimentação
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Data/Hora</th>
+                                                <th>Tipo</th>
+                                                <th>Quantidade</th>
+                                                <th>Local</th>
+                                                <th>Motivo</th>
+                                                <th>Usuário</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="movimentacoesProdutoTableBody">
+                                            <tr>
+                                                <td colspan="6" class="text-center py-4">
+                                                    <div class="spinner-border text-primary" role="status">
+                                                        <span class="visually-hidden">Carregando...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab Localizações -->
+                            <div class="tab-pane fade" id="localizacoes-produto" role="tabpanel">
+                                <h6 class="mb-3">Localizações Atuais</h6>
+                                <div id="localizacoesProdutoContainer">
+                                    <div class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Carregando...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab Histórico -->
+                            <div class="tab-pane fade" id="historico-produto" role="tabpanel">
+                                <h6 class="mb-3">Histórico Completo</h6>
+                                <div id="historicoProdutoContainer">
+                                    <div class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Carregando...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab Documentos -->
+                            <div class="tab-pane fade" id="documentos-produto" role="tabpanel">
+                                <h6 class="mb-3">Documentos Relacionados</h6>
+                                <div id="documentosProdutoContainer">
+                                    <div class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Carregando...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="me-auto">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="editarProduto()">
+                        <i class="fas fa-edit me-2"></i>Editar Produto
+                    </button>
+                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="movimentarProduto()">
+                        <i class="fas fa-exchange-alt me-2"></i>Movimentar
+                    </button>
+                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

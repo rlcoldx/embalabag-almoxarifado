@@ -1,0 +1,465 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}
+	{{ produto.id ? 'Editar Produto' : 'Novo Produto' }} - EmbalaBag
+{% endblock %}
+
+{% block styles %}
+{% include "components/partials/sweetalert.twig" %}
+<link rel="stylesheet" href="{{ DOMAIN }}/view/assets/vendors/froala/css/froala_editor.min.css?v={{ VERSION }}">
+<link rel="stylesheet" href="{{ DOMAIN }}/view/assets/vendors/bootstrap-tagsinput/bootstrap-tagsinput.css?v={{ VERSION }}">
+{% endblock %}
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">{{ produto.id ? 'Editar Produto' : 'Novo Produto' }}</p>
+        <span class="fs-semibold text-muted">{{ produto.id ? 'Edite as informações do produto' : 'Cadastre um novo produto no sistema' }}</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/produtos" class="btn btn-outline-secondary btn-wave">
+            <i class="fas fa-arrow-left me-2 align-middle d-inline-block"></i>Voltar
+        </a>
+        <button type="submit" form="cadastrar_produto" id="salvar" class="btn btn-primary btn-wave">
+            <i class="fas fa-save me-2 align-middle d-inline-block"></i>{{ produto.id == '' ? 'PUBLICAR' : 'SALVAR' }}
+        </button>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<form action="javascript:void(0)" id="cadastrar_produto" method="POST">
+    <div class="row">
+        <!-- COLUNA PRINCIPAL -->
+        <div class="col-xl-8 col-lg-8 col-md-12">
+            
+            <!-- Informações Básicas -->
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-info-circle me-2"></i>Informações Básicas
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label required">Nome do Produto</label>
+                            <input value="{{ produto.nome }}" type="text" id="produto_nome" 
+                                   class="form-control text-uppercase {{ (produto.id == '') ? 'novo_produto' : 'editar_produto' }}" 
+                                   name="nome" placeholder="Digite o nome do produto" required="required" 
+                                   onfocusout="format_slug($(this).val(), 'slug_link')">
+                            <input type="hidden" name="slug" id="slug" value="{{ produto.slug }}">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Descrição Detalhada</label>
+                            <textarea name="texto" id="texto" class="form-control">{{ produto.texto }}</textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Observações</label>
+                            <textarea rows="3" name="observacoes" class="form-control" 
+                                      placeholder="Descrição resumida do produto...">{{ produto.observacoes }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Variações do Produto -->
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-palette me-2"></i>Variações do Produto
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="repeater">
+                        <div data-repeater-list="variavel">
+                            <div class="card-toolbar mb-3">
+                                <button data-repeater-create type="button" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus me-1"></i>Adicionar Variação
+                                </button>
+                            </div>
+                            {% if variations %}
+                                {% for variation in variations %}
+                                <div data-repeater-item class="variation-item mb-3 p-3 border rounded">
+                                    <div class="row align-items-end">
+                                        <div class="col-md-3">
+                                            <label class="form-label">Cor</label>
+                                            <select class="form-select sumoselect" name="cor">
+                                                <option value="">Selecione</option>
+                                                {% for cor in cores %}
+                                                    <option value="{{ cor.cor_nome }}" {{ variation.cor == cor.cor_nome ? 'selected' }} data-color="{{ cor.cor }}">{{ cor.cor_nome }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" {{ variation.gerenciar_estoque == 'yes' ? 'checked' }} name="gerenciar_estoque" id="gerenciar_estoque_{{ loop.index }}">
+                                                <label class="form-check-label" for="gerenciar_estoque_{{ loop.index }}">
+                                                    Gerenciar estoque
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">Estoque</label>
+                                            <div class="form-check-input ps-2 pb-4 pt-1 pe-5 w-100 rounded">{{ variation.estoque }}</div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">Encomendas</label>
+                                            <select name="encomenda" class="form-select">
+                                                <option value="no" {{ variation.encomenda == 'no' ? 'selected' }}>Não permitir</option>
+                                                <option value="yes" {{ variation.encomenda == 'yes' ? 'selected' }}>Permitir</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">Tempo de Atraso</label>
+                                            <input type="number" class="form-control" name="atraso" value="{{ variation.atraso }}" min="0">
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button data-repeater-delete type="button" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div data-repeater-item class="variation-item mb-3 border rounded">
+                                    <div class="row align-items-end">
+                                        <div class="col-md-3">
+                                            <label class="form-label">Cor</label>
+                                            <select class="form-select sumoselect" name="cor">
+                                                <option value="">Selecione</option>
+                                                {% for cor in cores %}
+                                                    <option value="{{ cor.cor_nome }}" data-color="{{ cor.cor }}">{{ cor.cor_nome }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" name="gerenciar_estoque" id="gerenciar_estoque_new">
+                                                <label class="form-check-label" for="gerenciar_estoque_new">
+                                                    Gerenciar estoque
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">Estoque</label>
+                                            <div class="form-check-input ps-2 pb-4 pt-1 pe-5 w-100 rounded">0</div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">Encomendas</label>
+                                            <select name="encomenda" class="form-select">
+                                                <option value="no">Não permitir</option>
+                                                <option value="yes">Permitir</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">Tempo de Atraso</label>
+                                            <input type="number" class="form-control" name="atraso" value="0" min="0">
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button data-repeater-delete type="button" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+			<!-- Preços -->
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-dollar-sign me-2"></i>Preços
+                    </div>
+                </div>
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <div class="row">
+							<div class="col-md-3">
+								<label class="form-label">Preço Principal (R$)</label>
+								<input type="text" name="valor" class="form-control money" 
+									value="{{ produto.valor|number_format(2, ',', '.') }}" placeholder="0,00">
+							</div>
+                            <div class="col-md-3">
+                                <label class="form-label">Tipo de Promoção</label>
+                                <select class="form-select" name="promocao_tipo">
+                                    <option value="fixo" {{ produto.promocao_tipo == 'fixo' ? 'selected' }}>Valor Fixo</option>
+                                    <option value="porcentagem" {{ produto.promocao_tipo == 'porcentagem' ? 'selected' }}>Porcentagem</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Valor Promoção</label>
+                                <input type="text" name="promocao" class="form-control money" 
+                                       value="{{ produto.promocao|number_format(2, ',', '.') }}" placeholder="0,00">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Porcentagem (%)</label>
+                                <input type="number" name="porcentagem" class="form-control porcentagem" min="0" max="100" 
+                                       value="{{ produto.porcentagem }}" placeholder="0" 
+                                       {{ produto.promocao_tipo == 'fixo' ? 'style="display:none"' }}>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preços por Empresa -->
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-building me-2"></i>Preços por Empresa
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="repeater">
+                        <div data-repeater-list="preco_empresa">
+                            <div class="card-toolbar mb-3">
+                                <button data-repeater-create type="button" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus me-1"></i>Adicionar
+                                </button>
+                            </div>
+                            {% if precos %}
+                                {% for preco in precos %}
+                                <div data-repeater-item class="preco-empresa-item mb-3 border rounded">
+                                    <div class="row align-items-end">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Empresa</label>
+                                            <select class="form-select" name="id_empresa">
+                                                <option value="">Selecione</option>
+                                                {% for empresa in empresas %}
+                                                    <option value="{{ empresa.id }}" {{ preco.id_empresa == empresa.id ? 'selected' }}>{{ empresa.nome|empresaNome }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="form-label">Preço (R$)</label>
+                                            <input type="text" class="form-control money" name="preco" 
+                                                   value="{{ preco.preco|number_format(2, ',', '.') }}" placeholder="0,00">
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button data-repeater-delete type="button" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div data-repeater-item class="preco-empresa-item mb-3 border rounded">
+                                    <div class="row align-items-end">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Empresa</label>
+                                            <select class="form-select" name="id_empresa">
+                                                <option value="">Selecione</option>
+                                                {% for empresa in empresas %}
+                                                    <option value="{{ empresa.id }}">{{ empresa.nome|empresaNome }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="form-label">Preço (R$)</label>
+                                            <input type="text" class="form-control money" name="preco" placeholder="0,00">
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button data-repeater-delete type="button" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Galeria de Imagens -->
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-images me-2"></i>Galeria de Imagens
+                    </div>
+                </div>
+                <div class="card-body">
+                    {{ include('pages/produtos/imagens.twig') }}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COLUNA LATERAL -->
+        <div class="col-xl-4 col-lg-4 col-md-12">
+            
+            <!-- Status e Publicação -->
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-cog me-2"></i>Status e Publicação
+                    </div>
+                </div>
+                <div class="card-body">
+                    <input type="hidden" name="id" id="id_produto" value="{{ produto.id }}">
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold">Status:</span>
+                            <span class="badge bg-{{ (produto.status == 'Publicado') ? 'success' : 'warning' }}">
+                                {{ (produto.status) ? produto.status : 'Rascunho' }}
+                            </span>
+                        </div>
+                        <select name="status" class="form-select">
+                            <option value="Publicado" {{ (produto.status == 'Publicado') ? 'selected' }}>Publicado</option>
+                            <option value="Rascunho" {{ (produto.status == 'Rascunho') ? 'selected' }}>Rascunho</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Data de Publicação</label>
+                        {% if (produto.date_create) %}
+                            <div class="text-muted small mb-2">
+                                <i class="fas fa-calendar me-1"></i>Publicado em: {{ produto.date_create|date("d/m/Y H:i", "America/Sao_Paulo") }}
+                            </div>
+                        {% endif %}
+                        <input class="form-control" type="datetime-local" name="date_create" 
+                               value="{{ (produto.date_create) ? produto.date_create|date("Y-m-d\\TH:i", "America/Sao_Paulo") : "now"|date("Y-m-d\\TH:i", "America/Sao_Paulo") }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informações Técnicas -->
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-tags me-2"></i>Informações Técnicas
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">SKU</label>
+                            <input type="text" name="SKU" class="form-control" value="{{ produto.SKU }}" placeholder="SKU do produto">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">SKU Fornecedor</label>
+                            <input type="text" name="sku_fornecador" class="form-control" value="{{ produto.sku_fornecador }}" placeholder="SKU do Fornecedor">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tamanho</label>
+                            <select class="form-select" name="tamanho">
+                                <option value="">Selecione</option>
+                                <option value="P" {{ produto.tamanho == 'P' ? 'selected' }}>P</option>
+                                <option value="M" {{ produto.tamanho == 'M' ? 'selected' }}>M</option>
+                                <option value="G" {{ produto.tamanho == 'G' ? 'selected' }}>G</option>
+                                <option value="Bordo" {{ produto.tamanho == 'Bordo' ? 'selected' }}>Bordo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Condições</label>
+                            <input type="text" name="condicoes" class="form-control tags" value="{{ produto.condicoes }}" placeholder="Ex. Novo">
+                        </div>
+                    </div>
+                    
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Marca</label>
+                            <input type="text" name="marca" class="form-control" value="{{ produto.marca }}" placeholder="Marca do produto">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Material</label>
+                            <input type="text" name="material" class="form-control tags" value="{{ produto.material }}" placeholder="Separados por vírgula">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tags</label>
+                        <input type="text" name="tags" class="form-control tags" value="{{ produto.tags }}" placeholder="Separadas por vírgula">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista Negra de Empresas -->
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-ban me-2"></i>Lista Negra de Empresas
+                    </div>
+                </div>
+                <div class="card-body">
+                    <label class="form-label">Empresas que não verão este produto</label>
+                    <select class="form-select select2-blacklist" name="empresas_blacklist[]" multiple="multiple" data-placeholder="Selecione as empresas...">
+                        {% for empresa in empresas %}
+                            <option value="{{ empresa.id }}" {{ empresa.id in blacklist_empresas ? 'selected' }}>{{ empresa.nome|empresaNome }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1"></i>As empresas selecionadas não verão este produto na listagem do site
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categorias -->
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-folder me-2"></i>Categorias
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="form-category-list">
+                        {% set cat_produto = produto.categoria_id|split(',') %}
+                        {% macro list(categorias, cat_produto) %}
+                            {% for categoria in categorias %}
+                                <div class="form-check {% if categoria.nivel == 0 %}mt-2{% endif %} {% if categoria.nivel > 0 %}{% for space in 0..(categoria.nivel -1) %}ms-{{ categoria.nivel + 2 }}{% endfor %}{% endif %}">
+                                    <input class="form-check-input categories_check" name="categories_id[]" type="checkbox" 
+                                           id="categoria{{ categoria.id }}" value="{{ categoria.id }}" 
+                                           {{ (categoria.id in cat_produto) ? 'checked' : '' }} 
+                                           data-id="{{ categoria.id }}" data-parent="{{ categoria.parent }}" data-nivel="{{ categoria.nivel }}">
+                                    <label class="form-check-label" for="categoria{{ categoria.id }}">
+                                        {{ categoria.nome }}
+                                    </label>
+                                </div>
+                                {% if categoria.children %}{{ _self.list(categoria.children, cat_produto) }}{% endif %}
+                            {% endfor %}
+                        {% endmacro %}
+
+                        {% if categorias %}
+                            {{ _self.list(categorias, cat_produto) }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% if produto.id %}
+    <script>
+        start_product_gallery()
+    </script>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ DOMAIN }}/view/assets/js/produtos/produtos.js?v={{ VERSION }}"></script>
+
+<script>
+    // Inicializar select2 para lista negra de empresas
+    $(document).ready(function() {
+        $('.select2-blacklist').select2({
+            placeholder: 'Selecione as empresas...',
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
+{% endblock %}

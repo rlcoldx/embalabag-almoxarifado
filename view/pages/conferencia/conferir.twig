@@ -1,0 +1,210 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Conferir NFE #{{ nfe.numero_nfe }}{% endblock %}
+{% block content %}
+
+    <!-- Início::page-header -->
+    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <div>
+            <p class="fw-semibold fs-18 mb-0">Conferir NFE #{{ nfe.numero_nfe }}</p>
+            <span class="fs-semibold text-muted">Conferir produtos recebidos da nota fiscal eletrônica.</span>
+        </div>
+        <div class="btn-list mt-md-0 mt-2">
+            <a href="{{ DOMAIN }}/conferencia" class="btn btn-outline-secondary btn-wave">
+                <i class="fas fa-arrow-left me-2 align-middle d-inline-block"></i>Voltar
+            </a>
+        </div>
+    </div>
+    <!-- Fim::page-header -->
+
+    <!-- Início::row -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <h3 class="card-title">Informações da NFE</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-semibold">Número NFE:</td>
+                                    <td>{{ nfe.numero_nfe }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold">Fornecedor:</td>
+                                    <td>{{ nfe.fornecedor_nome }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold">Data Emissão:</td>
+                                    <td>{{ nfe.data_emissao|date('d/m/Y') }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-semibold">Valor Total:</td>
+                                    <td>R$ {{ nfe.valor_total|number_format(2, ',', '.') }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold">Status:</td>
+                                    <td><span class="badge bg-warning">Pendente Conferência</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-semibold">Data Recebimento:</td>
+                                    <td>{{ nfe.data_recebimento|date('d/m/Y H:i') if nfe.data_recebimento else 'Não recebida' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fim::row -->
+
+    <form id="formConferencia" method="POST" action="{{ DOMAIN }}/conferencia/salvar">
+        <input type="hidden" name="nfe_id" value="{{ nfe.id }}">
+        
+        <!-- Início::row -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card custom-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Conferir Produtos</h3>
+                        <div class="card-options">
+                            <button type="button" class="btn btn-sm btn-outline-success" onclick="aprovarTodos()">
+                                <i class="fas fa-check me-1"></i>Aprovar Todos
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="rejeitarTodos()">
+                                <i class="fas fa-times me-1"></i>Rejeitar Todos
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>SKU</th>
+                                        <th>Variação</th>
+                                        <th>Qtd. Prevista</th>
+                                        <th>Qtd. Recebida</th>
+                                        <th>Qtd. Conferida</th>
+                                        <th>Status Qualidade</th>
+                                        <th>Status Integridade</th>
+                                        <th>Observações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in itens %}
+                                    <tr data-item-id="{{ item.id }}">
+                                        <input type="hidden" name="itens[{{ loop.index0 }}][produto_id]" value="{{ item.produto_id }}">
+                                        <input type="hidden" name="itens[{{ loop.index0 }}][variacao_id]" value="{{ item.variacao_id }}">
+                                        <input type="hidden" name="itens[{{ loop.index0 }}][quantidade_prevista]" value="{{ item.quantidade }}">
+                                        
+                                        <td>
+                                            <strong>{{ item.nome_produto }}</strong><br>
+                                            <small class="text-muted">{{ item.categoria }}</small>
+                                        </td>
+                                        <td>{{ item.sku }}</td>
+                                        <td>
+                                            {{ item.tamanho }}<br>
+                                            <small class="text-muted">{{ item.cor }}</small>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info">{{ item.quantidade }}</span>
+                                        </td>
+                                        <td>
+                                            <input type="number" 
+                                                   name="itens[{{ loop.index0 }}][quantidade_recebida]" 
+                                                   class="form-control form-control-sm text-center" 
+                                                   value="{{ item.quantidade }}" 
+                                                   min="0" 
+                                                   max="9999"
+                                                   onchange="atualizarQuantidadeConferida(this, {{ loop.index0 }})">
+                                        </td>
+                                        <td>
+                                            <input type="number" 
+                                                   name="itens[{{ loop.index0 }}][quantidade_conferida]" 
+                                                   class="form-control form-control-sm text-center" 
+                                                   value="{{ item.quantidade }}" 
+                                                   min="0" 
+                                                   max="9999"
+                                                   readonly>
+                                        </td>
+                                        <td>
+                                            <select name="itens[{{ loop.index0 }}][status_qualidade]" 
+                                                    class="form-select form-select-sm" 
+                                                    onchange="atualizarStatus(this, {{ loop.index0 }})">
+                                                <option value="pendente">Pendente</option>
+                                                <option value="aprovado">Aprovado</option>
+                                                <option value="reprovado">Reprovado</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select name="itens[{{ loop.index0 }}][status_integridade]" 
+                                                    class="form-select form-select-sm">
+                                                <option value="integro">Íntegro</option>
+                                                <option value="parcialmente_danificado">Parcialmente Danificado</option>
+                                                <option value="danificado">Danificado</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <textarea name="itens[{{ loop.index0 }}][observacoes_qualidade]" 
+                                                      class="form-control form-control-sm" 
+                                                      rows="2" 
+                                                      placeholder="Observações sobre qualidade..."></textarea>
+                                            <textarea name="itens[{{ loop.index0 }}][observacoes_integridade]" 
+                                                      class="form-control form-control-sm mt-1" 
+                                                      rows="2" 
+                                                      placeholder="Observações sobre integridade..."></textarea>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Fim::row -->
+
+        <!-- Início::row -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card custom-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Resumo da Conferência</h6>
+                                <p class="text-muted mb-0">
+                                    Total de itens: <strong>{{ itens|length }}</strong> | 
+                                    Aprovados: <span id="totalAprovados" class="text-success fw-semibold">0</span> | 
+                                    Rejeitados: <span id="totalRejeitados" class="text-danger fw-semibold">0</span>
+                                </p>
+                            </div>
+                            <div>
+                                <a href="{{ DOMAIN }}/conferencia" class="btn btn-outline-secondary btn-wave me-2">
+                                    <i class="fas fa-arrow-left me-1"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-wave">
+                                    <i class="fas fa-save me-1"></i>Salvar Conferência
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Fim::row -->
+    </form>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/conferencia/conferir.js?v={{ VERSION }}"></script>
+{% endblock %}

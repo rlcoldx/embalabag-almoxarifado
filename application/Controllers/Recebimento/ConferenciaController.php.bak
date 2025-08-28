@@ -1,0 +1,317 @@
+<?php
+
+namespace Agencia\Close\Controllers\Recebimento;
+
+use Agencia\Close\Controllers\Controller;
+use Agencia\Close\Models\Conferencia\ConferenciaProduto;
+use Agencia\Close\Models\NotaFiscal\NotaFiscal;
+use Agencia\Close\Helpers\User\PermissionHelper;
+
+class ConferenciaController extends Controller
+{
+    public function index(array $params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+        
+        $permissionHelper = new PermissionHelper();
+        if (!$permissionHelper->userHasPermission('conferencia', 'visualizar')) {
+            echo 'Sem permissão para acessar este módulo.';
+            return;
+        }
+        
+        $this->render('pages/recebimento/conferencia/index.twig', [
+            'menu' => 'recebimento_conferencia'
+        ]);
+    }
+
+    public function create(array $params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+        
+        $permissionHelper = new PermissionHelper();
+        if (!$permissionHelper->userHasPermission('conferencia', 'criar')) {
+            echo 'Sem permissão para criar conferências.';
+            return;
+        }
+        
+        $this->render('pages/recebimento/conferencia/create.twig', [
+            'menu' => 'recebimento_conferencia'
+        ]);
+    }
+
+    public function store(array $params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+        
+        $permissionHelper = new PermissionHelper();
+        if (!$permissionHelper->userHasPermission('conferencia', 'criar')) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Sem permissão para criar conferências.'
+            ]);
+            return;
+        }
+        
+        $conferencia = new ConferenciaProduto();
+        
+        $data = [
+            'item_nf_id' => $_POST['item_nf_id'] ?? null,
+            'quantidade_esperada' => $_POST['quantidade_esperada'] ?? 0,
+            'quantidade_recebida' => $_POST['quantidade_recebida'] ?? 0,
+            'quantidade_avariada' => $_POST['quantidade_avariada'] ?? 0,
+            'quantidade_devolvida' => $_POST['quantidade_devolvida'] ?? 0,
+            'status_qualidade' => $_POST['status_qualidade'] ?? '',
+            'status_integridade' => $_POST['status_integridade'] ?? '',
+            'observacoes' => $_POST['observacoes'] ?? '',
+            'usuario_conferente' => $_SESSION['user_id'] ?? null,
+            'data_conferencia' => date('Y-m-d H:i:s')
+        ];
+        
+        if ($conferencia->createConferencia($data)) {
+            $this->responseJson([
+                'success' => true,
+                'message' => 'Conferência realizada com sucesso!'
+            ]);
+        } else {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Erro ao realizar conferência.'
+            ]);
+        }
+    }
+
+    public function show(array $params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+        
+        $permissionHelper = new PermissionHelper();
+        if (!$permissionHelper->userHasPermission('conferencia', 'visualizar')) {
+            echo 'Sem permissão para visualizar conferências.';
+            return;
+        }
+        
+        $id = $params['id'] ?? null;
+        if (!$id) {
+            echo 'ID da conferência não informado.';
+            return;
+        }
+        
+        $conferencia = new ConferenciaProduto();
+        $result = $conferencia->getConferenciaById($id);
+        $dados = $result->getResult();
+        
+        if (!$dados) {
+            echo 'Conferência não encontrada.';
+            return;
+        }
+        
+        $this->render('pages/recebimento/conferencia/show.twig', [
+            'menu' => 'recebimento_conferencia',
+            'conferencia' => $dados[0] ?? null
+        ]);
+    }
+
+    public function edit(array $params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+        
+        $permissionHelper = new PermissionHelper();
+        if (!$permissionHelper->userHasPermission('conferencia', 'editar')) {
+            echo 'Sem permissão para editar conferências.';
+            return;
+        }
+        
+        $id = $params['id'] ?? null;
+        if (!$id) {
+            echo 'ID da conferência não informado.';
+            return;
+        }
+        
+        $conferencia = new ConferenciaProduto();
+        $result = $conferencia->getConferenciaById($id);
+        $dados = $result->getResult();
+        
+        if (!$dados) {
+            echo 'Conferência não encontrada.';
+            return;
+        }
+        
+        $this->render('pages/recebimento/conferencia/edit.twig', [
+            'menu' => 'recebimento_conferencia',
+            'conferencia' => $dados[0] ?? null
+        ]);
+    }
+
+    public function update(array $params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+        
+        $permissionHelper = new PermissionHelper();
+        if (!$permissionHelper->userHasPermission('conferencia', 'editar')) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Sem permissão para editar conferências.'
+            ]);
+            return;
+        }
+        
+        $id = $params['id'] ?? null;
+        if (!$id) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'ID da conferência não informado.'
+            ]);
+            return;
+        }
+        
+        $conferencia = new ConferenciaProduto();
+        
+        $data = [
+            'quantidade_recebida' => $_POST['quantidade_recebida'] ?? 0,
+            'quantidade_avariada' => $_POST['quantidade_avariada'] ?? 0,
+            'quantidade_devolvida' => $_POST['quantidade_devolvida'] ?? 0,
+            'status_qualidade' => $_POST['status_qualidade'] ?? '',
+            'status_integridade' => $_POST['status_integridade'] ?? '',
+            'observacoes' => $_POST['observacoes'] ?? '',
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        
+        if ($conferencia->updateConferencia($id, $data)) {
+            $this->responseJson([
+                'success' => true,
+                'message' => 'Conferência atualizada com sucesso!'
+            ]);
+        } else {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Erro ao atualizar conferência.'
+            ]);
+        }
+    }
+
+    public function delete(array $params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+        
+        $permissionHelper = new PermissionHelper();
+        if (!$permissionHelper->userHasPermission('conferencia', 'excluir')) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Sem permissão para excluir conferências.'
+            ]);
+            return;
+        }
+        
+        $id = $params['id'] ?? null;
+        if (!$id) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'ID da conferência não informado.'
+            ]);
+            return;
+        }
+        
+        $conferencia = new ConferenciaProduto();
+        
+        if ($conferencia->deleteConferencia($id)) {
+            $this->responseJson([
+                'success' => true,
+                'message' => 'Conferência excluída com sucesso!'
+            ]);
+        } else {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Erro ao excluir conferência.'
+            ]);
+        }
+    }
+
+    public function conferirItem(array $params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+        
+        $permissionHelper = new PermissionHelper();
+        if (!$permissionHelper->userHasPermission('conferencia', 'criar')) {
+            echo 'Sem permissão para realizar conferências.';
+            return;
+        }
+        
+        $itemNfId = $params['item_nf_id'] ?? null;
+        if (!$itemNfId) {
+            echo 'ID do item da NF não informado.';
+            return;
+        }
+        
+        $notaFiscal = new NotaFiscal();
+        $result = $notaFiscal->getItemNFById($itemNfId);
+        $item = $result->getResult();
+        
+        if (!$item) {
+            echo 'Item da NF não encontrado.';
+            return;
+        }
+        
+        $this->render('pages/recebimento/conferencia/create.twig', [
+            'item' => $item[0] ?? null
+        ]);
+    }
+
+    public function realizarConferencia(array $params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+        
+        $permissionHelper = new PermissionHelper();
+        if (!$permissionHelper->userHasPermission('conferencia', 'criar')) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Sem permissão para realizar conferências.'
+            ]);
+            return;
+        }
+        
+        $itemNfId = $params['item_nf_id'] ?? null;
+        if (!$itemNfId) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'ID do item da NF não informado.'
+            ]);
+            return;
+        }
+        
+        $conferencia = new ConferenciaProduto();
+        
+        $data = [
+            'item_nf_id' => $itemNfId,
+            'quantidade_esperada' => $_POST['quantidade_esperada'] ?? 0,
+            'quantidade_recebida' => $_POST['quantidade_recebida'] ?? 0,
+            'quantidade_avariada' => $_POST['quantidade_avariada'] ?? 0,
+            'quantidade_devolvida' => $_POST['quantidade_devolvida'] ?? 0,
+            'status_qualidade' => $_POST['status_qualidade'] ?? '',
+            'status_integridade' => $_POST['status_integridade'] ?? '',
+            'observacoes' => $_POST['observacoes'] ?? '',
+            'usuario_conferente' => $_SESSION['user_id'] ?? null,
+            'data_conferencia' => date('Y-m-d H:i:s')
+        ];
+        
+        if ($conferencia->createConferencia($data)) {
+            $this->responseJson([
+                'success' => true,
+                'message' => 'Conferência realizada com sucesso!'
+            ]);
+        } else {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Erro ao realizar conferência.'
+            ]);
+        }
+    }
+} 

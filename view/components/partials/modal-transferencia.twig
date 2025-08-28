@@ -1,0 +1,197 @@
+<!-- Modal de Transferência -->
+<div class="modal fade" id="modalTransferencia" tabindex="-1" aria-labelledby="modalTransferenciaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTransferenciaLabel">
+                    <i class="fas fa-arrows-alt me-2"></i>Nova Transferência
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formTransferencia">
+                    <input type="hidden" id="transferenciaArmazenagemOrigem" name="armazenagem_origem_id">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="transferenciaProduto" class="form-label required">Produto (SKU)</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="transferenciaProduto" name="sku" 
+                                           placeholder="Digite ou escaneie o SKU" required autocomplete="off">
+                                    <button class="btn btn-outline-primary" type="button" onclick="abrirScannerTransferencia()">
+                                        <i class="fas fa-barcode"></i>
+                                    </button>
+                                </div>
+                                <small class="form-hint">Digite o SKU do produto a ser transferido</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="transferenciaQuantidade" class="form-label required">Quantidade</label>
+                                <input type="number" class="form-control" id="transferenciaQuantidade" name="quantidade" 
+                                       min="1" required>
+                                <small class="form-hint">Quantidade a transferir</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="transferenciaVariacao" class="form-label required">Variação</label>
+                                <select class="form-select" id="transferenciaVariacao" name="variacao_id" required>
+                                    <option value="">Selecione a variação</option>
+                                </select>
+                                <small class="form-hint">Tamanho e cor do produto</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="transferenciaArmazenagemDestino" class="form-label required">Destino</label>
+                                <select class="form-select" id="transferenciaArmazenagemDestino" name="armazenagem_destino_id" required>
+                                    <option value="">Selecione a armazenagem de destino</option>
+                                </select>
+                                <small class="form-hint">Local de destino da transferência</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="transferenciaMotivo" class="form-label">Motivo</label>
+                                <select class="form-select" id="transferenciaMotivo" name="motivo">
+                                    <option value="">Selecione o motivo</option>
+                                    <option value="reorganizacao">Reorganização</option>
+                                    <option value="otimizacao">Otimização de Espaço</option>
+                                    <option value="manutencao">Manutenção</option>
+                                    <option value="inventario">Inventário</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                                <small class="form-hint">Motivo da transferência</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="transferenciaPrioridade" class="form-label">Prioridade</label>
+                                <select class="form-select" id="transferenciaPrioridade" name="prioridade">
+                                    <option value="baixa">Baixa</option>
+                                    <option value="media" selected>Média</option>
+                                    <option value="alta">Alta</option>
+                                    <option value="urgente">Urgente</option>
+                                </select>
+                                <small class="form-hint">Prioridade da transferência</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="transferenciaObservacoes" class="form-label">Observações</label>
+                        <textarea class="form-control" id="transferenciaObservacoes" name="observacoes" rows="3" 
+                                  placeholder="Observações adicionais sobre a transferência"></textarea>
+                    </div>
+                    
+                    <!-- Informações do Produto -->
+                    <div id="infoProdutoTransferencia" class="alert alert-info" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Produto:</strong> <span id="infoNomeProdutoTransferencia"></span><br>
+                                <strong>Categoria:</strong> <span id="infoCategoriaTransferencia"></span><br>
+                                <strong>SKU:</strong> <span id="infoSkuTransferencia"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Estoque Disponível:</strong> <span id="infoEstoqueDisponivel"></span><br>
+                                <strong>Local Atual:</strong> <span id="infoLocalAtual"></span><br>
+                                <strong>Capacidade Destino:</strong> <span id="infoCapacidadeDestino"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Validações -->
+                    <div id="validacoesTransferencia" class="alert alert-warning" style="display: none;">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Atenção</h6>
+                        <ul id="listaValidacoes" class="mb-0">
+                            <!-- Validações serão inseridas aqui -->
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="salvarTransferencia()">
+                    <i class="fas fa-save me-2"></i>Criar Transferência
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Transferência -->
+<div class="modal fade" id="modalConfirmacaoTransferencia" tabindex="-1" aria-labelledby="modalConfirmacaoTransferenciaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalConfirmacaoTransferenciaLabel">
+                    <i class="fas fa-check-circle me-2 text-success"></i>Confirmar Transferência
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-arrows-alt fs-48 text-primary mb-3"></i>
+                    <h6>Confirme os detalhes da transferência</h6>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="text-center p-3 bg-light rounded">
+                            <h6 class="text-muted">Origem</h6>
+                            <strong id="confirmOrigem"></strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center p-3 bg-light rounded">
+                            <h6 class="text-muted">Destino</h6>
+                            <strong id="confirmDestino"></strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Produto:</span>
+                        <strong id="confirmProduto"></strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Quantidade:</span>
+                        <strong id="confirmQuantidade"></strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Variação:</span>
+                        <strong id="confirmVariacao"></strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Motivo:</span>
+                        <strong id="confirmMotivo"></strong>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <small>
+                        <i class="fas fa-info-circle me-2"></i>
+                        A transferência será criada com status "Pendente" e deverá ser executada posteriormente.
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="executarTransferencia()">
+                    <i class="fas fa-check me-2"></i>Confirmar e Criar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

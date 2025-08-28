@@ -84,7 +84,6 @@
       setTimeout(() => {
         clearNavDropdown();
       }, 5000);
-      html.setAttribute("data-nav-style", "menu-click");
       setTimeout(() => {
         checkHoriMenu();
       }, 5000);
@@ -171,26 +170,6 @@
     if (localStorage.ynexnavstyles) {
       let html = document.querySelector("html");
       let navStyles = localStorage.getItem("ynexnavstyles");
-      if (navStyles == "menu-click") {
-        html.setAttribute("data-nav-style", "menu-click");
-        localStorage.removeItem("ynexverticalstyles");
-        html.removeAttribute("data-vertical-style");
-      }
-      if (navStyles == "menu-hover") {
-        html.setAttribute("data-nav-style", "menu-hover");
-        localStorage.removeItem("ynexverticalstyles");
-        html.removeAttribute("data-vertical-style");
-      }
-      if (navStyles == "icon-click") {
-        html.setAttribute("data-nav-style", "icon-click");
-        localStorage.removeItem("ynexverticalstyles");
-        html.removeAttribute("data-vertical-style");
-      }
-      if (navStyles == "icon-hover") {
-        html.setAttribute("data-nav-style", "icon-hover");
-        localStorage.removeItem("ynexverticalstyles");
-        html.removeAttribute("data-vertical-style");
-      }
     }
     if (localStorage.ynexclassic) {
       let html = document.querySelector("html");

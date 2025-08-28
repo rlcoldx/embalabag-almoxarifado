@@ -1,0 +1,365 @@
+<?php
+
+namespace Agencia\Close\Models\Conferencia;
+
+use Agencia\Close\Models\Model;
+use Agencia\Close\Conn\Read;
+use Agencia\Close\Conn\Create;
+use Agencia\Close\Conn\Update;
+use Agencia\Close\Conn\Delete;
+
+class ConferenciaProduto extends Model
+{
+    public function getAllConferencias(): Read
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT cp.*, 
+                   pnf.codigo_produto,
+                   pnf.descricao_produto,
+                   pnf.quantidade as quantidade_esperada,
+                   nf.numero as numero_nf,
+                   nf.fornecedor,
+                   u.nome as usuario_conferente_nome
+            FROM conferencia_produtos cp
+            INNER JOIN pedidos_nf pnf ON cp.item_nf_id = pnf.id
+            INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
+            INNER JOIN usuarios u ON cp.usuario_conferente = u.id
+            ORDER BY cp.data_conferencia DESC
+        ");
+        return $this->read;
+    }
+
+    public function getConferenciaById(int $id): Read
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT cp.*, 
+                   pnf.codigo_produto,
+                   pnf.descricao_produto,
+                   pnf.quantidade as quantidade_esperada,
+                   nf.numero as numero_nf,
+                   nf.fornecedor,
+                   u.nome as usuario_conferente_nome
+            FROM conferencia_produtos cp
+            INNER JOIN pedidos_nf pnf ON cp.item_nf_id = pnf.id
+            INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
+            INNER JOIN usuarios u ON cp.usuario_conferente = u.id
+            WHERE cp.id = :id
+        ", "id={$id}");
+        return $this->read;
+    }
+
+    public function getConferenciasByItemNF(int $itemNfId): Read
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT cp.*, 
+                   u.nome as usuario_conferente_nome
+            FROM conferencia_produtos cp
+            INNER JOIN usuarios u ON cp.usuario_conferente = u.id
+            WHERE cp.item_nf_id = :item_nf_id
+            ORDER BY cp.data_conferencia DESC
+        ", "item_nf_id={$itemNfId}");
+        return $this->read;
+    }
+
+    public function getConferenciasByNotaFiscal(int $notaFiscalId): Read
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT cp.*, 
+                   pnf.codigo_produto,
+                   pnf.descricao_produto,
+                   pnf.quantidade as quantidade_esperada,
+                   u.nome as usuario_conferente_nome
+            FROM conferencia_produtos cp
+            INNER JOIN pedidos_nf pnf ON cp.item_nf_id = pnf.id
+            INNER JOIN usuarios u ON cp.usuario_conferente = u.id
+            WHERE pnf.nota_fiscal_id = :nota_fiscal_id
+            ORDER BY cp.data_conferencia DESC
+        ", "nota_fiscal_id={$notaFiscalId}");
+        return $this->read;
+    }
+
+    public function getConferenciasByUsuario(int $usuarioId): Read
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT cp.*, 
+                   pnf.codigo_produto,
+                   pnf.descricao_produto,
+                   pnf.quantidade as quantidade_esperada,
+                   nf.numero as numero_nf,
+                   nf.fornecedor
+            FROM conferencia_produtos cp
+            INNER JOIN pedidos_nf pnf ON cp.item_nf_id = pnf.id
+            INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
+            WHERE cp.usuario_conferente = :usuario_id
+            ORDER BY cp.data_conferencia DESC
+        ", "usuario_id={$usuarioId}");
+        return $this->read;
+    }
+
+    public function createConferencia(array $data): int|false
+    {
+        $this->create = new Create();
+        $this->create->ExeCreate("conferencia_produtos", $data);
+        return $this->create->getResult();
+    }
+
+    public function updateConferencia(int $id, array $data): bool
+    {
+        $this->update = new Update();
+        $this->update->ExeUpdate("conferencia_produtos", $data, "WHERE id = :id", "id={$id}");
+        $result = $this->update->getResult();
+        return $result === true;
+    }
+
+    public function deleteConferencia(int $id): bool
+    {
+        $this->delete = new Delete();
+        $this->delete->ExeDelete("conferencia_produtos", "WHERE id = :id", "id={$id}");
+        $result = $this->delete->getResult();
+        return $result === true;
+    }
+
+    public function realizarConferencia(array $data): int|false
+    {
+        // Validar dados obrigatórios
+        if (empty($data['item_nf_id']) || empty($data['usuario_conferente']) || 
+            empty($data['quantidade_esperada']) || empty($data['quantidade_recebida'])) {
+            return false;
+        }
+
+        // Verificar se já existe conferência para este item
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT id FROM conferencia_produtos 
+            WHERE item_nf_id = :item_nf_id
+        ", "item_nf_id={$data['item_nf_id']}");
+        
+        if ($this->read->getResult()) {
+            return false; // Já existe conferência para este item
+        }
+
+        // Calcular quantidades se não fornecidas
+        if (!isset($data['quantidade_avariada'])) {
+            $data['quantidade_avariada'] = 0;
+        }
+        
+        if (!isset($data['quantidade_devolvida'])) {
+            $data['quantidade_devolvida'] = 0;
+        }
+
+        // Verificar se quantidade recebida + avariada + devolvida = esperada
+        $total = $data['quantidade_recebida'] + $data['quantidade_avariada'] + $data['quantidade_devolvida'];
+        if ($total != $data['quantidade_esperada']) {
+            return false; // Quantidades não batem
+        }
+
+        return $this->createConferencia($data);
+    }
+
+    public function buscarConferencias(array $filtros = []): Read
+    {
+        $this->read = new Read();
+        $sql = "
+            SELECT cp.*, 
+                   pnf.codigo_produto,
+                   pnf.descricao_produto,
+                   pnf.quantidade as quantidade_esperada,
+                   nf.numero as numero_nf,
+                   nf.fornecedor,
+                   u.nome as usuario_conferente_nome
+            FROM conferencia_produtos cp
+            INNER JOIN pedidos_nf pnf ON cp.item_nf_id = pnf.id
+            INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
+            INNER JOIN usuarios u ON cp.usuario_conferente = u.id
+            WHERE 1=1
+        ";
+        $params = "";
+        
+        if (!empty($filtros['numero_nf'])) {
+            $sql .= " AND nf.numero LIKE :numero_nf";
+            $params .= "numero_nf=%{$filtros['numero_nf']}%&";
+        }
+        
+        if (!empty($filtros['fornecedor'])) {
+            $sql .= " AND nf.fornecedor LIKE :fornecedor";
+            $params .= "fornecedor=%{$filtros['fornecedor']}%&";
+        }
+        
+        if (!empty($filtros['codigo_produto'])) {
+            $sql .= " AND pnf.codigo_produto LIKE :codigo_produto";
+            $params .= "codigo_produto=%{$filtros['codigo_produto']}%&";
+        }
+        
+        if (!empty($filtros['usuario_conferente'])) {
+            $sql .= " AND cp.usuario_conferente = :usuario_conferente";
+            $params .= "usuario_conferente={$filtros['usuario_conferente']}&";
+        }
+        
+        if (!empty($filtros['data_inicio'])) {
+            $sql .= " AND cp.data_conferencia >= :data_inicio";
+            $params .= "data_inicio={$filtros['data_inicio']}&";
+        }
+        
+        if (!empty($filtros['data_fim'])) {
+            $sql .= " AND cp.data_conferencia <= :data_fim";
+            $params .= "data_fim={$filtros['data_fim']}&";
+        }
+        
+        $sql .= " ORDER BY cp.data_conferencia DESC";
+        
+        $this->read->FullRead($sql, rtrim($params, '&'));
+        return $this->read;
+    }
+
+    public function getEstatisticasConferencia(): Read
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT 
+                COUNT(*) as total_conferencias,
+                SUM(CASE WHEN cp.quantidade_recebida = cp.quantidade_esperada THEN 1 ELSE 0 END) as conferencias_perfeitas,
+                SUM(CASE WHEN cp.quantidade_avariada > 0 THEN 1 ELSE 0 END) as conferencias_com_avarias,
+                SUM(CASE WHEN cp.quantidade_devolvida > 0 THEN 1 ELSE 0 END) as conferencias_com_devolucoes,
+                SUM(cp.quantidade_avariada) as total_avariado,
+                SUM(cp.quantidade_devolvida) as total_devolvido
+            FROM conferencia_produtos cp
+        ");
+        return $this->read;
+    }
+
+    public function getCountByStatus(string $status): int
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT COUNT(*) as total 
+            FROM conferencia_produtos 
+            WHERE status = :status
+        ", "status={$status}");
+        $result = $this->read->getResult();
+        return $result ? (int)$result[0]['total'] : 0;
+    }
+
+    public function getEstatisticasPorQualidade(): array
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT status_qualidade, COUNT(*) as total
+            FROM conferencia_produtos 
+            WHERE status_qualidade IS NOT NULL AND status_qualidade != ''
+            GROUP BY status_qualidade
+            ORDER BY total DESC
+        ");
+        $result = $this->read->getResult();
+        
+        $estatisticas = [];
+        if ($result) {
+            foreach ($result as $row) {
+                $estatisticas[$row['status_qualidade']] = (int)$row['total'];
+            }
+        }
+        
+        return $estatisticas;
+    }
+
+    public function getRecentes(int $limit = 5): array
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT cp.*, 
+                   pnf.codigo_produto,
+                   pnf.descricao_produto,
+                   nf.numero as numero_nf,
+                   nf.fornecedor,
+                   u.nome as usuario_conferente_nome
+            FROM conferencia_produtos cp
+            INNER JOIN pedidos_nf pnf ON cp.item_nf_id = pnf.id
+            INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
+            INNER JOIN usuarios u ON cp.usuario_conferente = u.id
+            ORDER BY cp.data_conferencia DESC
+            LIMIT :limit
+        ", "limit={$limit}");
+        
+        $result = $this->read->getResult();
+        return $result ?: [];
+    }
+
+    public function gerarRelatorioConferencia(array $filtros = []): array
+    {
+        $this->read = new Read();
+        $sql = "
+            SELECT 
+                cp.*,
+                pnf.codigo_produto,
+                pnf.descricao_produto,
+                pnf.quantidade as quantidade_nf,
+                nf.numero as numero_nf,
+                nf.fornecedor,
+                u.nome as usuario_conferente_nome,
+                (cp.quantidade_conferida - pnf.quantidade) as diferenca_quantidade,
+                CASE 
+                    WHEN cp.status_qualidade = 'excelente' THEN 'Excelente'
+                    WHEN cp.status_qualidade = 'bom' THEN 'Bom'
+                    WHEN cp.status_qualidade = 'regular' THEN 'Regular'
+                    WHEN cp.status_qualidade = 'ruim' THEN 'Ruim'
+                    ELSE 'Não avaliado'
+                END as qualidade_descricao
+            FROM conferencia_produtos cp
+            INNER JOIN pedidos_nf pnf ON cp.item_nf_id = pnf.id
+            INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
+            INNER JOIN usuarios u ON cp.usuario_conferente = u.id
+            WHERE 1=1
+        ";
+        $params = "";
+        
+        if (!empty($filtros['data_inicio'])) {
+            $sql .= " AND cp.data_conferencia >= :data_inicio";
+            $params .= "data_inicio={$filtros['data_inicio']}&";
+        }
+        
+        if (!empty($filtros['data_fim'])) {
+            $sql .= " AND cp.data_conferencia <= :data_fim";
+            $params .= "data_fim={$filtros['data_fim']}&";
+        }
+        
+        if (!empty($filtros['status_qualidade'])) {
+            $sql .= " AND cp.status_qualidade = :status_qualidade";
+            $params .= "status_qualidade={$filtros['status_qualidade']}&";
+        }
+        
+        if (!empty($filtros['usuario_conferente'])) {
+            $sql .= " AND cp.usuario_conferente = :usuario_conferente";
+            $params .= "usuario_conferente={$filtros['usuario_conferente']}&";
+        }
+        
+        if (!empty($filtros['fornecedor'])) {
+            $sql .= " AND nf.fornecedor LIKE :fornecedor";
+            $params .= "fornecedor=%{$filtros['fornecedor']}%&";
+        }
+        
+        $sql .= " ORDER BY cp.data_conferencia DESC";
+        
+        $this->read->FullRead($sql, rtrim($params, '&'));
+        $result = $this->read->getResult();
+        
+        return [
+            'dados' => $result ?: [],
+            'total_registros' => count($result ?: []),
+            'total_conferencias' => count($result ?: []),
+            'conferencias_aprovadas' => count(array_filter($result ?: [], function($item) {
+                return $item['status'] === 'aprovada';
+            })),
+            'conferencias_rejeitadas' => count(array_filter($result ?: [], function($item) {
+                return $item['status'] === 'rejeitada';
+            })),
+            'periodo' => [
+                'inicio' => $filtros['data_inicio'] ?? null,
+                'fim' => $filtros['data_fim'] ?? null
+            ]
+        ];
+    }
+} 

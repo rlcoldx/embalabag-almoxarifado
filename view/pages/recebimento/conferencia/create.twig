@@ -1,0 +1,137 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Nova Conferência - EmbalaBag{% endblock %}
+
+
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Nova Conferência</p>
+        <span class="fs-semibold text-muted">Realize a conferência de produtos recebidos.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento/conferencia" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-arrow-left me-2 align-middle d-inline-block"></i>Voltar
+        </a>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<!-- Início::row -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Conferência de Produtos</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="formConferencia" method="POST" action="{{ DOMAIN }}/recebimento/conferencia/store">
+                    <!-- Seleção do Item da NF -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nota Fiscal <span class="text-danger">*</span></label>
+                            <select class="form-select" name="nota_fiscal_id" id="selectNotaFiscal" required>
+                                <option value="">Selecione uma NF</option>
+                                <!-- Opções carregadas via AJAX -->
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Item da NF <span class="text-danger">*</span></label>
+                            <select class="form-select" name="item_nf_id" id="selectItemNF" required>
+                                <option value="">Selecione primeiro uma NF</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Informações do Produto -->
+                    <div class="row mb-3" id="infoProduto" style="display: none;">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">Informações do Produto</h6>
+                                <div id="detalhesProduto">
+                                    <!-- Detalhes carregados via AJAX -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quantidades -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Quantidade Esperada</label>
+                            <input type="number" class="form-control" name="quantidade_esperada" id="quantidadeEsperada" readonly>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Quantidade Recebida <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" name="quantidade_recebida" required min="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Quantidade Avariada</label>
+                            <input type="number" class="form-control" name="quantidade_avariada" min="0" value="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Quantidade Devolvida</label>
+                            <input type="number" class="form-control" name="quantidade_devolvida" min="0" value="0">
+                        </div>
+                    </div>
+
+                    <!-- Avaliação de Qualidade -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Status de Qualidade <span class="text-danger">*</span></label>
+                            <select class="form-select" name="status_qualidade" required>
+                                <option value="">Selecione</option>
+                                <option value="excelente">Excelente</option>
+                                <option value="bom">Bom</option>
+                                <option value="regular">Regular</option>
+                                <option value="ruim">Ruim</option>
+                                <option value="inutilizavel">Inutilizável</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status de Integridade <span class="text-danger">*</span></label>
+                            <select class="form-select" name="status_integridade" required>
+                                <option value="">Selecione</option>
+                                <option value="integro">Íntegro</option>
+                                <option value="leve_dano">Leve Dano</option>
+                                <option value="dano_moderado">Dano Moderado</option>
+                                <option value="dano_severo">Dano Severo</option>
+                                <option value="inutilizavel">Inutilizável</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Observações -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="3" placeholder="Observações sobre a conferência, problemas encontrados, etc."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-wave">
+                                <i class="fas fa-save me-2"></i>Salvar Conferência
+                            </button>
+                            <a href="{{ DOMAIN }}/recebimento/conferencia" class="btn btn-outline-secondary btn-wave">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fim::row -->
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ DOMAIN }}/view/assets/js/recebimento/conferencia/create.js"></script>
+{% endblock %} 

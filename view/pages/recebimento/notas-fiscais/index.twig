@@ -1,0 +1,103 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Notas Fiscais - EmbalaBag{% endblock %}
+
+{% block styles %}
+{% include "components/partials/datatable.twig" %}
+{% include "components/partials/sweetalert.twig" %}
+{% endblock %}
+
+{% block content %}
+<!-- Início::page-header -->
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Notas Fiscais</p>
+        <span class="fs-semibold text-muted">Gerencie as notas fiscais eletrônicas recebidas.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento/notas-fiscais/create" class="btn btn-primary btn-wave">
+            <i class="fas fa-plus me-2 align-middle d-inline-block"></i>Nova Nota Fiscal
+        </a>
+    </div>
+</div>
+<!-- Fim::page-header -->
+
+<!-- Início::row -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h5 class="mb-0">Lista de Notas Fiscais</h5>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Filtros -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Número NF</label>
+                        <input type="text" class="form-control" id="filtroNumero" placeholder="Digite o número">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Fornecedor</label>
+                        <input type="text" class="form-control" id="filtroFornecedor" placeholder="Nome do fornecedor">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="filtroStatus">
+                            <option value="">Todos</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="recebida">Recebida</option>
+                            <option value="conferida">Conferida</option>
+                            <option value="finalizada">Finalizada</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Data Início</label>
+                        <input type="date" class="form-control" id="filtroDataInicio">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Data Fim</label>
+                        <input type="date" class="form-control" id="filtroDataFim">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <button type="button" class="btn btn-primary btn-wave" id="btnFiltrar">
+                            <i class="fas fa-search me-2"></i>Filtrar
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-wave" id="btnLimparFiltros">
+                            <i class="fas fa-times me-2"></i>Limpar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- DataTable -->
+                <div class="table-responsive">
+                    <table id="tableNotasFiscais" class="table table-bordered text-nowrap">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Fornecedor</th>
+                                <th>Data Emissão</th>
+                                <th>Valor Total</th>
+                                <th>Status</th>
+                                <th>Pedido</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dados carregados via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fim::row -->
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ DOMAIN }}/view/assets/js/recebimento/notas-fiscais/index.js"></script>
+{% endblock %} 

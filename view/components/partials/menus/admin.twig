@@ -1,0 +1,187 @@
+<!-- Start::slide__category -->
+<li class="slide__category"><span class="category-name">Usuários</span></li>
+<!-- End::slide__category -->
+
+<!-- Start::slide -->
+<li class="slide has-sub {{ menu and menu == 'users' ? 'active open' : '' }}">
+    <a href="javascript:void(0);" class="side-menu__item">
+        <i class="fa-light fa-users side-menu__icon"></i>
+        <span class="side-menu__label">Gerenciar Usuários</span>
+        <i class="fa-light fa-chevron-right side-menu__angle"></i>
+    </a>
+    <ul class="slide-menu">
+        <li class="slide {{ menu and menu == 'users' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/users" class="side-menu__item">
+                <i class="fa-light fa-list side-menu__icon"></i>
+                <span class="side-menu__label">Lista de Usuários</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'cargos' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/cargos" class="side-menu__item">
+                <i class="fa-light fa-briefcase side-menu__icon"></i>
+                <span class="side-menu__label">Gerenciar Cargos</span>
+            </a>
+        </li>
+    </ul>
+</li>
+<!-- End::slide -->
+
+<!-- Start::slide__category -->
+<li class="slide__category"><span class="category-name">Produtos</span></li>
+<!-- End::slide__category -->
+
+<!-- Start::slide -->
+<li class="slide has-sub {{ menu and menu == 'produtos' ? 'active open' : '' }}">
+    <a href="javascript:void(0);" class="side-menu__item">
+        <i class="fa-light fa-box side-menu__icon"></i>
+        <span class="side-menu__label">Produtos</span>
+        <i class="fa-light fa-chevron-right side-menu__angle"></i>
+    </a>
+    <ul class="slide-menu">
+        <li class="slide {{ menu and menu == 'produtos' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/produtos" class="side-menu__item">
+                <i class="fa-light fa-list side-menu__icon"></i>
+                <span class="side-menu__label">Lista de Produtos</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'produtos_new' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/produtos/new" class="side-menu__item">
+                <i class="fa-light fa-plus side-menu__icon"></i>
+                <span class="side-menu__label">Novo Produto</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'estoque_baixo' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/produtos/estoque-baixo" class="side-menu__item">
+                <i class="fa-light fa-exclamation-triangle side-menu__icon"></i>
+                <span class="side-menu__label">Estoque Baixo</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'categorias' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/produtos/categorias" class="side-menu__item">
+                <i class="fa-light fa-tags side-menu__icon"></i>
+                <span class="side-menu__label">Categorias</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'cores' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/produtos/cores" class="side-menu__item">
+                <i class="fa-light fa-palette side-menu__icon"></i>
+                <span class="side-menu__label">Cores</span>
+            </a>
+        </li>
+    </ul>
+</li>
+<!-- End::slide -->
+
+<!-- Start::slide__category -->
+<li class="slide__category"><span class="category-name">Armazenagens</span></li>
+<!-- End::slide__category -->
+
+<!-- Start::slide -->
+<li class="slide has-sub {{ menu and menu == 'armazenagens' ? 'active open' : '' }}">
+    <a href="javascript:void(0);" class="side-menu__item">
+        <i class="fa-light fa-warehouse side-menu__icon"></i>
+        <span class="side-menu__label">Armazenagens</span>
+        <i class="fa-light fa-chevron-right side-menu__angle"></i>
+    </a>
+    <ul class="slide-menu">
+        <li class="slide {{ menu and menu == 'armazenagens' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/armazenagens" class="side-menu__item">
+                <i class="fa-light fa-list side-menu__icon"></i>
+                <span class="side-menu__label">Lista de Armazenagens</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'armazenagens_new' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/armazenagens/create" class="side-menu__item">
+                <i class="fa-light fa-plus side-menu__icon"></i>
+                <span class="side-menu__label">Nova Armazenagem</span>
+            </a>
+        </li>
+        <li class="slide">
+            <a href="{{ DOMAIN }}/armazenagens/mapa" class="side-menu__item">
+                <i class="fa-light fa-map side-menu__icon"></i>
+                <span class="side-menu__label">Mapa de Armazenagens</span>
+            </a>
+        </li>
+    </ul>
+</li>
+<!-- End::slide -->
+
+<!-- Start::slide__category -->
+<li class="slide__category"><span class="category-name">Conferência</span></li>
+<!-- End::slide__category -->
+
+<!-- Start::slide -->
+<li class="slide has-sub {{ menu and menu == 'conferencia' ? 'active open' : '' }}">
+    <a href="javascript:void(0);" class="side-menu__item">
+        <i class="fa-light fa-clipboard-check side-menu__icon"></i>
+        <span class="side-menu__label">Conferência</span>
+        <i class="fa-light fa-chevron-right side-menu__angle"></i>
+    </a>
+    <ul class="slide-menu">
+        <li class="slide {{ menu and menu == 'conferencia' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/conferencia" class="side-menu__item">
+                <i class="fa-light fa-list side-menu__icon"></i>
+                <span class="side-menu__label">Lista de Conferências</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'conferencia_new' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/conferencia/create" class="side-menu__item">
+                <i class="fa-light fa-plus side-menu__icon"></i>
+                <span class="side-menu__label">Nova Conferência</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'conferencia_relatorio' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/conferencia/relatorio" class="side-menu__item">
+                <i class="fa-light fa-chart-bar side-menu__icon"></i>
+                <span class="side-menu__label">Relatórios</span>
+            </a>
+        </li>
+    </ul>
+</li>
+<!-- End::slide -->
+
+<!-- Start::slide__category -->
+<li class="slide__category"><span class="category-name">Entradas de Estoque</span></li>
+<!-- End::slide__category -->
+
+<!-- Start::slide -->
+<li class="slide has-sub {{ menu and menu == 'recebimento' ? 'active open' : '' }}">
+    <a href="javascript:void(0);" class="side-menu__item">
+        <i class="fa-light fa-truck-ramp-box side-menu__icon"></i>
+        <span class="side-menu__label">Recebimentos</span>
+        <i class="fa-light fa-chevron-right side-menu__angle"></i>
+    </a>
+    <ul class="slide-menu">
+        <li class="slide {{ menu and menu == 'recebimento_dashboard' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/recebimento/dashboard" class="side-menu__item">
+                <i class="fa-light fa-chart-line side-menu__icon"></i>
+                <span class="side-menu__label">Dashboard</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'recebimento_nf' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/recebimento/notas-fiscais" class="side-menu__item">
+                <i class="fa-light fa-receipt side-menu__icon"></i>
+                <span class="side-menu__label">Notas Fiscais</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'recebimento_movimentacoes' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/recebimento/movimentacoes" class="side-menu__item">
+                <i class="fa-light fa-arrows-up-down-left-right side-menu__icon"></i>
+                <span class="side-menu__label">Movimentações</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'recebimento_etiquetas' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/recebimento/etiquetas" class="side-menu__item">
+                <i class="fa-light fa-tags side-menu__icon"></i>
+                <span class="side-menu__label">Etiquetas</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'recebimento_relatorios' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/recebimento/relatorios" class="side-menu__item">
+                <i class="fa-light fa-chart-bar side-menu__icon"></i>
+                <span class="side-menu__label">Relatórios</span>
+            </a>
+        </li>
+    </ul>
+</li>
+<!-- End::slide -->

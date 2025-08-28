@@ -1,0 +1,131 @@
+<!-- Modal de Movimentação -->
+<div class="modal fade" id="modalMovimentacao" tabindex="-1" aria-labelledby="modalMovimentacaoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalMovimentacaoLabel">
+                    <i class="fas fa-exchange-alt me-2"></i>
+                    <span id="movimentacaoTitulo">Nova Movimentação</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formMovimentacao">
+                    <input type="hidden" id="movimentacaoTipo" name="tipo">
+                    <input type="hidden" id="movimentacaoArmazenagemId" name="armazenagem_id">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="movimentacaoProduto" class="form-label required">Produto (SKU)</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="movimentacaoProduto" name="sku" 
+                                           placeholder="Digite ou escaneie o SKU" required autocomplete="off">
+                                    <button class="btn btn-outline-primary" type="button" onclick="abrirScanner()">
+                                        <i class="fas fa-barcode"></i>
+                                    </button>
+                                </div>
+                                <small class="form-hint">Digite o SKU do produto ou use o scanner</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="movimentacaoQuantidade" class="form-label required">Quantidade</label>
+                                <input type="number" class="form-control" id="movimentacaoQuantidade" name="quantidade" 
+                                       min="1" required>
+                                <small class="form-hint">Quantidade a movimentar</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="movimentacaoVariacao" class="form-label required">Variação</label>
+                                <select class="form-select" id="movimentacaoVariacao" name="variacao_id" required>
+                                    <option value="">Selecione a variação</option>
+                                </select>
+                                <small class="form-hint">Tamanho e cor do produto</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="movimentacaoMotivo" class="form-label">Motivo</label>
+                                <select class="form-select" id="movimentacaoMotivo" name="motivo">
+                                    <option value="">Selecione o motivo</option>
+                                    <option value="recebimento">Recebimento</option>
+                                    <option value="pedido">Saída por Pedido</option>
+                                    <option value="ajuste">Ajuste de Estoque</option>
+                                    <option value="inventario">Inventário</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                                <small class="form-hint">Motivo da movimentação</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="movimentacaoObservacoes" class="form-label">Observações</label>
+                        <textarea class="form-control" id="movimentacaoObservacoes" name="observacoes" rows="3" 
+                                  placeholder="Observações adicionais sobre a movimentação"></textarea>
+                    </div>
+                    
+                    <!-- Informações do Produto -->
+                    <div id="infoProduto" class="alert alert-info" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Produto:</strong> <span id="infoNomeProduto"></span><br>
+                                <strong>Categoria:</strong> <span id="infoCategoria"></span><br>
+                                <strong>SKU:</strong> <span id="infoSku"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Estoque Atual:</strong> <span id="infoEstoqueAtual"></span><br>
+                                <strong>Estoque Mínimo:</strong> <span id="infoEstoqueMinimo"></span><br>
+                                <strong>Localização:</strong> <span id="infoLocalizacao"></span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="salvarMovimentacao()">
+                    <i class="fas fa-save me-2"></i>Salvar Movimentação
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal do Scanner -->
+<div class="modal fade" id="modalScanner" tabindex="-1" aria-labelledby="modalScannerLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalScannerLabel">
+                    <i class="fas fa-barcode me-2"></i>Scanner de Código de Barras
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="scannerContainer" class="mb-3">
+                    <div class="scanner-placeholder">
+                        <i class="fas fa-barcode fs-48 text-muted mb-3"></i>
+                        <p class="text-muted">Scanner em desenvolvimento</p>
+                        <p class="text-muted fs-12">Por enquanto, digite o SKU manualmente</p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="scannerInput" class="form-label">Digite o código:</label>
+                    <input type="text" class="form-control" id="scannerInput" placeholder="Digite o código de barras">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmarCodigoScanner()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Lista de Produtos{% endblock %}
+{% block content %}
+
+    <!-- Início::page-header -->
+    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <div>
+            <p class="fw-semibold fs-18 mb-0">Gerenciar Produtos</p>
+            <span class="fs-semibold text-muted">Visualize e gerencie todos os produtos do sistema.</span>
+        </div>
+        <div class="btn-list mt-md-0 mt-2">
+            <a href="{{ DOMAIN }}/produtos/new" class="btn btn-primary btn-wave">
+                <i class="fas fa-plus me-2 align-middle d-inline-block"></i>Novo Produto
+            </a>
+        </div>
+    </div>
+    <!-- Fim::page-header -->
+
+    <!-- Início::row -->
+    <div class="row">
+        <div class="col-xl-12">
+            {% include 'components/partials/datatable.twig' with {
+                table_name: 'produtos',
+                data_url: DOMAIN ~ '/api/produtos',
+                title: 'Lista de Produtos',
+                create_url: DOMAIN ~ '/produtos/new',
+                show_create_button: false
+            } %}
+        </div>
+    </div>
+    <!-- Fim::row -->
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/produtos/index.js?v={{ VERSION }}"></script>
+{% endblock %}

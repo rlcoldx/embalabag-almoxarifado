@@ -1,0 +1,126 @@
+<!-- Modal de Nova Saída -->
+<div class="modal fade" id="modalNovaSaida" aria-labelledby="modalNovaSaidaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNovaSaidaLabel">
+                    <i class="fas fa-minus-circle me-2 text-danger"></i>
+                    Nova Saída de Estoque
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formNovaSaida">
+                    <input type="hidden" id="saidaArmazenagemId" name="armazenagem_id">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="saidaProduto" class="form-label required">Produto (SKU)</label>
+                                <select class="form-control select2-ajax" id="saidaProduto" name="id_produto" 
+                                        data-placeholder="Digite para buscar o produto..." required>
+                                    <option value=""></option>
+                                </select>
+                                <small class="form-hint">Digite o nome ou SKU do produto para buscar</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="saidaVariacao" class="form-label required">Variação</label>
+                                <select class="form-control" id="saidaVariacao" name="variacao_id" required disabled>
+                                    <option value="">Selecione primeiro o produto</option>
+                                </select>
+                                <small class="form-hint">Tamanho, cor ou variação do produto</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="saidaQuantidade" class="form-label required">Quantidade</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="saidaQuantidade" name="quantidade" 
+                                           min="1" required>
+                                    <span class="input-group-text">unidades</span>
+                                </div>
+                                <small class="form-hint">Quantidade a retirar do estoque</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="saidaEstoqueAtual" class="form-label">Estoque Disponível</label>
+                                <input type="text" class="form-control" id="saidaEstoqueAtual" readonly>
+                                <small class="form-hint">Quantidade atual disponível para saída</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="saidaMotivo" class="form-label">Motivo da Saída</label>
+                                <select class="form-control" id="saidaMotivo" name="motivo">
+                                    <option value="">Selecione o motivo</option>
+                                    <option value="pedido">Saída por Pedido</option>
+                                    <option value="venda">Venda</option>
+                                    <option value="transferencia">Transferência para Outro Armazém</option>
+                                    <option value="consumo">Consumo Interno</option>
+                                    <option value="ajuste">Ajuste de Inventário</option>
+                                    <option value="avaria">Avaria/Deterioração</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="saidaDestinatario" class="form-label">Destinatário</label>
+                                <input type="text" class="form-control" id="saidaDestinatario" name="destinatario" 
+                                       placeholder="Cliente, departamento, etc.">
+                                <small class="form-hint">Quem está recebendo o produto</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="saidaObservacoes" class="form-label">Observações</label>
+                        <textarea class="form-control" id="saidaObservacoes" name="observacoes" rows="3" 
+                                  placeholder="Observações adicionais sobre a saída"></textarea>
+                    </div>
+                    
+                    <!-- Informações do Produto -->
+                    <div id="infoProdutoSaida" class="alert alert-info" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Produto:</strong> <span id="infoNomeProdutoSaida"></span><br>
+                                <strong>Categoria:</strong> <span id="infoCategoriaSaida"></span><br>
+                                <strong>SKU:</strong> <span id="infoSkuSaida"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Marca:</strong> <span id="infoMarcaSaida"></span><br>
+                                <strong>Material:</strong> <span id="infoMaterialSaida"></span><br>
+                                <strong>Valor Unitário:</strong> <span id="infoValorSaida"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Validações -->
+                    <div id="validacoesSaida" class="alert alert-warning" style="display: none;">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Atenção</h6>
+                        <ul id="listaValidacoesSaida" class="mb-0">
+                            <!-- Validações serão inseridas aqui -->
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-warning" onclick="salvarSaida()">
+                    <i class="fas fa-minus me-2"></i>Registrar Saída
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

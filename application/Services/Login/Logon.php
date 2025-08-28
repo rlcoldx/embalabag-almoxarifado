@@ -14,7 +14,7 @@ class Logon
     {
         $login = new Login();
         $result = $login->getUserByEmailAndPassword($email, $password);
-        if (($result->getResult()) AND ($result->getResult()[0]['tipo'] == '3') ) {
+        if ($result->getResult()) {
             $this->actionsAfterFoundUser($result);
             return true;
         } else {

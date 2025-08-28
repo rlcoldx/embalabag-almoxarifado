@@ -1,0 +1,158 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Editar Cargo{% endblock %}
+{% block content %}
+
+    <!-- Início::page-header -->
+    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+        <div>
+            <p class="fw-semibold fs-18 mb-0">Editar Cargo</p>
+            <span class="fs-semibold text-muted">Edite as informações e permissões do cargo.</span>
+        </div>
+        <div class="btn-list mt-md-0 mt-2">
+            <a href="{{ DOMAIN }}/cargos" class="btn btn-outline-secondary btn-wave">
+                <i class="fas fa-arrow-left me-2 align-middle d-inline-block"></i>Voltar
+            </a>
+        </div>
+    </div>
+    <!-- Fim::page-header -->
+
+    <!-- Início::row -->
+    <form id="editCargoForm" data-cargo-id="{{ cargo.id }}" action="javascript:void(0);" method="post">
+        <div class="row">
+            <div class="col-xl-4 col-lg-4 col-md-12">
+                <!-- Informações Básicas -->
+                <div class="card custom-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-user-cog me-2"></i>Informações do Cargo
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label for="nome" class="form-label">Nome do Cargo <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nome" name="nome" value="{{ cargo.nome }}" placeholder="Ex: Gerente de Estoque" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="descricao" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="descricao" name="descricao" rows="3" placeholder="Descreva as responsabilidades do cargo">{{ cargo.descricao }}</textarea>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="ativo" {% if cargo.status == 'ativo' %}selected{% endif %}>Ativo</option>
+                                <option value="inativo" {% if cargo.status == 'inativo' %}selected{% endif %}>Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controles Rápidos -->
+                <div class="card custom-card mt-3">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-cogs me-2"></i>Controles Rápidos
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectAllPermissions()">
+                                <i class="fas fa-check-double me-1"></i>Selecionar Todas
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="deselectAllPermissions()">
+                                <i class="fas fa-times me-1"></i>Limpar Todas
+                            </button>
+                            <button type="button" class="btn btn-outline-info btn-sm" onclick="selectReadOnly()">
+                                <i class="fas fa-eye me-1"></i>Apenas Visualização
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-8 col-lg-8 col-md-12">
+                <!-- Permissões -->
+                <div class="card custom-card">
+                    <div class="card-header justify-content-between align-items-center">
+                        <div class="card-title">
+                            <i class="fas fa-shield-alt me-2"></i>Permissões do Sistema
+                        </div>
+                        <div class="card-title">
+                            <span class="badge bg-primary-transparent" id="permissionsCount">0 permissões selecionadas</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% set permissoesCargoIds = [] %}
+                        {% for permissaoCargo in permissoesCargo %}
+                            {% set permissoesCargoIds = permissoesCargoIds|merge([permissaoCargo.id]) %}
+                        {% endfor %}
+                        
+                        {% set modulos = {} %}
+                        {% for permissao in permissoes %}
+                            {% if permissao.modulo not in modulos|keys %}
+                                {% set modulos = modulos|merge({(permissao.modulo): []}) %}
+                            {% endif %}
+                            {% set modulos = modulos|merge({(permissao.modulo): modulos[permissao.modulo]|merge([permissao])}) %}
+                        {% endfor %}
+                        
+                        <div class="accordion" id="permissionsAccordion">
+                            {% for modulo, permissoesModulo in modulos %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading{{ modulo|capitalize }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ modulo|capitalize }}" aria-expanded="false" aria-controls="collapse{{ modulo|capitalize }}">
+                                        <div class="d-flex align-items-center justify-content-between w-100 me-3">
+                                            <div>
+                                                <i class="fas fa-folder me-2"></i>
+                                                <strong>{{ modulo|capitalize }}</strong>
+                                                <span class="badge bg-light text-dark ms-2">{{ permissoesModulo|length }} permissões</span>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input module-checkbox" type="checkbox" data-module="{{ modulo }}" id="module{{ modulo }}">
+                                                <label class="form-check-label" for="module{{ modulo }}">
+                                                    <small>Todas</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ modulo|capitalize }}" class="accordion-collapse collapse" aria-labelledby="heading{{ modulo|capitalize }}" data-bs-parent="#permissionsAccordion">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            {% for permissao in permissoesModulo %}
+                                            <div class="col-xl-6 col-lg-6 col-md-12 mb-2">
+                                                <div class="form-check custom-checkbox">
+                                                    <input class="form-check-input permission-checkbox" type="checkbox" name="permissoes[]" value="{{ permissao.id }}" id="permissao{{ permissao.id }}" data-module="{{ modulo }}" {% if permissao.id in permissoesCargoIds %}checked{% endif %}>
+                                                    <label class="form-check-label d-flex align-items-center" for="permissao{{ permissao.id }}">
+                                                        <span class="badge bg-{{ permissao.acao == 'visualizar' ? 'info' : (permissao.acao == 'criar' ? 'success' : (permissao.acao == 'editar' ? 'warning' : 'danger')) }}-transparent text-uppercase me-2">
+                                                            {{ permissao.acao|capitalize }}
+                                                        </span>
+                                                        <small class="text-muted">{{ permissao.descricao }}</small>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="card custom-card mt-3">
+                    <div class="card-body">
+                        <div class="btn-list">
+                            <button type="submit" class="btn btn-primary btn-wave">
+                                <i class="fas fa-save me-2 align-middle d-inline-block"></i>Atualizar Cargo
+                            </button>
+                            <a href="{{ DOMAIN }}/cargos" class="btn btn-outline-secondary btn-wave">Cancelar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <!-- Fim::row -->
+
+{% endblock %} 
