@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 
 let ASSET_PATH = '';
 module.exports = env => {
@@ -31,7 +30,6 @@ module.exports = env => {
                 $: 'jquery',
                 jQuery: 'jquery'
             }),
-            new WebpackManifestPlugin(),
         ],
         devtool: false,
         module: {
@@ -66,7 +64,17 @@ module.exports = env => {
                 stream: false,
                 util: false,
                 buffer: false,
-                process: false
+                process: false,
+                os: false,
+                assert: false,
+                constants: false,
+                domain: false,
+                events: false,
+                http: false,
+                https: false,
+                querystring: false,
+                url: false,
+                zlib: false
             }
         },
         optimization: {
@@ -78,7 +86,9 @@ module.exports = env => {
             asyncWebAssembly: false,
             syncWebAssembly: false,
             layers: false,
-            lazyCompilation: false
+            lazyCompilation: false,
+            outputModule: false,
+            newNextPlugins: false
         },
         cache: false,
         performance: {
@@ -91,7 +101,20 @@ module.exports = env => {
         },
         stats: {
             errorDetails: false,
-            children: false
+            children: false,
+            modules: false,
+            chunks: false,
+            chunkModules: false,
+            chunkOrigins: false,
+            reasons: false,
+            source: false,
+            publicPath: false,
+            entrypoints: false,
+            performance: false,
+            timings: false,
+            builtAt: false,
+            version: false,
+            hash: false
         },
         node: {
             global: true
@@ -99,7 +122,12 @@ module.exports = env => {
         target: 'web',
         externals: {
             fs: 'commonjs fs',
-            path: 'commonjs path'
+            path: 'commonjs path',
+            crypto: 'commonjs crypto',
+            stream: 'commonjs stream',
+            util: 'commonjs util',
+            buffer: 'commonjs buffer',
+            process: 'commonjs process'
         }
     }
 }
