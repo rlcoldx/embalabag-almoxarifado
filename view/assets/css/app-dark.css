@@ -72,3 +72,11 @@
 [data-theme-mode=dark] .select2-results__option:hover {
     background-color: #3b8d7d;
 }
+[data-theme-mode=dark] span.badge.bg-info,
+[data-theme-mode=dark] span.badge.bg-success,
+[data-theme-mode=dark] span.badge.bg-danger,
+[data-theme-mode=dark] span.badge.bg-warning,
+[data-theme-mode=dark] span.badge.bg-primary,
+[data-theme-mode=dark] span.badge.bg-secondary {
+    color: #333;
+}

@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Função para excluir conferência (chamada pelo botão de ações)
 function deleteConferencia(id) {
     if (confirm('Tem certeza que deseja excluir esta conferência?')) {
-        fetch(`/conferencia/${id}/destroy`, {
+        fetch(`/conferencia/destroy/${id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

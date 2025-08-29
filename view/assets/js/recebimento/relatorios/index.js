@@ -449,6 +449,7 @@ function exportarRelatorio() {
  * Imprime o relatório atual
  */
 function imprimirRelatorio() {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const tipo = document.getElementById('tipoRelatorio').value;
     const relatorioSection = document.getElementById('relatorio-' + tipo);
     

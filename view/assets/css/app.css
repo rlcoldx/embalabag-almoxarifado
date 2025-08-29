@@ -1,6 +1,24 @@
+/* ===== VENDORS CSS ===== */
+@import url("../vendors/froala/css/froala_editor.min.css");
+@import url("../vendors/bootstrap-tagsinput/bootstrap-tagsinput.css");
+@import url("../vendors/select2/css/select2.min.css");
+@import url("../../../node_modules/bootstrap/dist/css/bootstrap.min.css");
+@import url("../ynex/assets/css/styles.css");
+@import url("../ynex/assets/css/icons.css");
+@import url("../../../node_modules/node-waves/dist/waves.min.css");
+@import url("../../../node_modules/simplebar/dist/simplebar.min.css");
+@import url("../../../node_modules/flatpickr/dist/flatpickr.min.css");
+@import url("../../../node_modules/@simonwep/pickr/dist/themes/nano.min.css");
+@import url("../../../node_modules/choices.js/public/assets/styles/choices.min.css");
+@import url("../vendors/sumoselect/sumoselect.min.css");
+@import url("../vendors/sweetalert2/sweetalert2.min.css");
+@import url("../../../node_modules/swiper/swiper-bundle.min.css");
+
+/* ===== IMPORTS DE CSS EXTERNOS ===== */
 @import url("fontawesome.min.css");
 @import url("app-dark.css");
 
+/* ===== ESTILOS CUSTOMIZADOS ===== */
 .badge {
     font-size: 1.05em !important;
 }
@@ -815,40 +833,64 @@ input[type="datetime-local"] {
 
 /* ===== SISTEMA DE SUBMENUS ===== */
 
-/* Estilos para submenus */
-.slide-menu {
-    display: none;
-    margin-left: 15px;
+/* Estilos para submenus - com maior especificidade */
+.app-sidebar .slide-menu {
+    display: none !important;
+    margin-left: 15px !important;
+    overflow: hidden !important;
 }
 
-.slide.has-sub.open > .slide-menu {
-    display: block;
+.app-sidebar .slide.has-sub.open > .slide-menu {
+    display: block !important;
 }
 
-.side-menu__angle {
-    transition: transform 0.3s ease;
+.app-sidebar .side-menu__angle {
+    transition: transform 0.3s ease !important;
 }
 
-.side-menu__angle.rotate {
-    transform: rotate(90deg);
+.app-sidebar .side-menu__angle.rotate {
+    transform: rotate(90deg) !important;
 }
 
-.slide.has-sub > a {
-    cursor: pointer;
+.app-sidebar .slide.has-sub > a {
+    cursor: pointer !important;
+    position: relative !important;
 }
 
-.slide.has-sub.open > a {
-    background-color: rgba(0,0,0,0.05);
+.app-sidebar .slide.has-sub.open > a {
+    background-color: rgba(0,0,0,0.05) !important;
 }
 
-.slide-menu .side-menu__item {
-    padding-left: 20px;
-    font-size: 0.9em;
+.app-sidebar .slide-menu .side-menu__item {
+    padding-left: 20px !important;
+    font-size: 0.9em !important;
+    transition: all 0.2s ease !important;
 }
 
-.slide-menu .side-menu__item:hover {
-    background-color: rgba(0,0,0,0.05);
+.app-sidebar .slide-menu .side-menu__item:hover {
+    background-color: rgba(0,0,0,0.05) !important;
 }
+
+/* Garantir que os submenus sejam visíveis quando abertos */
+.app-sidebar .slide.has-sub.open .slide-menu {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Estilos para o ícone de seta */
+.app-sidebar .slide.has-sub > a .side-menu__angle {
+    position: absolute !important;
+    right: 15px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    transition: transform 0.3s ease !important;
+}
+
+.app-sidebar .slide.has-sub.open > a .side-menu__angle {
+    transform: translateY(-50%) rotate(90deg) !important;
+}
+
 .product-badge {
     padding: 0.5rem 0.75rem;
     border-radius: 5px;

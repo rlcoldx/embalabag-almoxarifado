@@ -206,18 +206,6 @@ function showNotification(message, type = 'info') {
     }
 }
 
-/**
- * Função para verificar conectividade
- */
-function checkConnectivity() {
-    if (navigator.onLine) {
-        console.log('Sistema online');
-    } else {
-        console.log('Sistema offline');
-        showNotification('Sistema offline - Algumas funcionalidades podem não funcionar', 'warning');
-    }
-}
-
 // Event listeners para eventos de conectividade
 window.addEventListener('online', function() {
     showNotification('Sistema online novamente', 'success');
@@ -226,9 +214,6 @@ window.addEventListener('online', function() {
 window.addEventListener('offline', function() {
     showNotification('Sistema offline', 'warning');
 });
-
-// Verificar conectividade ao carregar
-checkConnectivity();
 
 /**
  * Função para adicionar indicadores de carregamento

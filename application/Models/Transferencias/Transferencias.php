@@ -7,6 +7,7 @@ use Agencia\Close\Conn\Create;
 use Agencia\Close\Conn\Read;
 use Agencia\Close\Conn\Update;
 use Agencia\Close\Models\Model;
+use Exception;
 
 class Transferencias extends Model
 {
@@ -57,6 +58,32 @@ class Transferencias extends Model
             LEFT JOIN usuarios ue ON t.usuario_executor = ue.id
             WHERE t.id = :id
         ", "id={$id}");
+        return $read;
+    }
+
+    public function getTransferenciasByArmazenagem(int $armazenagemId): Read
+    {
+        $read = new Read();
+        $read->FullRead("
+            SELECT 
+                t.*,
+                i.codigo as item_codigo,
+                i.descricao as item_descricao,
+                ao.codigo as origem_codigo,
+                ao.nome as origem_nome,
+                ad.codigo as destino_codigo,
+                ad.nome as destino_nome,
+                us.nome as solicitante_nome,
+                ue.nome as executor_nome
+            FROM armazenagem_transferencias t
+            LEFT JOIN itens_nf i ON t.item_id = i.id
+            LEFT JOIN armazenagens ao ON t.armazenagem_origem = ao.id
+            LEFT JOIN armazenagens ad ON t.armazenagem_destino = ad.id
+            LEFT JOIN usuarios us ON t.usuario_solicitante = us.id
+            LEFT JOIN usuarios ue ON t.usuario_executor = ue.id
+            WHERE t.armazenagem_origem = :armazenagem_id OR t.armazenagem_destino = :armazenagem_id
+            ORDER BY t.data_solicitacao DESC
+        ", "armazenagem_id={$armazenagemId}");
         return $read;
     }
 

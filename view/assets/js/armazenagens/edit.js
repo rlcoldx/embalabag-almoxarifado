@@ -20,12 +20,21 @@ function iniciarFormulario() {
         const formData = new FormData(this);
         const DOMAIN = document.body.getAttribute('data-domain') || '';
         
-        // Obter o ID da armazenagem da URL
-        const urlParts = window.location.pathname.split('/');
-        const armazenagemId = urlParts[urlParts.length - 1];
+        // Obter o ID da armazenagem do campo hidden do formulário
+        const armazenagemId = formData.get('id');
+        
+        if (!armazenagemId) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: 'Erro ao obter o ID da armazenagem.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }        
         
         // Enviar dados para o servidor
-        fetch(`${DOMAIN}/armazenagens/${armazenagemId}/update`, {
+        fetch(`${DOMAIN}/armazenagens/update/${armazenagemId}`, {
             method: 'POST',
             body: formData
         })

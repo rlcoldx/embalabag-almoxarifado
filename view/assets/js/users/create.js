@@ -24,6 +24,9 @@ window.updateCargosCount = function() {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
+    
     // Controle de exibição dos campos específicos baseado no tipo de usuário
     const tipoSelect = document.getElementById('tipo');
     const companhiaFields = document.getElementById('companhiaFields');
@@ -74,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(this);
             
             // Fazer requisição AJAX
-            fetch(`${DOMAIN}/users/create`, {
+            fetch(`${DOMAIN}/users/store`, {
                 method: 'POST',
                 body: formData
             })

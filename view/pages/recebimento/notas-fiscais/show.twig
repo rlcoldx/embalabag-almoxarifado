@@ -15,7 +15,7 @@
         <a href="{{ DOMAIN }}/recebimento/notas-fiscais" class="btn btn-outline-primary btn-wave">
             <i class="fas fa-arrow-left me-2 align-middle d-inline-block"></i>Voltar
         </a>
-        <a href="{{ DOMAIN }}/recebimento/notas-fiscais/{{ nota_fiscal.id }}/edit" class="btn btn-primary btn-wave">
+        <a href="{{ DOMAIN }}/recebimento/notas-fiscais/edit/{{ nota_fiscal.id }}" class="btn btn-primary btn-wave">
             <i class="fas fa-edit me-2 align-middle d-inline-block"></i>Editar
         </a>
     </div>
@@ -124,25 +124,25 @@
             <div class="card-body">
                 <div class="d-grid gap-2">
                     {% if nota_fiscal.status == 'pendente' %}
-                        <a href="{{ DOMAIN }}/recebimento/notas-fiscais/{{ nota_fiscal.id }}/receber" class="btn btn-success btn-wave">
-                            <i class="fas fa-check me-2"></i>Marcar como Recebida
+                        <a href="{{ DOMAIN }}/recebimento/notas-fiscais/receber/{{ nota_fiscal.id }}" class="btn btn-success btn-wave">
+                            <i class="fas fa-check me-2"></i>Receber
                         </a>
                     {% endif %}
                     
                     {% if nota_fiscal.status == 'recebida' %}
-                        <a href="{{ DOMAIN }}/recebimento/notas-fiscais/{{ nota_fiscal.id }}/conferir" class="btn btn-info btn-wave">
-                            <i class="fas fa-clipboard-check me-2"></i>Iniciar Conferência
+                        <a href="{{ DOMAIN }}/recebimento/notas-fiscais/conferir/{{ nota_fiscal.id }}" class="btn btn-info btn-wave">
+                            <i class="fas fa-search me-2"></i>Conferir
                         </a>
                     {% endif %}
                     
                     {% if nota_fiscal.status == 'conferida' %}
                         <a href="{{ DOMAIN }}/recebimento/movimentacoes/create?nf_id={{ nota_fiscal.id }}" class="btn btn-primary btn-wave">
-                            <i class="fas fa-truck me-2"></i>Criar Movimentação
+                            <i class="fas fa-truck me-2"></i>Movimentar
                         </a>
                     {% endif %}
                     
-                    <a href="{{ DOMAIN }}/recebimento/notas-fiscais/{{ nota_fiscal.id }}/edit" class="btn btn-outline-primary btn-wave">
-                        <i class="fas fa-edit me-2"></i>Editar Nota Fiscal
+                    <a href="{{ DOMAIN }}/recebimento/notas-fiscais/edit/{{ nota_fiscal.id }}" class="btn btn-outline-primary btn-wave">
+                        <i class="fas fa-edit me-2"></i>Editar
                     </a>
                     
                     <button type="button" class="btn btn-outline-danger btn-wave" onclick="excluirNotaFiscal({{ nota_fiscal.id }})">

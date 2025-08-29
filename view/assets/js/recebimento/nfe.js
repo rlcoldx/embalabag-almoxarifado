@@ -93,6 +93,7 @@ class NfeManager {
     }
 
     buscarPedido() {
+        let DOMAIN = document.body.getAttribute('data-domain') || '';
         const numeroPedido = $('#numero_pedido').val().trim();
         
         if (!numeroPedido) {
@@ -126,6 +127,7 @@ class NfeManager {
     }
 
     buscarProdutoPorSKU(sku) {
+        let DOMAIN = document.body.getAttribute('data-domain') || '';
         if (sku.length < 3) return;
 
         $.ajax({
@@ -160,6 +162,7 @@ class NfeManager {
     }
 
     carregarVariacoes(produtoId) {
+        let DOMAIN = document.body.getAttribute('data-domain') || '';
         $.ajax({
             url: `${DOMAIN}/produtos/variacoes/${produtoId}`,
             method: 'GET',

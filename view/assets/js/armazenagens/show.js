@@ -36,11 +36,21 @@ function initTabs() {
  * Carregar movimentações da armazenagem
  */
 function loadMovimentacoes() {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const armazenagemId = getArmazenagemIdFromUrl();
     
-    fetch(`${DOMAIN}/api/armazenagens/${armazenagemId}/movimentacoes`)
+    console.log('Carregando movimentações para armazenagem ID:', armazenagemId);
+    console.log('URL atual:', window.location.pathname);
+    
+    if (!armazenagemId) {
+        console.error('ID da armazenagem não encontrado');
+        return;
+    }
+    
+    fetch(`${DOMAIN}/api/armazenagens/movimentacoes/${armazenagemId}`)
         .then(response => response.json())
         .then(data => {
+            console.log('Resposta da API movimentações:', data);
             if (data.success) {
                 renderMovimentacoes(data.movimentacoes);
             }
@@ -78,11 +88,20 @@ function renderMovimentacoes(movimentacoes) {
  * Carregar transferências da armazenagem
  */
 function loadTransferencias() {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const armazenagemId = getArmazenagemIdFromUrl();
     
-    fetch(`${DOMAIN}/api/armazenagens/${armazenagemId}/transferencias`)
+    console.log('Carregando transferências para armazenagem ID:', armazenagemId);
+    
+    if (!armazenagemId) {
+        console.error('ID da armazenagem não encontrado');
+        return;
+    }
+    
+    fetch(`${DOMAIN}/api/armazenagens/transferencias/${armazenagemId}`)
         .then(response => response.json())
         .then(data => {
+            console.log('Resposta da API transferências:', data);
             if (data.success) {
                 renderTransferencias(data.transferencias);
             }
@@ -120,11 +139,20 @@ function renderTransferencias(transferencias) {
  * Carregar histórico da armazenagem
  */
 function loadHistorico() {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const armazenagemId = getArmazenagemIdFromUrl();
     
-    fetch(`${DOMAIN}/api/armazenagens/${armazenagemId}/historico`)
+    console.log('Carregando histórico para armazenagem ID:', armazenagemId);
+    
+    if (!armazenagemId) {
+        console.error('ID da armazenagem não encontrado');
+        return;
+    }
+    
+    fetch(`${DOMAIN}/api/armazenagens/historico/${armazenagemId}`)
         .then(response => response.json())
         .then(data => {
+            console.log('Resposta da API histórico:', data);
             if (data.success) {
                 renderHistorico(data.historico);
             }
@@ -206,6 +234,7 @@ function abrirModalTransferencia() {
  * Ver detalhes do produto
  */
 function verDetalhesProduto(produtoId, variacaoId) {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     // Buscar detalhes do produto
     fetch(`${DOMAIN}/api/produtos/${produtoId}/detalhes`)
         .then(response => response.json())
@@ -255,6 +284,7 @@ function exibirModalProdutoDetalhes(produto) {
  * Carregar dados das abas do modal de produto
  */
 function carregarDadosProdutoDetalhes(produtoId, variacaoId) {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     // Carregar movimentações
     fetch(`${DOMAIN}/api/produtos/${produtoId}/movimentacoes?variacao_id=${variacaoId}`)
         .then(response => response.json())
@@ -378,8 +408,9 @@ function novaMovimentacaoProduto(produtoId, variacaoId, tipo) {
  * Editar produto
  */
 function editarProduto(produtoId) {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     // Redirecionar para página de edição
-    window.location.href = `${DOMAIN}/produtos/${produtoId}/edit`;
+    window.location.href = `${DOMAIN}/produtos/edit/${produtoId}`;
 }
 
 /**
@@ -414,6 +445,7 @@ function configurarEventosMovimentacao() {
  * Buscar produto por SKU
  */
 function buscarProdutoPorSku() {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const sku = document.getElementById('movimentacaoProduto').value.trim();
     if (!sku) {
         Swal.fire('Erro', 'Digite o SKU do produto', 'error');
@@ -465,6 +497,7 @@ function exibirInfoProduto(produto) {
  * Carregar variações do produto
  */
 function carregarVariacoes(produtoId) {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const variacaoSelect = document.getElementById('movimentacaoVariacao');
     if (!variacaoSelect) return;
     
@@ -538,6 +571,7 @@ function confirmarCodigoScanner(codigo, tipo) {
  * Salvar movimentação
  */
 function salvarMovimentacao(e) {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     if (e) e.preventDefault();
     
     const form = document.getElementById('formMovimentacao');
@@ -631,6 +665,7 @@ function configurarEventosTransferencia() {
  * Buscar produto para transferência
  */
 function buscarProdutoTransferencia() {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const sku = document.getElementById('transferenciaProduto').value.trim();
     if (!sku) {
         Swal.fire('Erro', 'Digite o SKU do produto', 'error');
@@ -682,6 +717,7 @@ function exibirInfoProdutoTransferencia(produto) {
  * Carregar variações para transferência
  */
 function carregarVariacoesTransferencia(produtoId) {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const variacaoSelect = document.getElementById('transferenciaVariacao');
     if (!variacaoSelect) return;
     
@@ -710,6 +746,7 @@ function carregarVariacoesTransferencia(produtoId) {
  * Carregar armazenagens de destino
  */
 function carregarArmazenagensDestino() {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const armazenagemOrigemId = document.getElementById('transferenciaArmazenagemOrigem').value;
     const selectDestino = document.getElementById('transferenciaArmazenagemDestino');
     
@@ -742,6 +779,7 @@ function carregarArmazenagensDestino() {
  * Salvar transferência
  */
 function salvarTransferencia(e) {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     if (e) e.preventDefault();
     
     const form = document.getElementById('formTransferencia');
@@ -778,6 +816,7 @@ function salvarTransferencia(e) {
  * Executar transferência
  */
 function executarTransferencia(dados) {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     // Mostrar loading
     Swal.fire({
         title: 'Executando transferência...',
@@ -822,7 +861,31 @@ function executarTransferencia(dados) {
 
 function getArmazenagemIdFromUrl() {
     const urlParts = window.location.pathname.split('/');
-    return urlParts[urlParts.length - 1];
+    // Se a URL for /armazenagens/edit/{id}, pegar o último segmento
+    // Se a URL for /armazenagens/{id}, pegar o último segmento
+    // Se a URL for /armazenagens/show/{id}, pegar o último segmento
+    const lastSegment = urlParts[urlParts.length - 1];
+    
+    // Verificar se o último segmento é um número (ID)
+    if (!isNaN(lastSegment) && lastSegment !== '') {
+        return lastSegment;
+    }
+    
+    // Se não for um número, tentar pegar o penúltimo segmento
+    const penultimateSegment = urlParts[urlParts.length - 2];
+    if (!isNaN(penultimateSegment) && penultimateSegment !== '') {
+        return penultimateSegment;
+    }
+    
+    // Fallback: tentar encontrar um número na URL
+    for (let i = urlParts.length - 1; i >= 0; i--) {
+        if (!isNaN(urlParts[i]) && urlParts[i] !== '') {
+            return urlParts[i];
+        }
+    }
+    
+    console.error('Não foi possível extrair o ID da armazenagem da URL');
+    return null;
 }
 
 function formatDateTime(dateTimeString) {

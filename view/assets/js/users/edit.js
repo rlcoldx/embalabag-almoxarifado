@@ -24,6 +24,8 @@ window.updateCargosCount = function() {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+    
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     // Controle de exibição dos campos específicos baseado no tipo de usuário
     const tipoSelect = document.getElementById('tipo');
     const companhiaFields = document.getElementById('companhiaFields');

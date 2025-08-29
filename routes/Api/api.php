@@ -8,8 +8,11 @@ $router->get("/api/produtos/sku/{sku}", "ProdutosApiController:porSku");
 
 // API de Armazenagens
 $router->get("/api/armazenagens", "ArmazenagensApiController:listarArmazenagens");
-$router->get("/api/armazenagens/{id}/produtos", "ArmazenagensApiController:getProdutosArmazenados");
-$router->get("/api/armazenagens/{id}/estatisticas", "ArmazenagensApiController:getEstatisticas");
+$router->get("/api/armazenagens/produtos/{id}", "ArmazenagensApiController:getProdutosArmazenados");
+$router->get("/api/armazenagens/estatisticas/{id}", "ArmazenagensApiController:getEstatisticas");
+$router->get("/api/armazenagens/movimentacoes/{id}", "ArmazenagensApiController:getMovimentacoes");
+$router->get("/api/armazenagens/transferencias/{id}", "ArmazenagensApiController:getTransferencias");
+$router->get("/api/armazenagens/historico/{id}", "ArmazenagensApiController:getHistorico");
 
 // API de Movimentações
 $router->post("/api/movimentacoes/criar", "MovimentacoesApiController:criarMovimentacao");

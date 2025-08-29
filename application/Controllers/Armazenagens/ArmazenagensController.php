@@ -86,16 +86,6 @@ class ArmazenagensController extends Controller
         
         $armazenagem = new Armazenagem();
         
-        // Verifica se código já existe
-        $armazenagemExistente = $armazenagem->getArmazenagemByCodigo($data['codigo']);
-        if ($armazenagemExistente->getResult()) {
-            $this->responseJson([
-                'success' => false,
-                'error' => 'Código já existe'
-            ]);
-            return;
-        }
-        
         $armazenagemId = $armazenagem->createArmazenagem($data);
         if ($armazenagemId) {
             $this->responseJson([
@@ -157,7 +147,19 @@ class ArmazenagensController extends Controller
                 'error' => 'ID da armazenagem não informado'
             ]);
             return;
+        }        
+        
+        // Validar se o ID é numérico
+        if (!is_numeric($armazenagemId)) {
+            $this->responseJson([
+                'success' => false,
+                'error' => 'ID da armazenagem deve ser numérico'
+            ]);
+            return;
         }
+        
+        // Converter para inteiro
+        $armazenagemId = (int) $armazenagemId;
         
         $data = [
             'codigo' => $_POST['codigo'] ?? '',
@@ -194,17 +196,6 @@ class ArmazenagensController extends Controller
         }
         
         $armazenagem = new Armazenagem();
-        
-        // Verifica se código já existe (exceto o próprio)
-        $armazenagemExistente = $armazenagem->getArmazenagemByCodigo($data['codigo']);
-        $resultado = $armazenagemExistente->getResult();
-        if ($resultado && $resultado[0]['id'] != $armazenagemId) {
-            $this->responseJson([
-                'success' => false,
-                'error' => 'Código já existe'
-            ]);
-            return;
-        }
         
         if ($armazenagem->updateArmazenagem($armazenagemId, $data)) {
             $this->responseJson([

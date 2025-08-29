@@ -303,6 +303,9 @@ function renderData(tableName, data) {
  * Renderiza as ações da linha
  */
 function renderActions(tableName, row, column) {
+
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
+
     const actions = column.options?.actions || [];
     let html = '<div class="btn-list">';
     

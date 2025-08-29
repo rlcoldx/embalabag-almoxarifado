@@ -3,20 +3,18 @@
 // Rotas para Conferência de Recebimento
 $router->namespace("Agencia\Close\Controllers\Conferencia");
 
-// Rota principal (deve vir antes das rotas com parâmetros)
-$router->get("/conferencia", "ConferenciaRecebimentoController:index");
-
-// Rotas específicas com prioridade máxima
+// Rotas específicas com prioridade máxima (devem vir ANTES das rotas com parâmetros)
 $router->get("/conferencia/create", "ConferenciaRecebimentoController:create");
 $router->post("/conferencia/store", "ConferenciaRecebimentoController:store");
 $router->get("/conferencia/relatorio", "ConferenciaRecebimentoController:relatorio");
+$router->get("/conferencia/nfe/iniciar/{nfe_id}", "ConferenciaRecebimentoController:iniciarConferencia");
 
-// Rotas com parâmetros por último
-//$router->get("/conferencia/{id}", "ConferenciaRecebimentoController:show");
-$router->get("/conferencia/{id}/edit", "ConferenciaRecebimentoController:edit");
-$router->post("/conferencia/{id}/update", "ConferenciaRecebimentoController:update");
-$router->post("/conferencia/{id}/destroy", "ConferenciaRecebimentoController:destroy");
+// Rota principal
+$router->get("/conferencia", "ConferenciaRecebimentoController:index");
 
-// Rotas para iniciar conferência de NFE específica
-$router->get("/conferencia/nfe/{nfe_id}/iniciar", "ConferenciaRecebimentoController:iniciarConferencia");
+// Rotas com parâmetros por último (devem vir DEPOIS das rotas específicas)
+//$router->get("/conferencia/show/{id}", "ConferenciaRecebimentoController:show");
+$router->get("/conferencia/edit/{id}", "ConferenciaRecebimentoController:edit");
+$router->post("/conferencia/update/{id}", "ConferenciaRecebimentoController:update");
+$router->post("/conferencia/destroy/{id}", "ConferenciaRecebimentoController:destroy");
 

@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`${DOMAIN}/armazenagens/${id}/destroy`, {
+                fetch(`${DOMAIN}/armazenagens/delete/${id}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

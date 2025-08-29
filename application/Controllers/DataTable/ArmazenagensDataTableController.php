@@ -39,13 +39,13 @@ class ArmazenagensDataTableController extends BaseDataTableController
                  ->addColumn('actions', 'Ações', 'actions', [
                      'actions' => [
                          [
-                             'url' => DOMAIN . '/armazenagens/:id',
+                             'url' => DOMAIN . '/armazenagens/show/:id',
                              'icon' => 'fas fa-eye',
                              'color' => 'outline-primary',
                              'label' => 'Detalhes'
                          ],
                          [
-                             'url' => DOMAIN . '/armazenagens/:id/edit',
+                             'url' => DOMAIN . '/armazenagens/edit/:id',
                              'icon' => 'fas fa-edit',
                              'color' => 'outline-warning',
                              'label' => 'Editar'

@@ -1,11 +1,13 @@
-const pach = $('body').data('pach');
-const DOMAIN = $('body').data('dominio');
-const version = $('body').data('version');
-const lang = $('body').data('lang');
-
-
 // Sistema de Submenus com jQuery
-$(document).ready(function () {
+function initializeApp() {    
+    // Definir variáveis globais apenas quando jQuery estiver disponível
+    if (typeof $ !== 'undefined') {
+        window.pach = $('body').data('pach');
+        window.DOMAIN = $('body').data('dominio');
+        window.version = $('body').data('version');
+        window.lang = $('body').data('lang');
+    }
+    
     // Sistema de submenus
     $('.slide.has-sub > a').on('click', function (e) {
         e.preventDefault();
@@ -69,4 +71,28 @@ $(document).ready(function () {
             }
         });
     }
-});
+}
+
+// Aguardar jQuery estar disponível
+if (typeof $ !== 'undefined') {
+    // jQuery já está disponível
+    $(document).ready(initializeApp);
+} else {
+    // Aguardar jQuery carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tentar várias vezes até o jQuery estar disponível
+        let attempts = 0;
+        const maxAttempts = 50;
+        
+        function checkJQuery() {
+            if (typeof $ !== 'undefined') {
+                $(document).ready(initializeApp);
+            } else if (attempts < maxAttempts) {
+                attempts++;
+                setTimeout(checkJQuery, 100);
+            } else {}
+        }
+        
+        checkJQuery();
+    });
+}

@@ -30,6 +30,9 @@
             </div>
             <div class="card-body">
                 <form id="formArmazenagem" class="row g-3">
+                    <!-- Campo hidden com o ID da armazenagem -->
+                    <input type="hidden" name="id" value="{{ armazenagem.id }}">
+                    
                     <div class="col-md-3">
                         <label class="form-label required">Código</label>
                         <input type="text" class="form-control" name="codigo" value="{{ armazenagem.codigo }}" required autocomplete="off" placeholder="Ex: A01, PRAT-01">
@@ -68,20 +71,14 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Status</label>
-                        <div class="form-selectgroup">
-                            <label class="form-selectgroup-item">
-                                <input type="radio" name="status" value="ativo" class="form-selectgroup-input" {% if armazenagem.status == 'ativo' %}checked{% endif %}>
-                                <span class="form-selectgroup-label">Ativo</span>
-                            </label>
-                            <label class="form-selectgroup-item">
-                                <input type="radio" name="status" value="inativo" class="form-selectgroup-input" {% if armazenagem.status == 'inativo' %}checked{% endif %}>
-                                <span class="form-selectgroup-label">Inativo</span>
-                            </label>
-                            <label class="form-selectgroup-item">
-                                <input type="radio" name="status" value="manutencao" class="form-selectgroup-input" {% if armazenagem.status == 'manutencao' %}checked{% endif %}>
-                                <span class="form-selectgroup-label">Manutenção</span>
-                            </label>
-                        </div>
+                        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                            <input type="radio" name="status" value="ativo" class="btn-check" id="btnradio1" {% if armazenagem.status == 'ativo' %}checked{% endif %}>
+                            <label class="btn btn-outline-primary" for="btnradio1">Ativo</label>
+                            <input type="radio" name="status" value="inativo" class="btn-check" id="btnradio2" {% if armazenagem.status == 'inativo' %}checked{% endif %}>
+                            <label class="btn btn-outline-primary" for="btnradio2">Inativo</label>
+                            <input type="radio" name="status" value="manutencao" class="btn-check" id="btnradio3" {% if armazenagem.status == 'manutencao' %}checked{% endif %}>
+                            <label class="btn btn-outline-primary" for="btnradio3">Manutenção</label>
+                        </div>                        
                     </div>
                     <div class="col-md-12">
                         <label class="form-label">Observações</label>
@@ -103,5 +100,5 @@
 
 {% block scripts %}
 {% include "components/partials/sweetalert.twig" %}
-<script src="{{ PATH }}/view/assets/js/armazenagens/edit.js"></script>
+<script src="{{ PATH }}/view/assets/js/armazenagens/edit.js?v={{ VERSION }}"></script>
 {% endblock %} 

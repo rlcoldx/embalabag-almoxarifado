@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }).then((result) => {
             if (result.isConfirmed) {
                 const DOMAIN = document.body.getAttribute('data-domain') || '';
-                fetch(`${DOMAIN}/produtos/${id}/delete`, {
+                fetch(`${DOMAIN}/produtos/delete/${id}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

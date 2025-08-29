@@ -118,6 +118,7 @@ function initializeSelect2Produtos() {
  * Carregar variações de um produto via AJAX
  */
 function carregarVariacoesProduto(produtoId, modalId) {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const variacaoSelect = $(`#${modalId} select[name="variacao_id"]`);
     
     if (variacaoSelect.length === 0) {
@@ -384,6 +385,7 @@ $(document).ready(function() {
  * Salvar entrada de estoque
  */
 function salvarEntrada() {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     try {
         // Validar formulário
         const form = document.getElementById('formNovaEntrada');
@@ -494,6 +496,7 @@ function salvarEntrada() {
  * Salvar saída de estoque
  */
 function salvarSaida() {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     try {
         // Validar formulário
         const form = document.getElementById('formNovaSaida');
@@ -615,6 +618,7 @@ function salvarSaida() {
  * Salvar movimentação de estoque
  */
 function salvarMovimentacao() {
+    let DOMAIN = document.body.getAttribute('data-domain') || '';
     try {
         // Validar formulário
         const form = document.getElementById('formMovimentacao');
@@ -644,7 +648,7 @@ function salvarMovimentacao() {
         };
         
         // Validar campos obrigatórios
-        if (!dados.armazenagem_origem_id || !dados.armazenagem_destino_id || !dados.id_produto || !dados.variacao_id || !dados.quantidade) {
+        if (!dados.armazenagem_id || !dados.id_produto || !dados.variacao_id || !dados.quantidade) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Campos Obrigatórios',
