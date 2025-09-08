@@ -595,6 +595,8 @@ function salvarMovimentacao(e) {
     // Enviar dados
     fetch(buildUrl('/api/movimentacoes/criar'), {
         method: 'POST',
+        processData: false,
+        contentType: false,
         headers: {
             'Content-Type': 'application/json',
         },

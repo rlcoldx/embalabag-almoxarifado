@@ -33,7 +33,9 @@ function iniciarFormulario() {
         // Enviar dados para o servidor
         fetch(buildUrl('/armazenagens/update/' + armazenagemId), {
             method: 'POST',
-            body: formData
+            body: formData,
+            processData: false,
+            contentType: false
         })
         .then(response => response.json())
         .then(data => {

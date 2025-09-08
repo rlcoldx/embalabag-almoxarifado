@@ -25,7 +25,9 @@ function iniciarFormulario() {
         const url = buildUrl('/armazenagens/store');
         ajaxRequest(url, {
             method: 'POST',
-            body: formData
+            body: formData,
+            processData: false,
+            contentType: false
         })
         .then(response => response.json())
         .then(data => {
