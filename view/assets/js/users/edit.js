@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
                         icon: 'error',
                         title: 'Erro!',
-                        text: data.message || 'Erro ao atualizar usuário.',
+                        text: data.error,
                         confirmButtonText: 'OK'
                     });
                 }
