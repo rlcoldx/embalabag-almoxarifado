@@ -42,9 +42,19 @@ class LoginController
     {
         $this->setParams($params);
         
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
-        $remember = isset($_POST['remember']);
+        // Aceitar application/json e x-www-form-urlencoded
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+        if (stripos($contentType, 'application/json') !== false) {
+            $rawBody = file_get_contents('php://input');
+            $jsonBody = json_decode($rawBody, true) ?: [];
+            $email = $jsonBody['email'] ?? '';
+            $password = $jsonBody['password'] ?? '';
+            $remember = !empty($jsonBody['remember']);
+        } else {
+            $email = $_POST['email'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $remember = isset($_POST['remember']);
+        }
         
         $logAcesso = new LogAcesso();
         
@@ -228,6 +238,7 @@ class LoginController
         $this->dataDefault['session'] = $_SESSION;
         $this->dataDefault['cookie'] = $_COOKIE;
         $this->dataDefault['get'] = $_GET;
+        $this->dataDefault['post'] = $_POST;
     }
 
     private function getCurrentUrl(): string
