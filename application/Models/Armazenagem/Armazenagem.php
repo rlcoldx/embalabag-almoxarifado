@@ -86,7 +86,8 @@ class Armazenagem extends Model
     {
         $this->create = new Create();
         $this->create->ExeCreate("armazenagens", $data);
-        return $this->create->getResult();
+        $result = $this->create->getResult();
+        return $result !== null ? (int)$result : false;
     }
 
     public function updateArmazenagem(int $id, array $data): bool
