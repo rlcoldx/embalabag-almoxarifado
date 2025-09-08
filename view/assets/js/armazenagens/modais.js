@@ -678,8 +678,6 @@ function salvarMovimentacao() {
             method: 'POST',
             dataType: 'json',
             data: dados,
-            processData: false,
-            contentType: false,
             success: function(response) {
                 if (response.success) {
                     // Sucesso

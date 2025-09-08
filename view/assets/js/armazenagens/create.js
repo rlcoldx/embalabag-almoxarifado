@@ -18,16 +18,16 @@ function iniciarFormulario() {
     document.getElementById('formArmazenagem').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Obter dados do formulário
+        // Obter dados do formulário (x-www-form-urlencoded)
         const formData = new FormData(this);
+        const urlEncoded = new URLSearchParams(formData).toString();
         
         // Usar a função global para construir a URL
         const url = buildUrl('/armazenagens/store');
         ajaxRequest(url, {
             method: 'POST',
-            body: formData,
-            processData: false,
-            contentType: false
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: urlEncoded
         })
         .then(response => response.json())
         .then(data => {

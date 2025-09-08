@@ -14,8 +14,9 @@ function iniciarFormulario() {
     document.getElementById('formArmazenagem').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Obter dados do formulário
+        // Obter dados do formulário (x-www-form-urlencoded)
         const formData = new FormData(this);
+        const urlEncoded = new URLSearchParams(formData).toString();
         
         // Obter o ID da armazenagem do campo hidden do formulário
         const armazenagemId = formData.get('id');
@@ -33,9 +34,8 @@ function iniciarFormulario() {
         // Enviar dados para o servidor
         fetch(buildUrl('/armazenagens/update/' + armazenagemId), {
             method: 'POST',
-            body: formData,
-            processData: false,
-            contentType: false
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: urlEncoded
         })
         .then(response => response.json())
         .then(data => {

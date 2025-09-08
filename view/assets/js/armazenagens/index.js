@@ -22,8 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (result.isConfirmed) {
                 fetch(buildUrl('/armazenagens/delete/' + id), {
                     method: 'POST',
-                    processData: false,
-                    contentType: false,
                     headers: {
                         'Content-Type': 'application/json',
                     }
