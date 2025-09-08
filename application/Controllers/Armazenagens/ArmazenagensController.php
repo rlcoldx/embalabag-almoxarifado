@@ -51,13 +51,13 @@ class ArmazenagensController extends Controller
         }
         
         $data = [
-            'codigo' => $_POST['codigo'] ?? '',
-            'descricao' => $_POST['descricao'] ?? '',
-            'tipo' => $_POST['tipo'] ?? '',
-            'setor' => $_POST['setor'] ?? '',
-            'capacidade_maxima' => $_POST['capacidade_maxima'] ?? 0,
-            'status' => $_POST['status'] ?? 'ativo',
-            'observacoes' => $_POST['observacoes'] ?? ''
+            'codigo' => isset($_POST['codigo']) ? trim($_POST['codigo']) : '',
+            'descricao' => isset($_POST['descricao']) ? trim($_POST['descricao']) : '',
+            'tipo' => isset($_POST['tipo']) ? trim($_POST['tipo']) : '',
+            'setor' => isset($_POST['setor']) ? trim($_POST['setor']) : '',
+            'capacidade_maxima' => (isset($_POST['capacidade_maxima']) && $_POST['capacidade_maxima'] !== '' && is_numeric($_POST['capacidade_maxima'])) ? (int)$_POST['capacidade_maxima'] : 0,
+            'status' => isset($_POST['status']) ? trim($_POST['status']) : 'ativo',
+            'observacoes' => isset($_POST['observacoes']) ? trim($_POST['observacoes']) : ''
         ];
         
         if (empty($data['codigo'])) {
@@ -162,13 +162,13 @@ class ArmazenagensController extends Controller
         $armazenagemId = (int) $armazenagemId;
         
         $data = [
-            'codigo' => $_POST['codigo'] ?? '',
-            'descricao' => $_POST['descricao'] ?? '',
-            'tipo' => $_POST['tipo'] ?? '',
-            'setor' => $_POST['setor'] ?? '',
-            'capacidade_maxima' => $_POST['capacidade_maxima'] ?? 0,
-            'status' => $_POST['status'] ?? 'ativo',
-            'observacoes' => $_POST['observacoes'] ?? ''
+            'codigo' => isset($_POST['codigo']) ? trim($_POST['codigo']) : '',
+            'descricao' => isset($_POST['descricao']) ? trim($_POST['descricao']) : '',
+            'tipo' => isset($_POST['tipo']) ? trim($_POST['tipo']) : '',
+            'setor' => isset($_POST['setor']) ? trim($_POST['setor']) : '',
+            'capacidade_maxima' => (isset($_POST['capacidade_maxima']) && $_POST['capacidade_maxima'] !== '' && is_numeric($_POST['capacidade_maxima'])) ? (int)$_POST['capacidade_maxima'] : 0,
+            'status' => isset($_POST['status']) ? trim($_POST['status']) : 'ativo',
+            'observacoes' => isset($_POST['observacoes']) ? trim($_POST['observacoes']) : ''
         ];
         
         if (empty($data['codigo'])) {
