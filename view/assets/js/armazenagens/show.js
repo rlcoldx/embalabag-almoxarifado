@@ -36,7 +36,6 @@ function initTabs() {
  * Carregar movimentações da armazenagem
  */
 function loadMovimentacoes() {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const armazenagemId = getArmazenagemIdFromUrl();
     
     console.log('Carregando movimentações para armazenagem ID:', armazenagemId);
@@ -47,7 +46,7 @@ function loadMovimentacoes() {
         return;
     }
     
-    fetch(`${DOMAIN}/api/armazenagens/movimentacoes/${armazenagemId}`)
+    fetch(buildUrl(`/api/armazenagens/movimentacoes/${armazenagemId}`))
         .then(response => response.json())
         .then(data => {
             console.log('Resposta da API movimentações:', data);
@@ -88,7 +87,6 @@ function renderMovimentacoes(movimentacoes) {
  * Carregar transferências da armazenagem
  */
 function loadTransferencias() {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const armazenagemId = getArmazenagemIdFromUrl();
     
     console.log('Carregando transferências para armazenagem ID:', armazenagemId);
@@ -98,7 +96,7 @@ function loadTransferencias() {
         return;
     }
     
-    fetch(`${DOMAIN}/api/armazenagens/transferencias/${armazenagemId}`)
+    fetch(buildUrl(`/api/armazenagens/transferencias/${armazenagemId}`))
         .then(response => response.json())
         .then(data => {
             console.log('Resposta da API transferências:', data);
@@ -139,7 +137,6 @@ function renderTransferencias(transferencias) {
  * Carregar histórico da armazenagem
  */
 function loadHistorico() {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const armazenagemId = getArmazenagemIdFromUrl();
     
     console.log('Carregando histórico para armazenagem ID:', armazenagemId);
@@ -149,7 +146,7 @@ function loadHistorico() {
         return;
     }
     
-    fetch(`${DOMAIN}/api/armazenagens/historico/${armazenagemId}`)
+    fetch(buildUrl(`/api/armazenagens/historico/${armazenagemId}`))
         .then(response => response.json())
         .then(data => {
             console.log('Resposta da API histórico:', data);
@@ -234,9 +231,8 @@ function abrirModalTransferencia() {
  * Ver detalhes do produto
  */
 function verDetalhesProduto(produtoId, variacaoId) {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     // Buscar detalhes do produto
-    fetch(`${DOMAIN}/api/produtos/${produtoId}/detalhes`)
+    fetch(buildUrl(`/api/produtos/${produtoId}/detalhes`))
         .then(response => response.json())
         .then(data => {
             if (data.success && data.produto) {
@@ -284,9 +280,8 @@ function exibirModalProdutoDetalhes(produto) {
  * Carregar dados das abas do modal de produto
  */
 function carregarDadosProdutoDetalhes(produtoId, variacaoId) {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     // Carregar movimentações
-    fetch(`${DOMAIN}/api/produtos/${produtoId}/movimentacoes?variacao_id=${variacaoId}`)
+    fetch(buildUrl(`/api/produtos/${produtoId}/movimentacoes?variacao_id=${variacaoId}`))
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -296,7 +291,7 @@ function carregarDadosProdutoDetalhes(produtoId, variacaoId) {
         .catch(error => console.error('Erro ao carregar movimentações:', error));
     
     // Carregar localizações
-    fetch(`${DOMAIN}/api/produtos/${produtoId}/localizacoes?variacao_id=${variacaoId}`)
+    fetch(buildUrl(`/api/produtos/${produtoId}/localizacoes?variacao_id=${variacaoId}`))
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -408,9 +403,8 @@ function novaMovimentacaoProduto(produtoId, variacaoId, tipo) {
  * Editar produto
  */
 function editarProduto(produtoId) {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     // Redirecionar para página de edição
-    window.location.href = `${DOMAIN}/produtos/edit/${produtoId}`;
+    window.location.href = buildUrl(`/produtos/edit/${produtoId}`);
 }
 
 /**
@@ -445,7 +439,6 @@ function configurarEventosMovimentacao() {
  * Buscar produto por SKU
  */
 function buscarProdutoPorSku() {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const sku = document.getElementById('movimentacaoProduto').value.trim();
     if (!sku) {
         Swal.fire('Erro', 'Digite o SKU do produto', 'error');
@@ -458,7 +451,7 @@ function buscarProdutoPorSku() {
     infoProduto.style.display = 'block';
     
     // Fazer requisição AJAX
-    fetch(`${DOMAIN}/api/produtos/buscar-por-sku?sku=${encodeURIComponent(sku)}`)
+    fetch(buildUrl(`/api/produtos/buscar-por-sku?sku=${encodeURIComponent(sku)}`))
         .then(response => response.json())
         .then(data => {
             if (data.success && data.produto) {
@@ -497,7 +490,6 @@ function exibirInfoProduto(produto) {
  * Carregar variações do produto
  */
 function carregarVariacoes(produtoId) {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const variacaoSelect = document.getElementById('movimentacaoVariacao');
     if (!variacaoSelect) return;
     
@@ -505,7 +497,7 @@ function carregarVariacoes(produtoId) {
     variacaoSelect.innerHTML = '<option value="">Selecione a variação</option>';
     
     // Buscar variações do produto
-    fetch(`${DOMAIN}/api/produtos/${produtoId}/variacoes`)
+    fetch(buildUrl(`/api/produtos/${produtoId}/variacoes`))
         .then(response => response.json())
         .then(data => {
             if (data.success && data.variacoes) {
@@ -571,7 +563,6 @@ function confirmarCodigoScanner(codigo, tipo) {
  * Salvar movimentação
  */
 function salvarMovimentacao(e) {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     if (e) e.preventDefault();
     
     const form = document.getElementById('formMovimentacao');
@@ -602,7 +593,7 @@ function salvarMovimentacao(e) {
     });
     
     // Enviar dados
-    fetch(`${DOMAIN}/api/movimentacoes/criar`, {
+    fetch(buildUrl('/api/movimentacoes/criar'), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -665,7 +656,6 @@ function configurarEventosTransferencia() {
  * Buscar produto para transferência
  */
 function buscarProdutoTransferencia() {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const sku = document.getElementById('transferenciaProduto').value.trim();
     if (!sku) {
         Swal.fire('Erro', 'Digite o SKU do produto', 'error');
@@ -678,7 +668,7 @@ function buscarProdutoTransferencia() {
     infoProduto.style.display = 'block';
     
     // Fazer requisição AJAX
-    fetch(`${DOMAIN}/api/produtos/buscar-por-sku?sku=${encodeURIComponent(sku)}`)
+    fetch(buildUrl(`/api/produtos/buscar-por-sku?sku=${encodeURIComponent(sku)}`))
         .then(response => response.json())
         .then(data => {
             if (data.success && data.produto) {
@@ -717,7 +707,6 @@ function exibirInfoProdutoTransferencia(produto) {
  * Carregar variações para transferência
  */
 function carregarVariacoesTransferencia(produtoId) {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const variacaoSelect = document.getElementById('transferenciaVariacao');
     if (!variacaoSelect) return;
     
@@ -725,7 +714,7 @@ function carregarVariacoesTransferencia(produtoId) {
     variacaoSelect.innerHTML = '<option value="">Selecione a variação</option>';
     
     // Buscar variações do produto
-    fetch(`${DOMAIN}/api/produtos/${produtoId}/variacoes`)
+    fetch(buildUrl(`/api/produtos/${produtoId}/variacoes`))
         .then(response => response.json())
         .then(data => {
             if (data.success && data.variacoes) {
@@ -746,7 +735,6 @@ function carregarVariacoesTransferencia(produtoId) {
  * Carregar armazenagens de destino
  */
 function carregarArmazenagensDestino() {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const armazenagemOrigemId = document.getElementById('transferenciaArmazenagemOrigem').value;
     const selectDestino = document.getElementById('transferenciaArmazenagemDestino');
     
@@ -756,7 +744,7 @@ function carregarArmazenagensDestino() {
     selectDestino.innerHTML = '<option value="">Selecione o destino</option>';
     
     // Buscar armazenagens disponíveis
-    fetch(`${DOMAIN}/api/armazenagens/listar`)
+    fetch(buildUrl('/api/armazenagens/listar'))
         .then(response => response.json())
         .then(data => {
             if (data.success && data.armazenagens) {
@@ -779,7 +767,6 @@ function carregarArmazenagensDestino() {
  * Salvar transferência
  */
 function salvarTransferencia(e) {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     if (e) e.preventDefault();
     
     const form = document.getElementById('formTransferencia');
@@ -816,7 +803,6 @@ function salvarTransferencia(e) {
  * Executar transferência
  */
 function executarTransferencia(dados) {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     // Mostrar loading
     Swal.fire({
         title: 'Executando transferência...',
@@ -827,7 +813,7 @@ function executarTransferencia(dados) {
     });
     
     // Enviar dados
-    fetch(`${DOMAIN}/api/transferencias/criar`, {
+    fetch(buildUrl('/api/transferencias/criar'), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

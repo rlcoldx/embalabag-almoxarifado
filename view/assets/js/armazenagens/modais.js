@@ -5,7 +5,7 @@
 // Configuração global do Select2 para produtos
 const select2Config = {
     ajax: {
-        url: `${DOMAIN}/api/produtos/buscar`,
+        url: buildUrl('/api/produtos/buscar'),
         dataType: 'json',
         delay: 250,
         data: function(params) {
@@ -118,7 +118,6 @@ function initializeSelect2Produtos() {
  * Carregar variações de um produto via AJAX
  */
 function carregarVariacoesProduto(produtoId, modalId) {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const variacaoSelect = $(`#${modalId} select[name="variacao_id"]`);
     
     if (variacaoSelect.length === 0) {
@@ -133,7 +132,7 @@ function carregarVariacoesProduto(produtoId, modalId) {
     
     // Fazer requisição AJAX
     $.ajax({
-        url: `${DOMAIN}/api/produtos/variacoes/${produtoId}`,
+        url: buildUrl(`/api/produtos/variacoes/${produtoId}`),
         method: 'GET',
         dataType: 'json',
         success: function(response) {
@@ -385,7 +384,6 @@ $(document).ready(function() {
  * Salvar entrada de estoque
  */
 function salvarEntrada() {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     try {
         // Validar formulário
         const form = document.getElementById('formNovaEntrada');
@@ -434,7 +432,7 @@ function salvarEntrada() {
         
         // Fazer requisição AJAX
         $.ajax({
-            url: `${DOMAIN}/api/movimentacoes/criar`,
+            url: buildUrl('/api/movimentacoes/criar'),
             method: 'POST',
             dataType: 'json',
             data: dados,
@@ -496,7 +494,6 @@ function salvarEntrada() {
  * Salvar saída de estoque
  */
 function salvarSaida() {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     try {
         // Validar formulário
         const form = document.getElementById('formNovaSaida');
@@ -556,7 +553,7 @@ function salvarSaida() {
         
         // Fazer requisição AJAX
         $.ajax({
-            url: `${DOMAIN}/api/movimentacoes/criar`,
+            url: buildUrl('/api/movimentacoes/criar'),
             method: 'POST',
             dataType: 'json',
             data: dados,
@@ -618,7 +615,6 @@ function salvarSaida() {
  * Salvar movimentação de estoque
  */
 function salvarMovimentacao() {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     try {
         // Validar formulário
         const form = document.getElementById('formMovimentacao');
@@ -678,7 +674,7 @@ function salvarMovimentacao() {
         
         // Fazer requisição AJAX
         $.ajax({
-            url: `${DOMAIN}/api/movimentacoes/criar`,
+            url: buildUrl('/api/movimentacoes/criar'),
             method: 'POST',
             dataType: 'json',
             data: dados,

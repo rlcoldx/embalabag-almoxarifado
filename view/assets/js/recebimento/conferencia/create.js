@@ -62,7 +62,7 @@ function inicializarValidacoes() {
  * Carrega dados do item da NF
  */
 function carregarDadosItem(itemNfId) {
-    fetch(DOMAIN + '/recebimento/notas-fiscais/item/' + itemNfId, {
+    fetch(buildUrl('/recebimento/notas-fiscais/item/' + itemNfId), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -210,7 +210,7 @@ function enviarFormulario() {
         }
     });
     
-    fetch(DOMAIN + '/recebimento/conferencia/store', {
+    fetch(buildUrl('/recebimento/conferencia/store'), {
         method: 'POST',
         body: formData
     })
@@ -256,7 +256,7 @@ function buscarItensNF() {
         return;
     }
     
-    fetch(DOMAIN + '/recebimento/notas-fiscais/' + numeroNF + '/itens', {
+    fetch(buildUrl('/recebimento/notas-fiscais/' + numeroNF + '/itens'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

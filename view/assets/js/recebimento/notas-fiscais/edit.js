@@ -69,7 +69,7 @@ function carregarDadosNotaFiscal() {
     const urlParts = window.location.pathname.split('/');
     const nfId = urlParts[urlParts.length - 2]; // /edit está no final
     
-    fetch(DOMAIN + '/recebimento/notas-fiscais/' + nfId + '/dados', {
+    fetch(buildUrl('/recebimento/notas-fiscais/' + nfId + '/dados'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -291,7 +291,7 @@ function enviarFormulario() {
         }
     });
     
-    fetch(DOMAIN + '/recebimento/notas-fiscais/' + nfId + '/update', {
+    fetch(buildUrl('/recebimento/notas-fiscais/' + nfId + '/update'), {
         method: 'POST',
         body: formData
     })
@@ -344,7 +344,7 @@ function vincularPedido() {
     const formData = new FormData();
     formData.append('pedido_id', pedidoId);
     
-    fetch(DOMAIN + '/recebimento/notas-fiscais/' + nfId + '/vincular-pedido', {
+    fetch(buildUrl('/recebimento/notas-fiscais/' + nfId + '/vincular-pedido'), {
         method: 'POST',
         body: formData
     })

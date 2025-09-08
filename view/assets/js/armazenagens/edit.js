@@ -3,8 +3,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    const DOMAIN = document.body.getAttribute('data-domain') || '';
-    
     // Inicializar formulário
     iniciarFormulario();
 });
@@ -18,7 +16,6 @@ function iniciarFormulario() {
         
         // Obter dados do formulário
         const formData = new FormData(this);
-        const DOMAIN = document.body.getAttribute('data-domain') || '';
         
         // Obter o ID da armazenagem do campo hidden do formulário
         const armazenagemId = formData.get('id');
@@ -34,7 +31,7 @@ function iniciarFormulario() {
         }        
         
         // Enviar dados para o servidor
-        fetch(`${DOMAIN}/armazenagens/update/${armazenagemId}`, {
+        fetch(buildUrl('/armazenagens/update/' + armazenagemId), {
             method: 'POST',
             body: formData
         })
@@ -48,7 +45,7 @@ function iniciarFormulario() {
                     text: 'O local de armazenagem foi atualizado com sucesso.',
                     confirmButtonText: 'OK'
                 }).then(() => {
-                    window.location.href = `${DOMAIN}/armazenagens`;
+                    window.location.href = buildUrl('/armazenagens');
                 });
             } else {
                 // Erro

@@ -2,8 +2,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Função para excluir cargo
     window.deleteCargo = function(cargoId) {
+        const url = buildUrl('/cargos/delete/' + cargoId);
         if (confirm('Tem certeza que deseja excluir este cargo?')) {
-            fetch(DOMAIN + '/cargos/delete/' + cargoId, {
+            fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

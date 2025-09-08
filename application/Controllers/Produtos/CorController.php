@@ -34,7 +34,14 @@ class CorController extends Controller
 
     public function save($params)
     {
-        $this->setParams($params);
+        // Para dados JSON, precisamos ler do input stream
+        $input = json_decode(file_get_contents('php://input'), true);
+        
+        if ($input) {
+            $this->setParams($input);
+        } else {
+            $this->setParams($params);
+        }
 
         $createCor = new Cor();
         $createCor = $createCor->createCor($this->params)->getResult();
@@ -47,7 +54,14 @@ class CorController extends Controller
 
     public function save_edit($params)
     {
-        $this->setParams($params);
+        // Para dados JSON, precisamos ler do input stream
+        $input = json_decode(file_get_contents('php://input'), true);
+        
+        if ($input) {
+            $this->setParams($input);
+        } else {
+            $this->setParams($params);
+        }
 
         $editarCor = new Cor();
         $editarCor = $editarCor->editarCor($this->params)->getResult();

@@ -3,8 +3,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    const DOMAIN = document.body.getAttribute('data-domain') || '';
-    
     // Inicializar formulário de criação de produto
     iniciarFormulario();
 });
@@ -19,10 +17,9 @@ function iniciarFormulario() {
         // Obter dados do formulário
         const formData = new FormData(this);
         const data = Object.fromEntries(formData);
-        const DOMAIN = document.body.getAttribute('data-domain') || '';
         
         // Enviar dados para o servidor
-        fetch(`${DOMAIN}/produtos/store`, {
+        fetch(buildUrl('/produtos/store'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -40,7 +37,7 @@ function iniciarFormulario() {
                     confirmButtonText: 'OK'
                 }).then(() => {
                     // Redirecionar para lista de produtos
-                    window.location.href = `${DOMAIN}/produtos`;
+                    window.location.href = buildUrl('/produtos');
                 });
             } else {
                 // Feedback de erro

@@ -72,7 +72,13 @@ class Categorias extends Model
             $params['parent'] = 0;
         }
 
+        // Verificar se o ID existe nos parâmetros
+        if (!isset($params['id']) || empty($params['id'])) {
+            throw new \InvalidArgumentException('ID da categoria não foi fornecido.');
+        }
+        
         $id = $params['id'];
+        
         unset($params['id']);
 
         $update->ExeUpdate('categorias', $params, 'WHERE `id` = :id', "id={$id}");

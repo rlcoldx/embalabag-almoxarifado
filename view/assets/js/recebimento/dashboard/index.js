@@ -25,7 +25,7 @@ function inicializarDashboard() {
  * Carrega as estatísticas principais
  */
 function carregarEstatisticas() {
-    fetch(DOMAIN + '/recebimento/dashboard/estatisticas', {
+    fetch(buildUrl('/recebimento/dashboard/estatisticas'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ function carregarGraficos() {
  * Carrega gráfico de notas fiscais por status
  */
 function carregarGraficoNotasFiscais() {
-    fetch(DOMAIN + '/recebimento/dashboard/grafico-nf', {
+    fetch(buildUrl('/recebimento/dashboard/grafico-nf'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ function carregarGraficoNotasFiscais() {
  * Carrega gráfico de conferências por qualidade
  */
 function carregarGraficoConferencias() {
-    fetch(DOMAIN + '/recebimento/dashboard/grafico-conferencias', {
+    fetch(buildUrl('/recebimento/dashboard/grafico-conferencias'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -189,7 +189,7 @@ function carregarGraficoConferencias() {
  * Carrega gráfico de movimentações por tipo
  */
 function carregarGraficoMovimentacoes() {
-    fetch(DOMAIN + '/recebimento/dashboard/grafico-movimentacoes', {
+    fetch(buildUrl('/recebimento/dashboard/grafico-movimentacoes'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -260,7 +260,7 @@ function carregarTabelas() {
  * Carrega tabela de notas fiscais recentes
  */
 function carregarTabelaNotasFiscaisRecentes() {
-    fetch(DOMAIN + '/recebimento/dashboard/nf-recentes', {
+    fetch(buildUrl('/recebimento/dashboard/nf-recentes'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -294,7 +294,7 @@ function carregarTabelaNotasFiscaisRecentes() {
  * Carrega tabela de conferências recentes
  */
 function carregarTabelaConferenciasRecentes() {
-    fetch(DOMAIN + '/recebimento/dashboard/conferencias-recentes', {
+    fetch(buildUrl('/recebimento/dashboard/conferencias-recentes'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -328,7 +328,7 @@ function carregarTabelaConferenciasRecentes() {
  * Carrega tabela de movimentações recentes
  */
 function carregarTabelaMovimentacoesRecentes() {
-    fetch(DOMAIN + '/recebimento/dashboard/movimentacoes-recentes', {
+    fetch(buildUrl('/recebimento/dashboard/movimentacoes-recentes'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

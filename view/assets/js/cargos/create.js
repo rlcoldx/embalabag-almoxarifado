@@ -109,8 +109,9 @@ document.addEventListener('DOMContentLoaded', function() {
         createCargoForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
-            
-            fetch(DOMAIN + '/cargos/store', {
+                        
+            const url = buildUrl('/cargos/store');
+            fetch(url, {
                 method: 'POST',
                 body: formData
             })

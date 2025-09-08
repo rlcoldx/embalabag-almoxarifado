@@ -117,7 +117,7 @@ function imprimirEtiqueta(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(DOMAIN + '/recebimento/etiquetas/' + id + '/imprimir', {
+            fetch(buildUrl('/recebimento/etiquetas/' + id + '/imprimir'), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -178,7 +178,7 @@ function excluirEtiqueta(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(DOMAIN + '/recebimento/etiquetas/' + id + '/delete', {
+            fetch(buildUrl('/recebimento/etiquetas/' + id + '/delete'), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -220,7 +220,7 @@ function excluirEtiqueta(id) {
  * Gera QR Code para uma etiqueta
  */
 function gerarQRCode(id) {
-    fetch(DOMAIN + '/recebimento/etiquetas/' + id + '/qr-code', {
+    fetch(buildUrl('/recebimento/etiquetas/' + id + '/qr-code'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

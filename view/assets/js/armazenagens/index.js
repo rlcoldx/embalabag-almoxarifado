@@ -9,8 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Configurar função de exclusão global
     window.excluirArmazenagem = function(id) {
-        const DOMAIN = document.body.getAttribute('data-domain') || '';
-        
         Swal.fire({
             title: 'Tem certeza?',
             text: 'Deseja realmente excluir esta armazenagem?',
@@ -22,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`${DOMAIN}/armazenagens/delete/${id}`, {
+                fetch(buildUrl('/armazenagens/delete/' + id), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

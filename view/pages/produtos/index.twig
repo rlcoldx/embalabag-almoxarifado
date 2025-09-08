@@ -9,9 +9,11 @@
             <span class="fs-semibold text-muted">Visualize e gerencie todos os produtos do sistema.</span>
         </div>
         <div class="btn-list mt-md-0 mt-2">
+            {% if permissions.can.produtos.create %}
             <a href="{{ DOMAIN }}/produtos/new" class="btn btn-primary btn-wave">
                 <i class="fas fa-plus me-2 align-middle d-inline-block"></i>Novo Produto
             </a>
+            {% endif %}
         </div>
     </div>
     <!-- Fim::page-header -->

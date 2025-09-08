@@ -1,0 +1,252 @@
+{# 
+EXEMPLOS DE USO DO SISTEMA DE PERMISSÕES
+Este arquivo serve como referência para implementar permissões nos templates
+#}
+
+{# ======================================== #}
+{# EXEMPLO 1: VERIFICAÇÃO DE PERMISSÕES BÁSICAS #}
+{# ======================================== #}
+
+{# Verificar se usuário é administrador #}
+{% if permissions.is_admin %}
+    <div class="alert alert-info">Você é um administrador e tem acesso total ao sistema.</div>
+{% endif %}
+
+{# Verificar se usuário é funcionário #}
+{% if permissions.is_employee %}
+    <div class="alert alert-warning">Você é um funcionário com permissões baseadas em cargos.</div>
+{% endif %}
+
+{# Verificar se usuário é companhia #}
+{% if permissions.is_company %}
+    <div class="alert alert-secondary">Você é uma companhia com acesso limitado.</div>
+{% endif %}
+
+{# ======================================== #}
+{# EXEMPLO 2: BOTÕES COM PERMISSÕES #}
+{# ======================================== #}
+
+{# Botão de criar produto #}
+{% if permissions.can.produtos.create %}
+    <a href="{{ DOMAIN }}/produtos/new" class="btn btn-primary">
+        <i class="fa fa-plus"></i> Novo Produto
+    </a>
+{% endif %}
+
+{# Botão de editar produto #}
+{% if permissions.can.produtos.edit %}
+    <a href="{{ DOMAIN }}/produtos/edit/{{ produto.id }}" class="btn btn-warning">
+        <i class="fa fa-edit"></i> Editar
+    </a>
+{% endif %}
+
+{# Botão de excluir produto #}
+{% if permissions.can.produtos.delete %}
+    <button class="btn btn-danger" onclick="deleteProduto({{ produto.id }})">
+        <i class="fa fa-trash"></i> Excluir
+    </button>
+{% endif %}
+
+{# ======================================== #}
+{# EXEMPLO 3: MENUS COM PERMISSÕES #}
+{# ======================================== #}
+
+{# Menu de usuários #}
+{% if menu_permissions.users %}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ DOMAIN }}/users">
+            <i class="fa fa-users"></i> Usuários
+        </a>
+    </li>
+{% endif %}
+
+{# Submenu de criar usuário #}
+{% if menu_permissions.users_create %}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ DOMAIN }}/users/create">
+            <i class="fa fa-user-plus"></i> Novo Usuário
+        </a>
+    </li>
+{% endif %}
+
+{# ======================================== #}
+{# EXEMPLO 4: FORMULÁRIOS COM PERMISSÕES #}
+{# ======================================== #}
+
+{# Campo de formulário baseado em permissão #}
+<div class="form-group">
+    <label for="status">Status</label>
+    {% if permissions.can.produtos.edit %}
+        <select class="form-control" id="status" name="status">
+            <option value="ativo">Ativo</option>
+            <option value="inativo">Inativo</option>
+        </select>
+    {% else %}
+        <input type="text" class="form-control" value="{{ produto.status }}" readonly>
+    {% endif %}
+</div>
+
+{# ======================================== #}
+{# EXEMPLO 5: TABELAS COM AÇÕES CONDICIONAIS #}
+{# ======================================== #}
+
+{# Tabela de produtos com ações baseadas em permissões #}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>SKU</th>
+            <th>Preço</th>
+            {% if permissions.can.produtos.edit or permissions.can.produtos.delete %}
+                <th>Ações</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for produto in produtos %}
+        <tr>
+            <td>{{ produto.nome }}</td>
+            <td>{{ produto.sku }}</td>
+            <td>R$ {{ produto.preco|number_format(2, ',', '.') }}</td>
+            {% if permissions.can.produtos.edit or permissions.can.produtos.delete %}
+                <td>
+                    <div class="btn-group">
+                        {% if permissions.can.produtos.edit %}
+                            <a href="{{ DOMAIN }}/produtos/edit/{{ produto.id }}" class="btn btn-sm btn-warning">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                        {% endif %}
+                        {% if permissions.can.produtos.delete %}
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduto({{ produto.id }})">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{# ======================================== #}
+{# EXEMPLO 6: CARD COM PERMISSÕES #}
+{# ======================================== #}
+
+{# Card que só aparece se usuário tem permissão #}
+{% if permissions.can.relatorios.generate %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Relatórios</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">Gere relatórios do sistema.</p>
+            <a href="{{ DOMAIN }}/relatorios" class="btn btn-primary">Gerar Relatório</a>
+        </div>
+    </div>
+{% endif %}
+
+{# ======================================== #}
+{# EXEMPLO 7: NAVEGAÇÃO COM PERMISSÕES #}
+{# ======================================== #}
+
+{# Breadcrumb com permissões #}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ DOMAIN }}">Home</a></li>
+        {% if permissions.can.produtos.view %}
+            <li class="breadcrumb-item"><a href="{{ DOMAIN }}/produtos">Produtos</a></li>
+        {% endif %}
+        <li class="breadcrumb-item active">Detalhes</li>
+    </ol>
+</nav>
+
+{# ======================================== #}
+{# EXEMPLO 8: MENSAGENS CONDICIONAIS #}
+{# ======================================== #}
+
+{# Mensagem baseada em permissão #}
+{% if not permissions.can.produtos.create %}
+    <div class="alert alert-info">
+        <i class="fa fa-info-circle"></i>
+        Você não tem permissão para criar produtos. Entre em contato com o administrador.
+    </div>
+{% endif %}
+
+{# ======================================== #}
+{# EXEMPLO 9: FORMULÁRIOS COMPLETOS #}
+{# ======================================== #}
+
+{# Formulário de produto com campos condicionais #}
+<form method="POST" action="{{ DOMAIN }}/produtos/save">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="nome">Nome do Produto *</label>
+                <input type="text" class="form-control" id="nome" name="nome" required>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="sku">SKU *</label>
+                <input type="text" class="form-control" id="sku" name="sku" required>
+            </div>
+        </div>
+    </div>
+    
+    {# Campo de preço só aparece se usuário pode editar #}
+    {% if permissions.can.produtos.edit %}
+        <div class="form-group">
+            <label for="preco">Preço</label>
+            <input type="number" class="form-control" id="preco" name="preco" step="0.01">
+        </div>
+    {% endif %}
+    
+    {# Botões de ação baseados em permissões #}
+    <div class="form-actions">
+        {% if permissions.can.produtos.create %}
+            <button type="submit" class="btn btn-primary">
+                <i class="fa fa-save"></i> Salvar
+            </button>
+        {% endif %}
+        <a href="{{ DOMAIN }}/produtos" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+</form>
+
+{# ======================================== #}
+{# EXEMPLO 10: JAVASCRIPT COM PERMISSÕES #}
+{# ======================================== #}
+
+<script>
+// Variáveis JavaScript com permissões
+const userPermissions = {
+    canCreate: {{ permissions.can.produtos.create ? 'true' : 'false' }},
+    canEdit: {{ permissions.can.produtos.edit ? 'true' : 'false' }},
+    canDelete: {{ permissions.can.produtos.delete ? 'true' : 'false' }},
+    isAdmin: {{ permissions.is_admin ? 'true' : 'false' }}
+};
+
+// Função condicional baseada em permissão
+function deleteProduto(id) {
+    if (userPermissions.canDelete) {
+        if (confirm('Tem certeza que deseja excluir este produto?')) {
+            // Lógica de exclusão
+            window.location.href = '{{ DOMAIN }}/produtos/delete/' + id;
+        }
+    } else {
+        alert('Você não tem permissão para excluir produtos.');
+    }
+}
+
+// Habilitar/desabilitar campos baseado em permissões
+document.addEventListener('DOMContentLoaded', function() {
+    if (!userPermissions.canEdit) {
+        // Desabilitar todos os campos de edição
+        document.querySelectorAll('input, select, textarea').forEach(function(field) {
+            field.disabled = true;
+        });
+    }
+});
+</script>

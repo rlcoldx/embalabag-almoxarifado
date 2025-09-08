@@ -2,9 +2,7 @@
  * Script para Relatórios de Recebimento
  */
 
-document.addEventListener('DOMContentLoaded', function() {
-    const DOMAIN = document.body.getAttribute('data-domain') || '';
-    
+document.addEventListener('DOMContentLoaded', function() {    
     // Inicializar relatórios
     inicializarRelatorios();
     
@@ -47,7 +45,7 @@ function inicializarFiltros() {
 function carregarRelatorioRecebimento() {
     const filtros = obterFiltros();
     
-    fetch(DOMAIN + '/recebimento/relatorios/recebimento', {
+    fetch(buildUrl('/recebimento/relatorios/recebimento'), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -174,7 +172,7 @@ function atualizarTabelaProdutos(produtos) {
 function carregarRelatorioConferencia() {
     const filtros = obterFiltros();
     
-    fetch(DOMAIN + '/recebimento/relatorios/conferencia', {
+    fetch(buildUrl('/recebimento/relatorios/conferencia'), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -277,7 +275,7 @@ function atualizarTabelaProblemas(problemas) {
 function carregarRelatorioMovimentacao() {
     const filtros = obterFiltros();
     
-    fetch(DOMAIN + '/recebimento/relatorios/movimentacao', {
+    fetch(buildUrl('/recebimento/relatorios/movimentacao'), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -440,27 +438,27 @@ function exportarRelatorio() {
         tipo: tipo,
         ...filtros
     });
-    
+
     // Abrir nova janela para download
-    window.open(DOMAIN + '/recebimento/relatorios/exportar?' + params.toString(), '_blank');
+    window.open(buildUrl('/recebimento/relatorios/exportar?' + params.toString()), '_blank');
 }
 
 /**
  * Imprime o relatório atual
  */
 function imprimirRelatorio() {
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     const tipo = document.getElementById('tipoRelatorio').value;
     const relatorioSection = document.getElementById('relatorio-' + tipo);
     
     if (relatorioSection) {
         // Criar janela de impressão
         const printWindow = window.open('', '_blank');
+        const urlCss = buildUrl('/view/assets/css/app.css');
         printWindow.document.write(`
             <html>
                 <head>
                     <title>Relatório de ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</title>
-                    <link rel="stylesheet" href="${DOMAIN}/view/assets/css/app.css">
+                    <link rel="stylesheet" href="${urlCss}">
                     <style>
                         @media print {
                             .no-print { display: none !important; }

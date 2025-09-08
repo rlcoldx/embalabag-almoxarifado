@@ -118,7 +118,7 @@ function executarMovimentacao(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(DOMAIN + '/recebimento/movimentacoes/' + id + '/executar', {
+            fetch(buildUrl('/recebimento/movimentacoes/' + id + '/executar'), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -171,7 +171,7 @@ function cancelarMovimentacao(id) {
         cancelButtonText: 'Não'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(DOMAIN + '/recebimento/movimentacoes/' + id + '/cancelar', {
+            fetch(buildUrl('/recebimento/movimentacoes/' + id + '/cancelar'), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -224,7 +224,7 @@ function excluirMovimentacao(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(DOMAIN + '/recebimento/movimentacoes/' + id + '/delete', {
+            fetch(buildUrl('/recebimento/movimentacoes/' + id + '/delete'), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

@@ -69,7 +69,7 @@ function inicializarValidacoes() {
  * Carrega armazenagens disponíveis
  */
 function carregarArmazenagens() {
-    fetch(DOMAIN + '/recebimento/armazenagens/disponiveis', {
+    fetch(buildUrl('/recebimento/armazenagens/disponiveis'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ function buscarProdutos() {
         return;
     }
     
-    fetch(DOMAIN + '/recebimento/produtos/buscar?termo=' + encodeURIComponent(termo), {
+    fetch(buildUrl('/recebimento/produtos/buscar?termo=' + encodeURIComponent(termo)), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ function selecionarProduto(itemNfId) {
  * Carrega dados do item selecionado
  */
 function carregarDadosItem(itemNfId) {
-    fetch(DOMAIN + '/recebimento/produtos/' + itemNfId + '/dados', {
+    fetch(buildUrl('/recebimento/produtos/' + itemNfId + '/dados'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -289,7 +289,7 @@ function enviarFormulario() {
         }
     });
     
-    fetch(DOMAIN + '/recebimento/movimentacoes/store', {
+    fetch(buildUrl('/recebimento/movimentacoes/store'), {
         method: 'POST',
         body: formData
     })
@@ -367,7 +367,7 @@ function enviarFormularioComExecucao(formData) {
         }
     });
     
-    fetch(DOMAIN + '/recebimento/movimentacoes/store', {
+    fetch(buildUrl('/recebimento/movimentacoes/store'), {
         method: 'POST',
         body: formData
     })

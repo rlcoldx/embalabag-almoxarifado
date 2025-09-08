@@ -7,6 +7,9 @@ use Agencia\Close\Helpers\Device\CheckDevice;
 use Agencia\Close\Middleware\MiddlewareCollection;
 use Agencia\Close\Helpers\Result;
 use Agencia\Close\Conn\Read;
+use Agencia\Close\Helpers\User\ViewPermissionHelper;
+use Agencia\Close\Helpers\User\MenuPermissionHelper;
+use Agencia\Close\Helpers\User\ButtonPermissionHelper;
 use CoffeeCode\Router\Router;
 
 class Controller
@@ -88,6 +91,11 @@ class Controller
         $this->dataDefault['session'] = $_SESSION;
         $this->dataDefault['cookie'] = $_COOKIE;
         $this->dataDefault['get'] = $_GET;
+        
+        // Adicionar dados de permissões para todos os templates
+        $this->dataDefault['permissions'] = ViewPermissionHelper::getPermissionsForTemplate();
+        $this->dataDefault['menu_permissions'] = MenuPermissionHelper::getMenuVisibility();
+        $this->dataDefault['button_permissions'] = ButtonPermissionHelper::getButtonVisibility();
     }
 
     protected function getDefault(): array

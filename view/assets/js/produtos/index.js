@@ -16,8 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                const DOMAIN = document.body.getAttribute('data-domain') || '';
-                fetch(`${DOMAIN}/produtos/delete/${id}`, {
+                fetch(buildUrl(`/produtos/delete/${id}`), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

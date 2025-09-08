@@ -19,7 +19,7 @@ function initProdutos() {
     const DOMAIN = document.body.getAttribute('data-domain') || '';
     
     // Carregar lista de produtos
-    fetch(`${DOMAIN}/produtos/listar`)
+    fetch(buildUrl('/produtos/listar'))
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -194,7 +194,7 @@ function submitForm(e) {
     formData.append('produtos', JSON.stringify(produtos));
     
     // Enviar dados para o servidor
-    fetch(`${DOMAIN}/recebimento/store`, {
+    fetch(buildUrl('/recebimento/store'), {
         method: 'POST',
         body: formData
     })
@@ -207,7 +207,7 @@ function submitForm(e) {
                 text: 'Nota fiscal registrada com sucesso!',
                 confirmButtonText: 'OK'
             }).then(() => {
-                window.location.href = `${DOMAIN}/recebimento`;
+                window.location.href = buildUrl('/recebimento');
             });
         } else {
             Swal.fire({
@@ -246,7 +246,7 @@ function cancelarForm() {
         cancelButtonText: 'Não, continuar editando'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = `${DOMAIN}/recebimento`;
+            window.location.href = buildUrl('/recebimento');
         }
     });
 }

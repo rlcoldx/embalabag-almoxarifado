@@ -3,8 +3,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    const DOMAIN = document.body.getAttribute('data-domain') || '';
-    
     // Carregar estatísticas dos produtos
     carregarEstatisticas();
     
@@ -21,9 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * Carrega as estatísticas dos produtos do servidor
  */
 function carregarEstatisticas() {
-    const DOMAIN = document.body.getAttribute('data-domain') || '';
-    
-    fetch(`${DOMAIN}/produtos/estatisticas`)
+    fetch(buildUrl('/produtos/estatisticas'))
         .then(response => response.json())
         .then(data => {
             if (data.success) {

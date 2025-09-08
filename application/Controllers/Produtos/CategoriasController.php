@@ -64,7 +64,15 @@ class CategoriasController extends Controller
 
     public function save($params)
     {
-        $this->setParams($params);
+        // Para dados JSON, precisamos ler do input stream
+        $input = json_decode(file_get_contents('php://input'), true);
+        
+        if ($input) {
+            $this->setParams($input);
+        } else {
+            $this->setParams($params);
+        }
+        
         $createCategory = new Categorias();
         $createCategory = $createCategory->createCategory($this->params)->getResult();
         if ($createCategory) {echo'success';} else {echo 'error';}
@@ -72,7 +80,15 @@ class CategoriasController extends Controller
 
     public function save_edit($params)
     {
-        $this->setParams($params);
+        // Para dados JSON, precisamos ler do input stream
+        $input = json_decode(file_get_contents('php://input'), true);
+        
+        if ($input) {
+            $this->setParams($input);
+        } else {
+            $this->setParams($params);
+        }
+        
         $editarCategory = new Categorias();
         $editarCategory = $editarCategory->editarCategory($this->params)->getResult();
         if ($editarCategory){echo 'success';}else{echo 'error';}

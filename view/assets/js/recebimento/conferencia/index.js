@@ -127,7 +127,7 @@ function excluirConferencia(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(DOMAIN + '/recebimento/conferencia/' + id + '/delete', {
+            fetch(buildUrl('/recebimento/conferencia/' + id + '/delete'), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ function aprovarConferencia(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(DOMAIN + '/recebimento/conferencia/' + id + '/aprovar', {
+            fetch(buildUrl('/recebimento/conferencia/' + id + '/aprovar'), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

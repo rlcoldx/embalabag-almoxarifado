@@ -102,7 +102,7 @@ class NfeManager {
         }
 
         $.ajax({
-            url: `${DOMAIN}/recebimento/nfe/buscar-pedido`,
+            url: buildUrl('/recebimento/nfe/buscar-pedido'),
             method: 'GET',
             data: { numero: numeroPedido },
             success: (response) => {
@@ -131,7 +131,7 @@ class NfeManager {
         if (sku.length < 3) return;
 
         $.ajax({
-            url: `${DOMAIN}/produtos/buscar/${sku}`,
+            url: buildUrl(`/produtos/buscar/${sku}`),
             method: 'GET',
             success: (response) => {
                 if (response.success && response.produto) {
@@ -164,7 +164,7 @@ class NfeManager {
     carregarVariacoes(produtoId) {
         let DOMAIN = document.body.getAttribute('data-domain') || '';
         $.ajax({
-            url: `${DOMAIN}/produtos/variacoes/${produtoId}`,
+            url: buildUrl(`/produtos/variacoes/${produtoId}`),
             method: 'GET',
             success: (response) => {
                 if (response.success && response.variacoes) {

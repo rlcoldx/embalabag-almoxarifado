@@ -125,7 +125,7 @@ function excluirNotaFiscal(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(DOMAIN + '/recebimento/notas-fiscais/' + id + '/delete', {
+            fetch(buildUrl('/recebimento/notas-fiscais/' + id + '/delete'), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -178,7 +178,7 @@ function receberNotaFiscal(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(DOMAIN + '/recebimento/notas-fiscais/' + id + '/receber', {
+            fetch(buildUrl('/recebimento/notas-fiscais/' + id + '/receber'), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

@@ -111,7 +111,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(this);
             const cargoId = this.getAttribute('data-cargo-id');
             
-            fetch(DOMAIN + '/cargos/update/' + cargoId, {
+            const url = buildUrl('/cargos/update/' + cargoId);
+            fetch(url, {
                 method: 'POST',
                 body: formData
             })

@@ -1,9 +1,11 @@
 /**
  * Script para criação de locais de armazenagem
+ * Agora usando o sistema global de configurações
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    const DOMAIN = document.body.getAttribute('data-domain') || '';
+    // DOMAIN agora está disponível globalmente
+    console.log('🌐 DOMAIN global:', DOMAIN);
     
     // Inicializar formulário
     iniciarFormulario();
@@ -18,10 +20,10 @@ function iniciarFormulario() {
         
         // Obter dados do formulário
         const formData = new FormData(this);
-        const DOMAIN = document.body.getAttribute('data-domain') || '';
         
-        // Enviar dados para o servidor
-        fetch(`${DOMAIN}/armazenagens/store`, {
+        // Usar a função global para construir a URL
+        const url = buildUrl('/armazenagens/store');
+        ajaxRequest(url, {
             method: 'POST',
             body: formData
         })
@@ -35,7 +37,8 @@ function iniciarFormulario() {
                     text: 'O local de armazenagem foi adicionado com sucesso.',
                     confirmButtonText: 'OK'
                 }).then(() => {
-                    window.location.href = `${DOMAIN}/armazenagens`;
+                    // Usar buildUrl para redirecionamento
+                    window.location.href = buildUrl('/armazenagens');
                 });
             } else {
                 // Erro

@@ -1,31 +1,32 @@
 $(document).ready(function () {
 
 
-    $('#save_category').submit(function(e){
+	$('#save_category').submit(function(e){
 
-		let DOMAIN = $('body').data('domain');
 		$('#salvar').html('<i class="fa-solid fa-sync fa-spin"></i> SALVANDO');
 		$('#salvar').prop('type', 'button');
 		$('#salvar').addClass('disabled');
 		e.preventDefault();
 
-		let formData = new FormData(this);
+		// Obter dados do formulário
+		const formData = new FormData(this);
+		const data = Object.fromEntries(formData);
+		
 		let action = '';
-        
-
         if($('#action').val() == 'cadastrar'){
-            action = DOMAIN + '/produtos/categorias/save';
+            action = buildUrl('/produtos/categorias/save');
         }else{
-            action = DOMAIN + '/produtos/categorias/save_edit';
+            action = buildUrl('/produtos/categorias/save_edit');
         }
         
 		$.ajax({
 			url: action,
-			data: formData,
+			data: JSON.stringify(data),
 			type: 'POST',
+			contentType: 'application/json',
 			success: function(data){
 
-				if (data == ' success') {
+				if (data == 'success') {
 
 					Swal.fire({
 						icon: 'success',
@@ -33,7 +34,7 @@ $(document).ready(function () {
 						text: 'A categoria foi salva com sucesso.',
 						confirmButtonText: 'OK'
 					}).then(() => {
-						window.location.href = `${DOMAIN}/produtos/categorias`;
+						window.location.href = buildUrl('/produtos/categorias');
 					});
 
 				}else{
@@ -42,14 +43,11 @@ $(document).ready(function () {
 					$('#salvar').prop('type', 'submit');
 					$('#salvar').removeClass('disabled');
 					Swal.fire({ icon: 'error', title: 'ERRO AO SALVAR!', confirmButtonText: 'OK' }).then(() => {
-						window.location.href = `${DOMAIN}/produtos/categorias`;
+						window.location.href = buildUrl('/produtos/categorias');
 					});
 
 				}
-			},
-			processData: false,
-			cache: false,
-			contentType: false
+			}
 		});
 	});
   

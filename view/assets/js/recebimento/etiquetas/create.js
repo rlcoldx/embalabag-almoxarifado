@@ -87,7 +87,7 @@ function getPrefixoPorTipo(tipo) {
  * Verifica se o código é único
  */
 function verificarCodigoUnico(codigo) {
-    fetch(DOMAIN + '/recebimento/etiquetas/verificar-codigo?codigo=' + encodeURIComponent(codigo), {
+    fetch(buildUrl('/recebimento/etiquetas/verificar-codigo?codigo=' + encodeURIComponent(codigo)), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -262,7 +262,7 @@ function enviarFormulario() {
         }
     });
     
-    fetch(DOMAIN + '/recebimento/etiquetas/store', {
+    fetch(buildUrl('/recebimento/etiquetas/store'), {
         method: 'POST',
         body: formData
     })
@@ -340,7 +340,7 @@ function enviarFormularioComImpressao(formData) {
         }
     });
     
-    fetch(DOMAIN + '/recebimento/etiquetas/store', {
+    fetch(buildUrl('/recebimento/etiquetas/store'), {
         method: 'POST',
         body: formData
     })

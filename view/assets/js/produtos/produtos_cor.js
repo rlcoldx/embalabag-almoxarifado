@@ -10,29 +10,30 @@ $(document).ready(function () {
 
     $('#save_cor').submit(function(e){
 
-		let DOMAIN = $('body').data('domain');
 		$('#salvar').html('<i class="fa-solid fa-sync fa-spin"></i> SALVANDO');
 		$('#salvar').prop('type', 'button');
 		$('#salvar').addClass('disabled');
 		e.preventDefault();
 
-		let formData = new FormData(this);
+		// Obter dados do formulário
+		const formData = new FormData(this);
+		const data = Object.fromEntries(formData);
+		
 		let action = '';
-        
-
         if($('#action').val() == 'cadastrar'){
-			action = DOMAIN + '/produtos/cores/save';
+			action = buildUrl('/produtos/cores/save');
         }else{
-            action = DOMAIN + '/produtos/cores/save_edit';
+            action = buildUrl('/produtos/cores/save_edit');
         }
         
 		$.ajax({
 			url: action,
-			data: formData,
+			data: JSON.stringify(data),
 			type: 'POST',
+			contentType: 'application/json',
 			success: function(data){
 
-				if (data == ' success') {
+				if (data == 'success') {
 
                     Swal.fire({icon: 'success', title: 'SALVO COM SUCESSO!', showConfirmButton: false, timer: 1500});
                     setTimeout(function(){
@@ -47,10 +48,7 @@ $(document).ready(function () {
                     Swal.fire({icon: 'error', title: 'ERRO AO SALVAR!', showConfirmButton: false, timer: 1500});
 
 				}
-			},
-			processData: false,
-			cache: false,
-			contentType: false
+			}
 		});
 	});
   
@@ -67,9 +65,8 @@ function deletar_cor(id, cor_nome) {
 		dangerMode: true,
 	}).then((result) => {
 		  if (result.value === true) {
-			let DOMAIN = $('body').data('domain');
             $.ajax({
-                url: DOMAIN + '/produtos/cores/excluir',
+                url: buildUrl('/produtos/cores/excluir'),
                 data: {'id': id, 'cor_nome': cor_nome},
                 type: 'post',
                 success: function(data){

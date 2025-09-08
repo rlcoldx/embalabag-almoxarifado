@@ -24,8 +24,6 @@ window.updateCargosCount = function() {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    
-    let DOMAIN = document.body.getAttribute('data-domain') || '';
     // Controle de exibição dos campos específicos baseado no tipo de usuário
     const tipoSelect = document.getElementById('tipo');
     const companhiaFields = document.getElementById('companhiaFields');
@@ -77,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const userId = this.getAttribute('data-user-id');
             
             // Fazer requisição AJAX
-            fetch(`${DOMAIN}/users/update/${userId}`, {
+            fetch(buildUrl(`/users/update/${userId}`), {
                 method: 'POST',
                 body: formData
             })
@@ -90,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         text: data.message || 'Usuário atualizado com sucesso!',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.href = `${DOMAIN}/users`;
+                        window.location.href = buildUrl('/users');
                     });
                 } else {
                     Swal.fire({

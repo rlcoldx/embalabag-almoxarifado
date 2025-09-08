@@ -321,7 +321,7 @@ function renderActions(tableName, row, column) {
     
     // Ações padrão se não especificadas
     if (actions.length === 0) {
-        html += `<a href="${DOMAIN}/${tableName}/edit/${row.id}" class="btn btn-sm btn-outline-primary" title="Editar">
+        html += `<a href="${buildUrl(`/${tableName}/edit/${row.id}`)}" class="btn btn-sm btn-outline-primary" title="Editar">
                     <i class="fas fa-edit"></i>
                  </a>`;
         html += `<button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteItem('${tableName}', ${row.id})" title="Excluir">
@@ -624,7 +624,7 @@ function deleteItem(tableName, id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`${DOMAIN}/${tableName}/delete/${id}`, {
+            fetch(buildUrl(`/${tableName}/delete/${id}`), {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
@@ -738,13 +738,13 @@ function exportToCSV(tableName) {
     const currentPath = window.location.pathname;
     
     if (currentPath.includes('/cargos')) {
-        exportUrl = `${DOMAIN}/export/cargos?${params.toString()}`;
+        exportUrl = buildUrl(`/export/cargos?${params.toString()}`);
     } else if (currentPath.includes('/users') || currentPath.includes('/usuarios')) {
-        exportUrl = `${DOMAIN}/export/users?${params.toString()}`;
+        exportUrl = buildUrl(`/export/users?${params.toString()}`);
     } else if (currentPath.includes('/permissoes')) {
-        exportUrl = `${DOMAIN}/export/permissoes?${params.toString()}`;
+        exportUrl = buildUrl(`/export/permissoes?${params.toString()}`);
     } else if (currentPath.includes('/log-acessos') || currentPath.includes('/log_acessos')) {
-        exportUrl = `${DOMAIN}/export/log-acessos?${params.toString()}`;
+        exportUrl = buildUrl(`/export/log-acessos?${params.toString()}`);
     }
     
     if (exportUrl) {

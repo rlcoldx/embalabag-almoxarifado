@@ -3,8 +3,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    const DOMAIN = document.body.getAttribute('data-domain') || '';
-    
     // Inicializar botão de exportar
     inicializarBotaoExportar();
     
@@ -18,10 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 function abrirModalCompra(produtoId) {
     // Buscar informações do produto
-    const DOMAIN = document.body.getAttribute('data-domain') || '';
-    const PATH = DOMAIN || '';
-    
-    fetch(`${DOMAIN}/produtos/buscar/${produtoId}`)
+    fetch(buildUrl(`/produtos/buscar/${produtoId}`))
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -82,7 +77,6 @@ function abrirModalCompra(produtoId) {
 function inicializarBotaoSalvarCompra() {
     document.getElementById('btn-salvar-compra').addEventListener('click', function() {
         const form = document.getElementById('form-compra');
-        const DOMAIN = document.body.getAttribute('data-domain') || '';
         
         // Validar formulário
         if (!form.checkValidity()) {
@@ -93,7 +87,7 @@ function inicializarBotaoSalvarCompra() {
         const formData = new FormData(form);
         
         // Enviar dados
-        fetch(`${DOMAIN}/produtos/entrada-estoque`, {
+        fetch(buildUrl('/produtos/entrada-estoque'), {
             method: 'POST',
             body: formData
         })
@@ -136,7 +130,6 @@ function inicializarBotaoSalvarCompra() {
  */
 function inicializarBotaoExportar() {
     document.getElementById('btn-export').addEventListener('click', function() {
-        const DOMAIN = document.body.getAttribute('data-domain') || '';
-        window.location.href = `${DOMAIN}/produtos/exportar-estoque-baixo`;
+        window.location.href = buildUrl('/produtos/exportar-estoque-baixo');
     });
 }

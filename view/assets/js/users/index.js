@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(DOMAIN + '/users/delete/' + userId, {
+                fetch(buildUrl('/users/delete/' + userId), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

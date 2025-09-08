@@ -80,7 +80,7 @@ function inicializarBuscaPedidos() {
  * Carrega itens do pedido selecionado
  */
 function carregarItensPedido(pedidoId) {
-    fetch(DOMAIN + '/recebimento/pedidos/' + pedidoId + '/itens', {
+    fetch(buildUrl('/recebimento/pedidos/' + pedidoId + '/itens'), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -271,7 +271,7 @@ function enviarFormulario() {
         }
     });
     
-    fetch(DOMAIN + '/recebimento/notas-fiscais/store', {
+    fetch(buildUrl('/recebimento/notas-fiscais/store'), {
         method: 'POST',
         body: formData
     })

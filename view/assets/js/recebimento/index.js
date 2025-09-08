@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`${DOMAIN}/recebimento/${id}/marcar-recebida`, {
+                fetch(buildUrl(`/recebimento/${id}/marcar-recebida`), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
