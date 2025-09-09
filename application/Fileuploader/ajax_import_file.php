@@ -1,10 +1,7 @@
 <?php
-	$root = dirname(dirname(__DIR__));
-	include($root . '/config/db.php');
-	include($root . '/config/config.php');
-	include(__DIR__ . '/class.fileuploader.php');
-	require $root . '/vendor/autoload.php';
-	require __DIR__ . '/vendor/stefangabos/zebra_image/Zebra_Image.php';
+	include('../../../config/db.php');
+	include('../class.fileuploader.php');
+	require '../vendor/autoload.php';
 
 	$isAfterEditing = false;
 

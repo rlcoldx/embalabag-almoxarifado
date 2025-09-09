@@ -1,5 +1,7 @@
 <?php
-	include('class.fileuploader.php');
+	include('../../../config/db.php');
+	include('../class.fileuploader.php');
+	require '../vendor/autoload.php';
 
 	if (isset($_POST['fileuploader']) && isset($_POST['_file']) && isset($_POST['_editor'])) {
 		$file = '../' . $_POST['_file'];

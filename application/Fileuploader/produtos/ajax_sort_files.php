@@ -1,7 +1,7 @@
 <?php
-	$root = dirname(dirname(dirname(__DIR__)));
-	include($root . '/config/db.php');
-	include($root . '/config/config.php');
+	include('../../../config/db.php');
+	include('../class.fileuploader.php');
+	require '../vendor/autoload.php';
 
     $list = isset($_POST['_list']) ? json_decode($_POST['_list'], true) : null;
    
