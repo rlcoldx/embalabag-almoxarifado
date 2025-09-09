@@ -19,7 +19,7 @@ $router->get("/produtos/edit/{id}", "ProdutosController:editar");
 $router->get("/produtos/buscar/{id}", "ProdutosController:buscarProduto");
 $router->post("/produtos/save_draft", "ProdutosController:save_draft");
 $router->post("/produtos/editar/save", "ProdutosController:save_edit");
-$router->post("/produtos/excluir", "ProdutosController:excluir_produto");
+$router->post("/produtos/delete/{id}", "ProdutosController:excluir_produto");
 $router->post("/produtos/entrada-estoque", "ProdutosController:entradaEstoque");
 
 // PAGE CATEGORIAS

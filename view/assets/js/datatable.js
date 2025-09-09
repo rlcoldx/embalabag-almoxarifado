@@ -626,6 +626,7 @@ function deleteItem(tableName, id) {
         if (result.isConfirmed) {
             fetch(buildUrl(`/${tableName}/delete/${id}`), {
                 method: 'POST',
+                data: {id: id},
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }

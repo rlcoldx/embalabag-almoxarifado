@@ -186,7 +186,20 @@ class ProdutosController extends Controller
   {
     $this->setParams($params);
     $excluir = new Produtos();
-    $excluir->excluirProduto($this->params['id_produto']);
+    $excluir->excluirProduto($this->params['id']);
+    if ($excluir) {
+      header("Content-Type: application/json");
+      echo json_encode([
+        'success' => true,
+        'message' => 'Produto excluído com sucesso'
+      ]);
+    } else {
+      header("Content-Type: application/json");
+      echo json_encode([
+        'success' => false,
+        'message' => 'Erro ao excluir produto'
+      ]);
+    }    
   }
 
 

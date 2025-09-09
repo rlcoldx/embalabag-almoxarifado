@@ -106,7 +106,7 @@ class DataTableHelper
         return $this;
     }
 
-    public function getData(array $request): array
+    public function getData(array $request, string $tableWhere = ''): array
     {
         $page = (int)($request['page'] ?? 1);
         $limit = (int)($request['limit'] ?? $this->defaultLimit);
@@ -130,18 +130,14 @@ class DataTableHelper
             }
         }
 
-        // Debug temporário
-        error_log("DataTable getData - Request: " . json_encode($request));
-        error_log("DataTable getData - Raw Filters: " . json_encode($rawFilters));
-        error_log("DataTable getData - Processed Filters: " . json_encode($filters));
-
         // Construir query base
         $select = $this->buildSelect();
         $from = $this->buildFrom();
-        $where = $this->buildWhere($search, $filters);
+        $where = $this->buildWhere($search, $filters, $tableWhere);
         $groupBy = $this->buildGroupBy();
         $having = $this->buildHaving();
         $orderBy = $this->buildOrderBy($orderBy, $orderDir);
+
 
         // Query para contar total de registros
         $countQuery = "SELECT COUNT(DISTINCT {$this->table}.{$this->primaryKey}) as total {$from} {$where} {$groupBy} {$having}";
@@ -149,16 +145,12 @@ class DataTableHelper
         // Query para buscar dados
         $dataQuery = "{$select} {$from} {$where} {$groupBy} {$having} {$orderBy} LIMIT " . (($page - 1) * $limit) . ", {$limit}";
 
-        // Debug temporário
-        error_log("DataTable getData - Count Query: " . $countQuery);
-        error_log("DataTable getData - Data Query: " . $dataQuery);
 
         // Executar queries
         $read = new Read();
         
         // Contar total
         $params = $this->buildParams($search, $filters);
-        error_log("DataTable getData - Params: " . $params);
         
         $read->FullRead($countQuery, $params);
         $totalResult = $read->getResult();
@@ -312,11 +304,7 @@ class DataTableHelper
         }
 
         $selectClause = "SELECT " . implode(', ', $selects);
-        
-        // Debug temporário
-        error_log("DataTable buildSelect - Selects: " . json_encode($selects));
-        error_log("DataTable buildSelect - Final SELECT: " . $selectClause);
-        
+                
         return $selectClause;
     }
 
@@ -331,7 +319,7 @@ class DataTableHelper
         return $from;
     }
 
-    private function buildWhere(string $search, array $filters): string
+    private function buildWhere(string $search, array $filters, string $tableWhere = ''): string
     {
         $conditions = [];
 
@@ -373,13 +361,12 @@ class DataTableHelper
             }
         }
 
-        $whereClause = !empty($conditions) ? "WHERE " . implode(' AND ', $conditions) : '';
-        
-        // Debug temporário
-        error_log("DataTable buildWhere - Search: " . $search);
-        error_log("DataTable buildWhere - Filters: " . json_encode($filters));
-        error_log("DataTable buildWhere - Conditions: " . json_encode($conditions));
-        error_log("DataTable buildWhere - Final WHERE: " . $whereClause);
+        if (!empty($conditions)) {
+            $whereClause = "WHERE " . implode(' AND ', $conditions) . " AND " . $tableWhere;
+        } else {
+            $whereClause = "WHERE " . $tableWhere;
+        }
+
         
         return $whereClause;
     }

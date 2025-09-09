@@ -3,9 +3,13 @@
 namespace Agencia\Close\Controllers\DataTable;
 
 use Agencia\Close\Helpers\DataTable\DataTableHelper;
+use Agencia\Close\Conn\Read;
 
 class ProdutosDataTableController extends BaseDataTableController
 {
+
+    private string $tableWhere = '';
+
     public function index(array $params)
     {
         $this->checkSessionAndSetParams($params);
@@ -64,8 +68,10 @@ class ProdutosDataTableController extends BaseDataTableController
             $dataTable->addWhereCondition('estoque_atual > estoque_minimo');
         }
 
+        $this->tableWhere = '`status` <> "Deletado"';
+
         // Buscar dados
-        $result = $dataTable->getData($_GET);
+        $result = $dataTable->getData($_GET, $this->tableWhere);
         
         // Formatar o campo valor para padrão brasileiro
         if (isset($result['data']) && is_array($result['data'])) {
@@ -80,7 +86,7 @@ class ProdutosDataTableController extends BaseDataTableController
      */
     private function getCategoriasOptions(): array
     {
-        $read = new \Agencia\Close\Conn\Read();
+        $read = new Read();
         $read->FullRead("SELECT DISTINCT categoria FROM produtos WHERE categoria IS NOT NULL AND categoria != '' ORDER BY categoria");
         $categorias = $read->getResult() ?: [];
         
