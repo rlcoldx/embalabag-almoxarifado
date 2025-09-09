@@ -4,7 +4,7 @@
 	include($root . '/config/config.php');
 	include(dirname(__DIR__) . '/class.fileuploader.php');
 	require $root . '/vendor/autoload.php';
-	require $root . '/application/Fileuploader/vendor/stefangabos/zebra_image/Zebra_Image.php';
+	require dirname(__DIR__) . '/vendor/stefangabos/zebra_image/Zebra_Image.php';
 
 	$isAfterEditing = false;
 
