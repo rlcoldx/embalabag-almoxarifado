@@ -1,7 +1,9 @@
 <?php
-	include('../../config/db.php');
-	include('class.fileuploader.php');
-	require 'vendor/autoload.php';
+	$root = dirname(dirname(dirname(__DIR__)));
+	include($root . '/config/db.php');
+	include($root . '/config/config.php');
+	include(dirname(__DIR__) . '/class.fileuploader.php');
+	require $root . '/vendor/autoload.php';
 
 	$isAfterEditing = false;
 

@@ -1,5 +1,7 @@
 <?php
-	include('../../config/db.php');
+	$root = dirname(dirname(dirname(__DIR__)));
+	include($root . '/config/db.php');
+	include($root . '/config/config.php');
 
 	if (isset($_POST['file'])) {
 
