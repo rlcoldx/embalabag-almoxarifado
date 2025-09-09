@@ -127,13 +127,15 @@ $(document).ready(function () {
 		e.preventDefault();
 
 		var formData = new FormData(this);
+        const data = new URLSearchParams(formData).toString();
         
 		$.ajax({
 			url: DOMAIN + '/produtos/editar/save',
-			data: formData,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            data: data,
 			type: 'POST',
 			success: function(data){
-				if (data == ' success') {
+				if (data == 'success') {
                     Swal.fire({icon: 'success', title: 'SALVO COM SUCESSO!', showConfirmButton: false, timer: 1500});
                     setTimeout(function(){
                         location.reload();
