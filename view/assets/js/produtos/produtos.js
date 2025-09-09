@@ -98,7 +98,8 @@ $(document).ready(function () {
             var DOMAIN = $('body').data('domain');
             $.ajax({
                 url: DOMAIN + '/produtos/save_draft',
-                data: {'nome': nome, 'slug': slug},
+                data: { 'nome': nome, 'slug': slug},
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 type: 'POST',
                 success: function(data){
                     $('#id_produto').val(data.id);
@@ -106,8 +107,7 @@ $(document).ready(function () {
                     $('#produto_nome').addClass('editar_produto');
 
                     var new_url = DOMAIN+'/produtos/edit/'+data.id;
-                    window.history.pushState('data','Title', new_url);
-                    document.nome = 'Editar: '+data.nome;
+                    window.location.href = new_url;
 
                     $('.edit-slug-box').show();
                     start_product_gallery();
