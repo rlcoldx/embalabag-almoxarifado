@@ -12,8 +12,8 @@
 		$caminho = explode('-', $item['data']);
 		$nome_arquivo_thumb = explode('.', $item['nome']);
 
-		$diretorio = '../../uploads/produtos/'.$caminho[0].'/'.$caminho[1].'/';
-		$diretorio_thumbnail = '../../uploads/produtos_thumbnail/'.$caminho[0].'/'.$caminho[1].'/';
+		$diretorio = '../../../uploads/produtos/'.$caminho[0].'/'.$caminho[1].'/';
+		$diretorio_thumbnail = '../../../uploads/produtos_thumbnail/'.$caminho[0].'/'.$caminho[1].'/';
 
 		$file = $diretorio.$item['nome'];
 		$file_thumbnail = $diretorio_thumbnail.$nome_arquivo_thumb[0].'.jpg';

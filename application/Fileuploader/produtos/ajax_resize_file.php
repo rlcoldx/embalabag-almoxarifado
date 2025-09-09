@@ -4,7 +4,7 @@
 	require '../vendor/autoload.php';
 
 	if (isset($_POST['fileuploader']) && isset($_POST['_file']) && isset($_POST['_editor'])) {
-		$file = '../' . $_POST['_file'];
+		$file = '../../../' . $_POST['_file'];
 		
 		if (is_file($file)) {
 			$editor = json_decode($_POST['_editor'], true);

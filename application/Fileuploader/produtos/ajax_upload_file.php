@@ -18,11 +18,11 @@
 		$ano = date('Y');
 	}
 
-	if (!file_exists('../../uploads/produtos/'.$ano.'/'.$mes.'/')) {
-		mkdir('../../uploads/produtos/'.$ano.'/'.$mes.'/', 0777, true);
+	if (!file_exists('../../../uploads/produtos/'.$ano.'/'.$mes.'/')) {
+		mkdir('../../../uploads/produtos/'.$ano.'/'.$mes.'/', 0777, true);
 	}
 
-	$caminho = '../../uploads/produtos/'.$ano.'/'.$mes.'/';
+	$caminho = '../../../uploads/produtos/'.$ano.'/'.$mes.'/';
 
 	if (isset($_POST['fileuploader']) && isset($_POST['_editingg'])) {
 		$isAfterEditing = true;
@@ -69,20 +69,20 @@
 			$sql_imagens->execute();
 			$dados_imagens = $sql_imagens->fetch(PDO::FETCH_ASSOC);
 
-			$dados_imagens['imagem'] = str_replace(DOMAIN."/","../../",$dados_imagens['imagem']);
+			$dados_imagens['imagem'] = str_replace(DOMAIN."/","../../../",$dados_imagens['imagem']);
 			$nome = explode('.', $dados_imagens['nome']);
 
-			if (!file_exists('../../uploads/produtos_thumbnail/'.$ano.'/'.$mes.'/')) {
-				mkdir('../../uploads/produtos_thumbnail/'.$ano.'/'.$mes.'/', 0777, true);
+			if (!file_exists('../../../uploads/produtos_thumbnail/'.$ano.'/'.$mes.'/')) {
+				mkdir('../../../uploads/produtos_thumbnail/'.$ano.'/'.$mes.'/', 0777, true);
 			}
 
 			// create a new instance of the class
 			$image = new Zebra_Image();
 			$image->auto_handle_exif_orientation = false;
 
-			$image->source_path = '../../uploads/produtos/'.$ano.'/'.$mes.'/'.strtolower($dados_imagens['nome']);
+			$image->source_path = '../../../uploads/produtos/'.$ano.'/'.$mes.'/'.strtolower($dados_imagens['nome']);
 
-			$image->target_path = '../../uploads/produtos_thumbnail/'.$ano.'/'.$mes.'/'.$nome[0].'.jpg';
+			$image->target_path = '../../../uploads/produtos_thumbnail/'.$ano.'/'.$mes.'/'.$nome[0].'.jpg';
 
 			$imagem_thumbnail = DOMAIN.'/'.substr($image->target_path, 12);
 			$sql_update = $db->prepare("UPDATE `produtos_imagens` SET `thumbnail` = '".$imagem_thumbnail."' WHERE `id` = '".$dados_imagens['id']."'");
