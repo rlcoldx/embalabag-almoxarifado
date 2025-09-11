@@ -80,9 +80,14 @@
                             </div>
                             {% if variations %}
                                 {% for variation in variations %}
-                                <div data-repeater-item class="variation-item mb-3 p-3 border rounded">
-                                    <div class="row align-items-end">
-                                        <div class="col-md-3">
+                                <div data-repeater-item class="variation-item mb-3 border rounded" data-variacao-id="{{ variation.id }}" data-cor-anterior="{{ variation.cor }}">
+                                    <input type="hidden" name="variacao_id_alterada" value="" class="variacao-id-input">
+                                    <div class="d-flex justify-content-between flex-wrap gap-2 align-items-end">
+                                        <div style="width: 125px;">
+                                            <label class="form-label">SKU</label>
+                                            <input type="text" class="form-control" name="sku_fornecedor" value="{{ variation.sku_fornecedor }}" placeholder="Slug Fornecedor">
+                                        </div>
+                                        <div>
                                             <label class="form-label">Cor</label>
                                             <select class="form-select sumoselect" name="cor">
                                                 <option value="">Selecione</option>
@@ -91,30 +96,33 @@
                                                 {% endfor %}
                                             </select>
                                         </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check mb-2">
-                                                <input type="checkbox" class="form-check-input" {{ variation.gerenciar_estoque == 'yes' ? 'checked' }} name="gerenciar_estoque" id="gerenciar_estoque_{{ loop.index }}">
-                                                <label class="form-check-label" for="gerenciar_estoque_{{ loop.index }}">
-                                                    Gerenciar estoque
-                                                </label>
+                                        <div >
+                                            <div class="form-check form-switch" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Ativar o gerenciamento de estoque">
+                                                <input class="form-check-input" type="checkbox" role="switch" name="gerenciar_estoque" id="gerenciar_estoque_new" {{ variation.gerenciar_estoque == 'yes' ? 'checked' }}>
+                                                <label class="form-check-label" for="gerenciar_estoque_new"></label>
                                             </div>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div>
                                             <label class="form-label">Estoque</label>
                                             <div class="form-check-input ps-2 pb-4 pt-1 pe-5 w-100 rounded">{{ variation.estoque }}</div>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div>
                                             <label class="form-label">Encomendas</label>
                                             <select name="encomenda" class="form-select">
                                                 <option value="no" {{ variation.encomenda == 'no' ? 'selected' }}>Não permitir</option>
                                                 <option value="yes" {{ variation.encomenda == 'yes' ? 'selected' }}>Permitir</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label">Tempo de Atraso</label>
+                                        <div style="width: 50px;">
+                                            <label class="form-label">Atraso</label>
                                             <input type="number" class="form-control" name="atraso" value="{{ variation.atraso }}" min="0">
                                         </div>
-                                        <div class="col-md-1">
+                                        <div>
+                                            <label class="form-label">Cod. Barras</label>
+                                            <input type="number" class="form-control" name="codigo_barras" value="{{ variation.codigo_barras }}" placeholder="Código de barras">
+                                        </div>
+                                        <div>
                                             <button data-repeater-delete type="button" class="btn btn-danger btn-sm">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -124,8 +132,12 @@
                                 {% endfor %}
                             {% else %}
                                 <div data-repeater-item class="variation-item mb-3 border rounded">
-                                    <div class="row align-items-end">
-                                        <div class="col-md-3">
+                                    <div class="d-flex justify-content-between flex-wrap gap-2 align-items-end mb-2">
+                                        <div style="width: 125px;">
+                                            <label class="form-label">SKU</label>
+                                            <input type="text" class="form-control" name="sku_fornecedor" value="" placeholder="SKU Fornecedor">
+                                        </div>
+                                        <div>
                                             <label class="form-label">Cor</label>
                                             <select class="form-select sumoselect" name="cor">
                                                 <option value="">Selecione</option>
@@ -134,30 +146,33 @@
                                                 {% endfor %}
                                             </select>
                                         </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check mb-2">
-                                                <input type="checkbox" class="form-check-input" name="gerenciar_estoque" id="gerenciar_estoque_new">
-                                                <label class="form-check-label" for="gerenciar_estoque_new">
-                                                    Gerenciar estoque
-                                                </label>
+                                        <div>
+                                            <div class="form-check form-switch" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Ativar o gerenciamento de estoque">
+                                                <input class="form-check-input" type="checkbox" role="switch" name="gerenciar_estoque" id="gerenciar_estoque_new">
+                                                <label class="form-check-label" for="gerenciar_estoque_new"></label>
                                             </div>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div>
                                             <label class="form-label">Estoque</label>
                                             <div class="form-check-input ps-2 pb-4 pt-1 pe-5 w-100 rounded">0</div>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div>
                                             <label class="form-label">Encomendas</label>
                                             <select name="encomenda" class="form-select">
                                                 <option value="no">Não permitir</option>
                                                 <option value="yes">Permitir</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label">Tempo de Atraso</label>
-                                            <input type="number" class="form-control" name="atraso" value="0" min="0">
+                                        <div style="width: 50px;">
+                                            <label class="form-label">Atraso</label>
+                                            <input type="number" class="form-control" name="atraso" value="0" min="0" placeholder="Atraso">
                                         </div>
-                                        <div class="col-md-1">
+                                        <div>
+                                            <label class="form-label">Cod. Barras</label>
+                                            <input type="number" class="form-control" name="codigo_barras" value="" placeholder="Código de barras">
+                                        </div>
+                                        <div>
                                             <button data-repeater-delete type="button" class="btn btn-danger btn-sm">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -341,13 +356,9 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-12 mb-3">
                             <label class="form-label">SKU</label>
                             <input type="text" name="SKU" class="form-control" value="{{ produto.SKU }}" placeholder="SKU do produto">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">SKU Fornecedor</label>
-                            <input type="text" name="sku_fornecador" class="form-control" value="{{ produto.sku_fornecador }}" placeholder="SKU do Fornecedor">
                         </div>
                     </div>
                     <div class="row">

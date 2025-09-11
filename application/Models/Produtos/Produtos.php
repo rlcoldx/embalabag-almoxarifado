@@ -85,13 +85,22 @@ class Produtos extends Model
         $update = new Update();
         $id = $params['id'];
 
-        if (($params['variavel'][0]['cor'] != 'Selecione') && (isset($params['variavel'][0]['cor']))) {
-            $deletar = new Read();
-            $deletar->FullRead("DELETE FROM `produtos_variations` WHERE id_produto = :id_produto", "id_produto={$id}");
-
+        if (isset($params['variavel']) && is_array($params['variavel']) && count($params['variavel']) > 0) {
+            
             for ($i = 0; $i < count($params['variavel']); $i++) {
 
                 if (($params['variavel'][$i]['cor'] != 'Selecione') && ($params['variavel'][$i]['cor'] != '')) {
+
+                    // Verificar se é uma variação existente que teve a cor alterada
+                    if (isset($params['variavel'][$i]['variacao_id_alterada']) && !empty($params['variavel'][$i]['variacao_id_alterada'])) {
+                        $this->atualizarVariacaoExistente($params['variavel'][$i]['variacao_id_alterada'], $params['variavel'][$i]);
+                    } else {
+                        // Verificar se a variação já existe
+                        $read = new Read();
+                        $read->FullRead("SELECT id FROM `produtos_variations` WHERE id_produto = :id_produto AND cor = :cor", 
+                            "id_produto={$id}&cor={$params['variavel'][$i]['cor']}");
+                        
+                        $variacao_existe = $read->getRowCount() > 0;
 
                     if (isset($params['variavel'][$i]['gerenciar_estoque'])) {
                         $gerenciar_estoque = 'yes';
@@ -117,9 +126,32 @@ class Produtos extends Model
                         $atraso = 0;
                     }
 
-                    $read = new Read();
-                    $read->FullRead("INSERT INTO `produtos_variations` (`id_produto`, `cor`, `gerenciar_estoque`, `estoque`, `encomenda`, `atraso`) 
-                    VALUES ('" . $id . "', '" . $params['variavel'][$i]['cor'] . "', '" . $gerenciar_estoque . "', '" . $estoque . "', '" . $encomenda . "', '" . $atraso . "')");
+                    if ($variacao_existe) {
+                        // Atualizar variação existente
+                        $update_variacao = new Update();
+                        $update_variacao->ExeUpdate("produtos_variations", [
+                            'gerenciar_estoque' => $gerenciar_estoque,
+                            'estoque' => $estoque,
+                            'encomenda' => $encomenda,
+                            'atraso' => $atraso,
+                            'sku_fornecedor' => $params['variavel'][$i]['sku_fornecedor'],
+                            'codigo_barras' => $params['variavel'][$i]['codigo_barras']
+                        ], "WHERE id_produto = :id_produto AND cor = :cor", "id_produto={$id}&cor={$params['variavel'][$i]['cor']}");
+                    } else {
+                        // Inserir nova variação
+                        $create = new Create();
+                        $create->ExeCreate("produtos_variations", [
+                            'id_produto' => $id,
+                            'cor' => $params['variavel'][$i]['cor'],
+                            'gerenciar_estoque' => $gerenciar_estoque,
+                            'estoque' => $estoque,
+                            'encomenda' => $encomenda,
+                            'atraso' => $atraso,
+                            'sku_fornecedor' => $params['variavel'][$i]['sku_fornecedor'],
+                            'codigo_barras' => $params['variavel'][$i]['codigo_barras']
+                        ]);
+                    }
+                    }
                 }
             }
         }
@@ -127,7 +159,8 @@ class Produtos extends Model
         // SALVAR PREÇOS POR EMPRESA
         if (isset($params['preco_empresa']) && is_array($params['preco_empresa'])) {
             $deletar = new Read();
-            $deletar->FullRead("DELETE FROM `produtos_precos` WHERE id_produto = :id_produto", "id_produto={$id}");
+            $deletar->FullRead("DELETE FROM `produtos_precos` WHERE id_produto = :id_produto",
+            "id_produto={$id}");
 
             for ($i = 0; $i < count($params['preco_empresa']); $i++) {
 
@@ -160,6 +193,7 @@ class Produtos extends Model
         unset($params['preco_empresa']);
         unset($params['categories_id']);
         unset($params['empresas_blacklist']);
+        unset($params['variacao_id_alterada']);
 
         if (($params['valor'] != '') && ($params['valor'] != '0,00')) {
             $params['valor'] = $this->converterValoes($params['valor']);
@@ -175,6 +209,47 @@ class Produtos extends Model
 
         $update->ExeUpdate('produtos', $params, 'WHERE `id` = :id', "id={$id}");
         return $update;
+    }
+
+    /**
+     * Atualizar variação existente (mudança de cor)
+     */
+    private function atualizarVariacaoExistente($variacao_id, $dados_variacao)
+    {
+        if (isset($dados_variacao['gerenciar_estoque'])) {
+            $gerenciar_estoque = 'yes';
+        } else {
+            $gerenciar_estoque = 'no';
+        }
+
+        if (isset($dados_variacao['estoque'])) {
+            $estoque = $dados_variacao['estoque'];
+        } else {
+            $estoque = 0;
+        }
+
+        if (isset($dados_variacao['encomenda'])) {
+            $encomenda = $dados_variacao['encomenda'];
+        } else {
+            $encomenda = 'no';
+        }
+
+        if (isset($dados_variacao['atraso'])) {
+            $atraso = $dados_variacao['atraso'];
+        } else {
+            $atraso = 0;
+        }
+
+        $update = new Update();
+        $update->ExeUpdate("produtos_variations", [
+            'cor' => $dados_variacao['cor'],
+            'gerenciar_estoque' => $gerenciar_estoque,
+            'estoque' => $estoque,
+            'encomenda' => $encomenda,
+            'atraso' => $atraso,
+            'sku_fornecedor' => $dados_variacao['sku_fornecedor'],
+            'codigo_barras' => $dados_variacao['codigo_barras']
+        ], "WHERE id = :id", "id={$variacao_id}");
     }
 
     public function converterValoes($val)

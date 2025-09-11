@@ -4,6 +4,7 @@ namespace Agencia\Close\Controllers\Api;
 
 use Agencia\Close\Controllers\Controller;
 use Agencia\Close\Conn\Read;
+use Agencia\Close\Conn\Delete;
 use Agencia\Close\Helpers\Result;
 
 class ProdutosApiController extends Controller
@@ -127,6 +128,45 @@ class ProdutosApiController extends Controller
 
         } catch (\Exception $e) {
             $this->sendErrorResponse('Erro ao buscar produto: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Deletar variação de produto
+     */
+    public function deletarVariacao($params)
+    {
+        try {
+            $variacaoId = $params['id'] ?? null;
+            
+            if (!$variacaoId) {
+                $this->sendErrorResponse('ID da variação não informado');
+                return;
+            }
+
+            // Verificar se a variação existe
+            $read = new Read();
+            $read->ExeRead("produtos_variations", "WHERE id = {$variacaoId}");
+            
+            if (!$read->getResult()) {
+                $this->sendErrorResponse('Variação não encontrada');
+                return;
+            }
+
+            // Deletar a variação
+            $delete = new Delete();
+            $delete->ExeDelete("produtos_variations", "WHERE id = :id", "id={$variacaoId}");
+            
+            $response = [
+                'success' => true,
+                'message' => 'Variação deletada com sucesso'
+            ];
+
+            header('Content-Type: application/json');
+            echo json_encode($response);
+
+        } catch (\Exception $e) {
+            $this->sendErrorResponse('Erro ao deletar variação: ' . $e->getMessage());
         }
     }
 

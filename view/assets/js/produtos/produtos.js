@@ -1,5 +1,60 @@
 $(document).ready(function () {
 
+    // Event handler para deletar variação
+    $(document).on('click', '[data-repeater-delete]', function(e) {
+        e.preventDefault();
+        
+        const $row = $(this).closest('[data-repeater-item]');
+        const variacaoId = $row.data('variacao-id');
+        
+        if (variacaoId) {
+            // Se tem ID, é uma variação existente - deletar do banco
+            deletarVariacao(variacaoId, $row);
+        } else {
+            // Se não tem ID, é apenas uma linha nova - remover do DOM
+            $row.remove();
+        }
+    });
+
+    // Event handler para mudança de cor
+    $(document).on('change', 'select[name*="cor"]', function() {
+        const $row = $(this).closest('[data-repeater-item]');
+        const variacaoId = $row.data('variacao-id');
+        const corAtual = $(this).val();
+        
+        if (variacaoId) {
+            // Preenche o input hidden com o ID da variação
+            $row.find('.variacao-id-input').val(variacaoId);
+            
+            // Atualiza o data-cor-anterior
+            $row.data('cor-anterior', corAtual);
+        }
+    });
+
+    // Função para deletar variação do banco
+    function deletarVariacao(variacaoId, $row) {
+        if (confirm('Tem certeza que deseja deletar esta variação?')) {
+            $.ajax({
+                url: buildUrl(`/api/produtos/variacoes/deletar/${variacaoId}`),
+                type: 'POST',
+                success: function(response) {
+                    if (response.success) {
+                        $row.fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                        toastr.success('Variação deletada com sucesso!');
+                    } else {
+                        toastr.error(response.error || 'Erro ao deletar variação');
+                    }
+                },
+                error: function() {
+                    toastr.error('Erro ao deletar variação');
+                }
+            });
+        }
+    }
+
+
     $('select[name="promocao_tipo"]').change(function() {
         var selectedValue = $(this).val();
         if (selectedValue === 'porcentagem') {
@@ -138,7 +193,7 @@ $(document).ready(function () {
 				if (data == 'success') {
                     Swal.fire({icon: 'success', title: 'SALVO COM SUCESSO!', showConfirmButton: false, timer: 1500});
                     setTimeout(function(){
-                        location.reload();
+                        //location.reload();
                     }, 1500);
 				}else{
                     $('#salvar').html('SALVAR');

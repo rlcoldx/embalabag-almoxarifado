@@ -5,6 +5,7 @@ $router->namespace("Agencia\Close\Controllers\Api");
 $router->get("/api/produtos/buscar", "ProdutosApiController:buscar");
 $router->get("/api/produtos/variacoes/{id}", "ProdutosApiController:variacoes");
 $router->get("/api/produtos/sku/{sku}", "ProdutosApiController:porSku");
+$router->post("/api/produtos/variacoes/deletar/{id}", "ProdutosApiController:deletarVariacao");
 
 // API de Armazenagens
 $router->get("/api/armazenagens", "ArmazenagensApiController:listarArmazenagens");
