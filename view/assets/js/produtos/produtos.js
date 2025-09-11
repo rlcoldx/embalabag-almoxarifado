@@ -193,7 +193,7 @@ $(document).ready(function () {
 				if (data == 'success') {
                     Swal.fire({icon: 'success', title: 'SALVO COM SUCESSO!', showConfirmButton: false, timer: 1500});
                     setTimeout(function(){
-                        //location.reload();
+                        location.reload();
                     }, 1500);
 				}else{
                     $('#salvar').html('SALVAR');
