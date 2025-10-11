@@ -36,7 +36,6 @@
 
 .fr-box.fr-basic .fr-element {
     font-family: sans-serif;
-    color: #414141;
     font-size: 14px;
     line-height: 1.6;
     padding: 20px;
@@ -190,25 +189,6 @@ iframe.fr-iframe {
     white-space: nowrap;
     text-overflow: ellipsis
 }
-
-.fr-wrapper ::-moz-selection {
-    background: #b5d6fd;
-    color: #000
-}
-
-.fr-wrapper ::selection {
-    background: #b5d6fd;
-    color: #000
-}
-
-.fr-box.fr-basic .fr-wrapper {
-    background: #FFF;
-    border: 1px solid #CCCCCC;
-    border-bottom-color: #efefef;
-    top: 0;
-    left: 0
-}
-
 .fr-box.fr-basic.fr-top .fr-wrapper {
     border-top: 0
 }
@@ -1401,8 +1381,6 @@ ol.decimal_type>li:before {
 }
 
 .fr-toolbar {
-    color: #222222;
-    background: #FFF;
     position: relative;
     font-family: Arial, Helvetica, sans-serif;
     -webkit-box-sizing: border-box;
@@ -1421,7 +1399,6 @@ ol.decimal_type>li:before {
     -webkit-background-clip: padding-box;
     background-clip: padding-box;
     text-align: left;
-    border: 1px solid #CCCCCC;
     text-rendering: optimizelegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

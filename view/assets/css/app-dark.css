@@ -80,3 +80,23 @@
 [data-theme-mode=dark] span.badge.bg-secondary {
     color: #333;
 }
+[data-theme-mode=dark] .bootstrap-tagsinput,
+[data-theme-mode=dark] .SumoSelect>.CaptionCont {
+    color: var(--default-text-color);
+    background-color: var(--form-control-bg);
+    font-size: 0.875rem;
+    font-weight: var(--default-font-weight);
+    line-height: 1.6;
+    border-radius: 0.35rem;
+    display: block;
+    width: 100%;
+    padding-left: .35rem;
+    padding-right: .35rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-clip: padding-box;
+    border: var(--bs-border-width) solid var(--input-border);
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    padding: .375rem .75rem;
+}

@@ -16,15 +16,15 @@ function initTabs() {
         tab.addEventListener('shown.bs.tab', function(event) {
             const target = event.target.getAttribute('data-bs-target');
             
-            // Carregar dados específicos da aba
+            // Carregar dados específicos da aba (sem o sufixo -tab)
             switch(target) {
-                case '#movimentacoes-tab':
+                case '#movimentacoes':
                     loadMovimentacoes();
                     break;
-                case '#transferencias-tab':
+                case '#transferencias':
                     loadTransferencias();
                     break;
-                case '#historico-tab':
+                case '#historico':
                     loadHistorico();
                     break;
             }
@@ -37,25 +37,33 @@ function initTabs() {
  */
 function loadMovimentacoes() {
     const armazenagemId = getArmazenagemIdFromUrl();
-    
-    console.log('Carregando movimentações para armazenagem ID:', armazenagemId);
-    console.log('URL atual:', window.location.pathname);
+
     
     if (!armazenagemId) {
-        console.error('ID da armazenagem não encontrado');
+        const tbody = document.getElementById('movimentacoesTableBody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Erro: ID da armazenagem não encontrado</td></tr>';
+        }
         return;
     }
     
     fetch(buildUrl(`/api/armazenagens/movimentacoes/${armazenagemId}`))
         .then(response => response.json())
         .then(data => {
-            console.log('Resposta da API movimentações:', data);
             if (data.success) {
-                renderMovimentacoes(data.movimentacoes);
+                renderMovimentacoes(data.movimentacoes || []);
+            } else {
+                const tbody = document.getElementById('movimentacoesTableBody');
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-warning">Erro ao carregar movimentações</td></tr>';
+                }
             }
         })
         .catch(error => {
-            console.error('Erro ao carregar movimentações:', error);
+            const tbody = document.getElementById('movimentacoesTableBody');
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Erro ao carregar dados</td></tr>';
+            }
         });
 }
 
@@ -68,16 +76,27 @@ function renderMovimentacoes(movimentacoes) {
     
     tbody.innerHTML = '';
     
+    if (!movimentacoes || movimentacoes.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-4">
+                    <i class="fas fa-inbox text-muted fs-48 mb-2 d-block"></i>
+                    <p class="text-muted">Nenhuma movimentação encontrada</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
     movimentacoes.forEach(mov => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${formatDateTime(mov.data_movimentacao)}</td>
-            <td><span class="badge ${mov.tipo_movimentacao === 'entrada' ? 'bg-success' : 'bg-danger'}">${mov.tipo_movimentacao}</span></td>
-            <td>${mov.produto_nome}</td>
-            <td>${mov.variacao_info}</td>
-            <td>${mov.quantidade}</td>
-            <td>${mov.motivo || '-'}</td>
-            <td>${mov.usuario_nome}</td>
+            <td><span class="text-uppercase badge ${mov.tipo === 'entrada' ? 'bg-warning-transparent' : 'bg-danger-transparent'}">${mov.tipo || 'N/A'}</span></td>
+            <td>${mov.produto_descricao || 'N/A'}</td>
+            <td>${mov.quantidade || 0}</td>
+            <td>${mov.observacao || '-'}</td>
+            <td>${mov.usuario_nome || 'N/A'}</td>
         `;
         tbody.appendChild(tr);
     });
@@ -93,6 +112,10 @@ function loadTransferencias() {
     
     if (!armazenagemId) {
         console.error('ID da armazenagem não encontrado');
+        const tbody = document.getElementById('transferenciasTableBody');
+        if (tbody) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Erro: ID da armazenagem não encontrado</td></tr>';
+        }
         return;
     }
     
@@ -101,11 +124,20 @@ function loadTransferencias() {
         .then(data => {
             console.log('Resposta da API transferências:', data);
             if (data.success) {
-                renderTransferencias(data.transferencias);
+                renderTransferencias(data.transferencias || []);
+            } else {
+                const tbody = document.getElementById('transferenciasTableBody');
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-warning">Erro ao carregar transferências</td></tr>';
+                }
             }
         })
         .catch(error => {
             console.error('Erro ao carregar transferências:', error);
+            const tbody = document.getElementById('transferenciasTableBody');
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Erro ao carregar dados</td></tr>';
+            }
         });
 }
 
@@ -118,16 +150,28 @@ function renderTransferencias(transferencias) {
     
     tbody.innerHTML = '';
     
+    if (!transferencias || transferencias.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4">
+                    <i class="fas fa-inbox text-muted fs-48 mb-2 d-block"></i>
+                    <p class="text-muted">Nenhuma transferência encontrada</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
     transferencias.forEach(transf => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>${formatDateTime(transf.data_transferencia)}</td>
-            <td>${transf.produto_nome}</td>
-            <td>${transf.variacao_info}</td>
-            <td>${transf.quantidade}</td>
-            <td>${transf.armazenagem_destino}</td>
-            <td><span class="badge ${getStatusClass(transf.status)}">${transf.status}</span></td>
-            <td>${transf.usuario_nome}</td>
+            <td>${formatDateTime(transf.data_solicitacao)}</td>
+            <td>${transf.item_descricao || 'N/A'}</td>
+            <td>${transf.quantidade || 0}</td>
+            <td>${transf.origem_codigo || 'N/A'}</td>
+            <td>${transf.destino_codigo || 'N/A'}</td>
+            <td><span class="badge ${getStatusClass(transf.status)}">${transf.status || 'pendente'}</span></td>
+            <td>${transf.solicitante_nome || 'N/A'}</td>
         `;
         tbody.appendChild(tr);
     });
@@ -143,6 +187,10 @@ function loadHistorico() {
     
     if (!armazenagemId) {
         console.error('ID da armazenagem não encontrado');
+        const container = document.getElementById('historicoTimeline');
+        if (container) {
+            container.innerHTML = '<div class="text-center text-danger py-4">Erro: ID da armazenagem não encontrado</div>';
+        }
         return;
     }
     
@@ -151,11 +199,20 @@ function loadHistorico() {
         .then(data => {
             console.log('Resposta da API histórico:', data);
             if (data.success) {
-                renderHistorico(data.historico);
+                renderHistorico(data.historico || []);
+            } else {
+                const container = document.getElementById('historicoTimeline');
+                if (container) {
+                    container.innerHTML = '<div class="text-center text-warning py-4">Erro ao carregar histórico</div>';
+                }
             }
         })
         .catch(error => {
             console.error('Erro ao carregar histórico:', error);
+            const container = document.getElementById('historicoTimeline');
+            if (container) {
+                container.innerHTML = '<div class="text-center text-danger py-4">Erro ao carregar dados</div>';
+            }
         });
 }
 
@@ -168,17 +225,35 @@ function renderHistorico(historico) {
     
     container.innerHTML = '';
     
+    if (!historico || historico.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-history text-muted fs-48 mb-3 d-block"></i>
+                <h5 class="text-muted">Nenhum histórico encontrado</h5>
+                <p class="text-muted">Esta armazenagem ainda não possui histórico de movimentações</p>
+            </div>
+        `;
+        return;
+    }
+    
     historico.forEach(item => {
         const div = document.createElement('div');
-        div.className = 'timeline-item';
+        div.className = 'mb-3 pb-3 border-bottom';
         div.innerHTML = `
-            <div class="timeline-marker ${getHistoricoColorClass(item.tipo)}">
-                <i class="fas ${getHistoricoIconClass(item.tipo)}"></i>
-            </div>
-            <div class="timeline-content">
-                <h6 class="timeline-title">${item.titulo}</h6>
-                <p class="timeline-text">${item.descricao}</p>
-                <small class="text-muted">${formatDateTime(item.data)}</small>
+            <div class="d-flex align-items-start">
+                <div class="flex-shrink-0 me-3">
+                    <span class="avatar avatar-sm rounded-circle ${getHistoricoColorClass(item.tipo)}">
+                        <i class="fas ${getHistoricoIconClass(item.tipo)} fs-14"></i>
+                    </span>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-1">${item.titulo || 'Movimentação'}</h6>
+                    <p class="mb-1 text-muted">${item.descricao || 'Sem descrição'}</p>
+                    <small class="text-muted">
+                        <i class="far fa-clock me-1"></i>${formatDateTime(item.data)}
+                        ${item.usuario ? ` • Por ${item.usuario}` : ''}
+                    </small>
+                </div>
             </div>
         `;
         container.appendChild(div);
@@ -214,17 +289,20 @@ function abrirModalMovimentacao(tipo) {
 function abrirModalTransferencia() {
     const armazenagemId = getArmazenagemIdFromUrl();
     
-    // Configurar modal
-    document.getElementById('transferenciaArmazenagemOrigem').value = armazenagemId;
-    document.getElementById('formTransferencia').reset();
-    document.getElementById('infoProdutoTransferencia').style.display = 'none';
-    
-    // Abrir modal
-    const modal = new bootstrap.Modal(document.getElementById('modalTransferencia'));
-    modal.show();
-    
-    // Configurar eventos
-    configurarEventosTransferencia();
+    // Usar a função global do sistema de modais
+    if (window.ModaisArmazem && window.ModaisArmazem.abrirTransferencia) {
+        window.ModaisArmazem.abrirTransferencia(armazenagemId);
+    } else {
+        // Fallback se a função global não estiver disponível
+        // Configurar modal
+        document.getElementById('transferenciaArmazenagemOrigem').value = armazenagemId;
+        document.getElementById('formTransferencia').reset();
+        document.getElementById('infoProdutoTransferencia').style.display = 'none';
+        
+        // Abrir modal
+        const modal = new bootstrap.Modal(document.getElementById('modalTransferencia'));
+        modal.show();
+    }
 }
 
 /**
@@ -623,35 +701,36 @@ function salvarMovimentacao(e) {
     });
 }
 
+
 /**
- * Configurar eventos do modal de transferência
+ * Buscar estoque disponível na armazenagem de origem
  */
-function configurarEventosTransferencia() {
-    // Buscar produto por SKU
-    const skuInput = document.getElementById('transferenciaProduto');
-    
-    if (skuInput) {
-        skuInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                buscarProdutoTransferencia();
+function buscarEstoqueDisponivel(produtoId, variacaoId, armazenagemId) {
+    fetch(buildUrl(`/api/armazenagens/estoque/${armazenagemId}?produto_id=${produtoId}&variacao_id=${variacaoId}`))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.estoque) {
+                const estoque = data.estoque.quantidade || 0;
+                document.getElementById('transferenciaEstoqueAtual').value = estoque + ' unidades';
+                document.getElementById('transferenciaQuantidade').max = estoque;
+                
+                // Atualizar validação
+                if (estoque === 0) {
+                    $('#validacoesTransferencia').show();
+                    $('#listaValidacoes').html('<li>Não há estoque disponível desta variação nesta armazenagem</li>');
+                } else {
+                    $('#validacoesTransferencia').hide();
+                }
+            } else {
+                document.getElementById('transferenciaEstoqueAtual').value = '0 unidades';
+                $('#validacoesTransferencia').show();
+                $('#listaValidacoes').html('<li>Produto não encontrado nesta armazenagem</li>');
             }
+        })
+        .catch(error => {
+            console.error('Erro ao buscar estoque:', error);
+            document.getElementById('transferenciaEstoqueAtual').value = '0 unidades';
         });
-    }
-    
-    // Configurar scanner
-    const scannerBtn = document.querySelector('#modalTransferencia .btn-outline-primary');
-    if (scannerBtn) {
-        scannerBtn.addEventListener('click', () => abrirScanner('transferencia'));
-    }
-    
-    // Configurar envio do formulário
-    const form = document.getElementById('formTransferencia');
-    if (form) {
-        form.addEventListener('submit', salvarTransferencia);
-    }
-    
-    // Carregar armazenagens de destino
-    carregarArmazenagensDestino();
 }
 
 /**
@@ -712,58 +791,36 @@ function carregarVariacoesTransferencia(produtoId) {
     const variacaoSelect = document.getElementById('transferenciaVariacao');
     if (!variacaoSelect) return;
     
+    // Habilitar o select
+    variacaoSelect.disabled = false;
+    
     // Limpar opções existentes
-    variacaoSelect.innerHTML = '<option value="">Selecione a variação</option>';
+    variacaoSelect.innerHTML = '<option value="">Carregando variações...</option>';
     
     // Buscar variações do produto
-    fetch(buildUrl(`/api/produtos/${produtoId}/variacoes`))
+    fetch(buildUrl(`/api/produtos/variacoes/${produtoId}`))
         .then(response => response.json())
         .then(data => {
-            if (data.success && data.variacoes) {
+            variacaoSelect.innerHTML = '<option value="">Selecione a variação</option>';
+            
+            if (data.success && data.variacoes && data.variacoes.length > 0) {
                 data.variacoes.forEach(variacao => {
                     const option = document.createElement('option');
                     option.value = variacao.id;
-                    option.textContent = `${variacao.tamanho || 'N/A'} - ${variacao.cor || 'Sem cor'} (Estoque: ${variacao.estoque || 0})`;
+                    option.setAttribute('data-id-produto', produtoId);
+                    option.textContent = `${variacao.tamanho || 'N/A'} - ${variacao.cor || 'Sem cor'} (Estoque Total: ${variacao.estoque || 0})`;
                     variacaoSelect.appendChild(option);
                 });
+            } else {
+                variacaoSelect.innerHTML = '<option value="">Nenhuma variação encontrada</option>';
             }
         })
         .catch(error => {
             console.error('Erro ao carregar variações:', error);
+            variacaoSelect.innerHTML = '<option value="">Erro ao carregar variações</option>';
         });
 }
 
-/**
- * Carregar armazenagens de destino
- */
-function carregarArmazenagensDestino() {
-    const armazenagemOrigemId = document.getElementById('transferenciaArmazenagemOrigem').value;
-    const selectDestino = document.getElementById('transferenciaArmazenagemDestino');
-    
-    if (!selectDestino) return;
-    
-    // Limpar opções existentes
-    selectDestino.innerHTML = '<option value="">Selecione o destino</option>';
-    
-    // Buscar armazenagens disponíveis
-    fetch(buildUrl('/api/armazenagens/listar'))
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.armazenagens) {
-                data.armazenagens.forEach(armazenagem => {
-                    if (armazenagem.id != armazenagemOrigemId) {
-                        const option = document.createElement('option');
-                        option.value = armazenagem.id;
-                        option.textContent = `${armazenagem.codigo} - ${armazenagem.descricao}`;
-                        selectDestino.appendChild(option);
-                    }
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao carregar armazenagens:', error);
-        });
-}
 
 /**
  * Salvar transferência
@@ -773,17 +830,65 @@ function salvarTransferencia(e) {
     
     const form = document.getElementById('formTransferencia');
     const formData = new FormData(form);
-    const dados = Object.fromEntries(formData.entries());
+    
+    // Pegar os valores corretos
+    const variacaoSelect = document.querySelector('#transferenciaVariacao');
+    const selectedVariacaoOption = variacaoSelect.options[variacaoSelect.selectedIndex];
+    const idProduto = selectedVariacaoOption ? selectedVariacaoOption.getAttribute('data-id-produto') : formData.get('id_produto');
+    
+    const dados = {
+        armazenagem_origem_id: formData.get('armazenagem_origem_id'),
+        armazenagem_destino_id: formData.get('armazenagem_destino_id'),
+        id_produto: idProduto,
+        variacao_id: formData.get('variacao_id'),
+        quantidade: parseInt(formData.get('quantidade')),
+        motivo: formData.get('motivo') || 'outro',
+        observacoes: formData.get('observacoes') || ''
+    };
     
     // Validações
-    if (!dados.sku || !dados.variacao_id || !dados.quantidade || !dados.armazenagem_destino_id) {
-        Swal.fire('Erro', 'Preencha todos os campos obrigatórios', 'error');
+    if (!dados.id_produto || !dados.variacao_id || !dados.quantidade || !dados.armazenagem_destino_id) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos Obrigatórios',
+            text: 'Por favor, preencha todos os campos obrigatórios.'
+        });
         return;
     }
     
-    if (parseFloat(dados.quantidade) <= 0) {
-        Swal.fire('Erro', 'A quantidade deve ser maior que zero', 'error');
+    if (dados.quantidade <= 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Quantidade Inválida',
+            text: 'A quantidade deve ser maior que zero.'
+        });
         return;
+    }
+    
+    // Validar se quantidade não excede estoque
+    const estoqueAtual = parseInt(document.getElementById('transferenciaEstoqueAtual').value) || 0;
+    if (dados.quantidade > estoqueAtual) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Quantidade Inválida',
+            text: 'Quantidade não pode exceder o estoque disponível.'
+        });
+        return;
+    }
+    
+    // Validar se há espaço suficiente no destino
+    const selectDestino = document.querySelector('#transferenciaArmazenagemDestino');
+    const selectedDestinoOption = selectDestino.options[selectDestino.selectedIndex];
+    if (selectedDestinoOption) {
+        const espacoDisponivel = parseInt(selectedDestinoOption.getAttribute('data-espaco-disponivel')) || 0;
+        if (dados.quantidade > espacoDisponivel) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Espaço Insuficiente',
+                text: `A quantidade (${dados.quantidade}) excede o espaço disponível (${espacoDisponivel}) no armazém de destino.`
+            });
+            return;
+        }
     }
     
     // Mostrar confirmação

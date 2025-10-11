@@ -66,7 +66,7 @@ class MovimentacoesController extends Controller
             'quantidade_movimentada' => $_POST['quantidade_movimentada'] ?? 0,
             'motivo' => $_POST['motivo'] ?? '',
             'observacoes' => $_POST['observacoes'] ?? '',
-            'usuario_movimentacao_id' => $_SESSION['user_id'] ?? null,
+            'usuario_movimentacao_id' => $_SESSION[BASE.'user_id'] ?? null,
             'data_movimentacao' => date('Y-m-d H:i:s'),
             'status' => 'pendente'
         ];
@@ -308,7 +308,7 @@ class MovimentacoesController extends Controller
             'quantidade_movimentada' => $_POST['quantidade_movimentada'] ?? 0,
             'motivo' => 'Put-away automático',
             'observacoes' => $_POST['observacoes'] ?? '',
-            'usuario_movimentacao_id' => $_SESSION['user_id'] ?? null,
+            'usuario_movimentacao_id' => $_SESSION[BASE.'user_id'] ?? null,
             'data_movimentacao' => date('Y-m-d H:i:s'),
             'status' => 'concluida'
         ];
@@ -364,7 +364,7 @@ class MovimentacoesController extends Controller
             'quantidade_movimentada' => $_POST['quantidade_movimentada'] ?? 0,
             'motivo' => $_POST['motivo'] ?? 'Transferência entre armazenagens',
             'observacoes' => $_POST['observacoes'] ?? '',
-            'usuario_movimentacao_id' => $_SESSION['user_id'] ?? null,
+            'usuario_movimentacao_id' => $_SESSION[BASE.'user_id'] ?? null,
             'data_movimentacao' => date('Y-m-d H:i:s'),
             'status' => 'concluida'
         ];

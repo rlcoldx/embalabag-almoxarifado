@@ -14,9 +14,10 @@ class ArmazenagensDataTableController extends BaseDataTableController
         
         // Configurar colunas
         $dataTable->addColumn('id', 'ID', 'number')
-                 ->addColumn('codigo', 'Código', 'text')
-                 ->addColumn('descricao', 'Descrição', 'text')
-                 ->addColumn('tipo', 'Tipo', 'select', [
+                ->addColumn('setor', 'Andar', 'text')
+                ->addColumn('codigo', 'Código', 'text')
+                ->addColumn('descricao', 'Descrição', 'text')
+                ->addColumn('tipo', 'Tipo', 'select', [
                      'options' => [
                          'prateleira' => 'Prateleira',
                          'gaveta' => 'Gaveta',
@@ -24,19 +25,11 @@ class ArmazenagensDataTableController extends BaseDataTableController
                          'pallet' => 'Pallet',
                          'area' => 'Área'
                      ]
-                 ])
-                 ->addColumn('setor', 'Setor', 'text')
-                 ->addColumn('capacidade_atual', 'Capacidade Atual', 'number')
-                 ->addColumn('capacidade_maxima', 'Capacidade Máxima', 'number')
-                 ->addColumn('status', 'Status', 'select', [
-                     'options' => [
-                         'ativo' => 'Ativo',
-                         'inativo' => 'Inativo',
-                         'bloqueado' => 'Bloqueado',
-                         'manutencao' => 'Manutenção'
-                     ]
-                 ])
-                 ->addColumn('actions', 'Ações', 'actions', [
+                ])
+                ->addColumn('capacidade_atual', 'Capacidade Atual', 'number', [], 'text-center')
+                ->addColumn('capacidade_maxima', 'Capacidade Máxima', 'number', [], 'text-center')
+                ->addColumn('status', 'Status', 'status')
+                ->addColumn('actions', 'Ações', 'actions', [
                      'actions' => [
                          [
                              'url' => DOMAIN . '/armazenagens/show/:id',
@@ -51,7 +44,7 @@ class ArmazenagensDataTableController extends BaseDataTableController
                              'label' => 'Editar'
                          ]
                      ]
-                 ]);
+                ]);
 
         // Configurar colunas pesquisáveis
         $dataTable->addSearchableColumn('codigo')

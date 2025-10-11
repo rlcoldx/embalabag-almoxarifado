@@ -182,7 +182,7 @@ function renderHeaders(tableName, columns) {
         
         if (column.type === 'actions') {
             th.innerHTML = '<i class="fas fa-cog"></i>';
-            th.className += ' text-center';
+            th.className += (column.class || '');
             th.style.width = '100px';
         } else {
             th.textContent = column.label;
@@ -192,6 +192,11 @@ function renderHeaders(tableName, columns) {
                 th.style.cursor = 'pointer';
                 th.onclick = () => changeOrderBy(tableName, columnName);
                 th.innerHTML += ' <i class="fas fa-sort ms-1"></i>';
+            }
+            
+            // Aplicar classes personalizadas da coluna
+            if (column.class) {
+                th.className += ' ' + column.class;
             }
         }
         
@@ -229,7 +234,7 @@ function renderData(tableName, data) {
             switch (column.type) {
                 case 'number':
                     td.textContent = row[columnName] || '0';
-                    td.className = 'text-end';
+                    td.className = column.class;
                     break;
                     
                 case 'select':
@@ -239,40 +244,57 @@ function renderData(tableName, data) {
                     // Configuração específica para tipo de usuário
                     if (columnName === 'tipo' && tableName === 'users') {
                         const tipoMap = {
-                            '1': { text: 'Administrador', class: 'bg-primary' },
-                            '2': { text: 'Funcionário', class: 'bg-info' },
-                            '3': { text: 'Companhia', class: 'bg-warning' }
+                            '1': { 
+                                text: 'Administrador', 
+                                icon: 'fas fa-crown',
+                                class: 'badge badge-primary'
+                            },
+                            '2': { 
+                                text: 'Funcionário', 
+                                icon: 'fas fa-user',
+                                class: 'badge badge-info'
+                            },
+                            '3': { 
+                                text: 'Companhia', 
+                                icon: 'fas fa-building',
+                                class: 'badge badge-warning'
+                            }
                         };
                         
                         if (tipoMap[value]) {
-                            td.innerHTML = `<span class="badge ${tipoMap[value].class}">${tipoMap[value].text}</span>`;
+                            td.innerHTML = renderBadge(tipoMap[value]);
                         } else {
                             td.textContent = options[value] || value || '-';
                         }
                     } else {
                         td.textContent = options[value] || value || '-';
                     }
+                    td.className = (td.className || '') + ' ' + (column.class || '');
                     break;
                     
                 case 'datetime':
                     td.textContent = formatDateTime(row[columnName]);
+                    td.className = column.class;
                     break;
                     
                 case 'date':
                     td.textContent = formatDate(row[columnName]);
+                    td.className = column.class;
                     break;
                     
                 case 'actions':
                     td.innerHTML = renderActions(tableName, row, column);
-                    td.className = 'text-center';
+                    td.className = column.class;
                     break;
                     
                 case 'status':
                     td.innerHTML = renderStatus(row[columnName]);
+                    td.className = column.class;
                     break;
                     
                 case 'avatar':
                     td.innerHTML = renderAvatar(row[columnName], row);
+                    td.className = column.class;
                     break;
                     
                 default:
@@ -290,6 +312,7 @@ function renderData(tableName, data) {
                     } else {
                         td.textContent = row[columnName] || '-';
                     }
+                    td.className = (column.class || '');
             }
             
             tr.appendChild(td);
@@ -334,20 +357,72 @@ function renderActions(tableName, row, column) {
 }
 
 /**
- * Renderiza status com badge
+ * Renderiza badge genérico com ícone e texto
  */
-function renderStatus(status) {
-    const statusMap = {
-        'ativo': 'success',
-        'inativo': 'danger',
-        'bloqueado': 'warning',
-        'pendente': 'warning',
-        'aprovado': 'success',
-        'rejeitado': 'danger'
+function renderBadge(config) {
+    const defaultConfig = {
+        icon: 'fas fa-circle',
+        text: 'Status',
+        class: 'badge badge-secondary'
     };
     
-    const color = statusMap[status] || 'secondary';
-    return `<span class="badge bg-${color}">${status}</span>`;
+    const finalConfig = { ...defaultConfig, ...config };
+    
+    return `<span class="${finalConfig.class} d-inline-flex align-items-center" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-weight: 500; min-width: 70px; justify-content: center; gap: 0.25rem;">
+                <i class="${finalConfig.icon}" style="font-size: 0.7rem;"></i>
+                ${finalConfig.text}
+            </span>`;
+}
+
+/**
+ * Renderiza status com badge destacado
+ */
+function renderStatus(status) {
+    const statusConfig = {
+        'ativo': { 
+            icon: 'fas fa-check-circle', 
+            text: 'Ativo',
+            class: 'badge badge bg-success-transparent'
+        },
+        'inativo': { 
+            icon: 'fas fa-times-circle', 
+            text: 'Inativo',
+            class: 'badge badge bg-danger-transparent'
+        },
+        'bloqueado': { 
+            icon: 'fas fa-ban', 
+            text: 'Bloqueado',
+            class: 'badge badge bg-warning-transparent'
+        },
+        'pendente': { 
+            icon: 'fas fa-clock', 
+            text: 'Pendente',
+            class: 'badge badge bg-info-transparent'
+        },
+        'aprovado': { 
+            icon: 'fas fa-check-double', 
+            text: 'Aprovado',
+            class: 'badge badge bg-success-transparent'
+        },
+        'rejeitado': { 
+            icon: 'fas fa-xmark', 
+            text: 'Rejeitado',
+            class: 'badge badge bg-danger-transparent'
+        },
+        'manutencao': { 
+            icon: 'fas fa-tools', 
+            text: 'Manutenção',
+            class: 'badge badge bg-warning-transparent'
+        }
+    };
+    
+    const config = statusConfig[status] || { 
+        icon: 'fas fa-question-circle', 
+        text: status,
+        class: 'badge badge bg-secondary-transparent'
+    };
+    
+    return renderBadge(config);
 }
 
 /**
@@ -434,7 +509,7 @@ function renderFilters(tableName, filters) {
         
         switch (filter.type) {
             case 'select':
-                html += `<select class="form-select form-select-sm" id="filter-${tableName}-${filterName}" onchange="applyFilter('${tableName}', '${filterName}')">
+                html += `<select class="form-select form-select-sm ${filter.class}" id="filter-${tableName}-${filterName}" onchange="applyFilter('${tableName}', '${filterName}')">
                             <option value="">Todos</option>`;
                 const options = filter.options?.options || {};
                 Object.keys(options).forEach(value => {

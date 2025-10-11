@@ -52,7 +52,7 @@
                         <div class="mb-3">
                             <label class="form-label fw-semibold text-muted">Tipo:</label>
                             <p class="mb-0">
-                                <span class="badge bg-primary-transparent">
+                                <span class="badge bg-success-transparent">
                                     <i class="fas fa-{{ armazenagem.tipo == 'prateleira' ? 'layer-group' : 
                                               (armazenagem.tipo == 'gaveta' ? 'inbox' : 
                                               (armazenagem.tipo == 'caixa' ? 'box' : 
@@ -94,42 +94,55 @@
                     <i class="fas fa-chart-bar me-2"></i>Estatísticas
                 </div>
             </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-6 mb-3">
-                        <div class="p-3 bg-primary-transparent rounded">
-                            <h3 class="mb-1 fw-bold text-primary">{{ produtos|length }}</h3>
-                            <p class="mb-0 text-muted fs-12">Produtos</p>
+            <div class="card-body p-3">
+                <!-- Grid 2x2 Compacto -->
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="p-2 bg-primary-transparent rounded text-center">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <i class="fas fa-boxes text-primary me-2 fs-18"></i>
+                                <h4 class="mb-0 fw-bold text-primary">{{ produtos|length }}</h4>
+                            </div>
+                            <small class="text-muted d-block mt-1">Produtos</small>
                         </div>
                     </div>
-                    <div class="col-6 mb-3">
-                        <div class="p-3 bg-success-transparent rounded">
-                            <h3 class="mb-1 fw-bold text-success">{{ total_quantidade|default(0) }}</h3>
-                            <p class="mb-0 text-muted fs-12">Unidades</p>
+                    <div class="col-6">
+                        <div class="p-2 bg-success-transparent rounded text-center">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <i class="fas fa-layer-group text-success me-2 fs-18"></i>
+                                <h4 class="mb-0 fw-bold text-success">{{ total_quantidade|default(0) }}</h4>
+                            </div>
+                            <small class="text-muted d-block mt-1">Unidades</small>
                         </div>
                     </div>
-                    <div class="col-6 mb-3">
-                        <div class="p-3 bg-warning-transparent rounded">
-                            <h3 class="mb-1 fw-bold text-warning">{{ movimentacoes_entrada|default(0) }}</h3>
-                            <p class="mb-0 text-muted fs-12">Entradas</p>
+                    <div class="col-6">
+                        <div class="p-2 bg-warning-transparent rounded text-center">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <i class="fas fa-arrow-down text-warning me-2 fs-18"></i>
+                                <h4 class="mb-0 fw-bold text-warning">{{ movimentacoes_entrada|default(0) }}</h4>
+                            </div>
+                            <small class="text-muted d-block mt-1">Entradas</small>
                         </div>
                     </div>
-                    <div class="col-6 mb-3">
-                        <div class="p-3 bg-danger-transparent rounded">
-                            <h3 class="mb-1 fw-bold text-danger">{{ movimentacoes_saida|default(0) }}</h3>
-                            <p class="mb-0 text-muted fs-12">Saídas</p>
+                    <div class="col-6">
+                        <div class="p-2 bg-danger-transparent rounded text-center">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <i class="fas fa-arrow-up text-danger me-2 fs-18"></i>
+                                <h4 class="mb-0 fw-bold text-danger">{{ movimentacoes_saida|default(0) }}</h4>
+                            </div>
+                            <small class="text-muted d-block mt-1">Saídas</small>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Barra de Capacidade -->
                 {% if armazenagem.capacidade_maxima > 0 %}
-                <div class="mt-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-muted fs-12">Capacidade Utilizada</span>
-                        <span class="fw-semibold fs-12">{{ ((armazenagem.quantidade_ocupada|default(0) / armazenagem.capacidade_maxima) * 100)|round }}%</span>
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="text-muted"><i class="fas fa-gauge-high me-1"></i>Capacidade Utilizada</small>
+                        <span class="badge bg-success-transparent">{{ ((armazenagem.quantidade_ocupada|default(0) / armazenagem.capacidade_maxima) * 100)|round }}%</span>
                     </div>
-                    <div class="progress progress-sm">
+                    <div class="progress" style="height: 8px;">
                         {% set percentOcupado = (armazenagem.quantidade_ocupada|default(0) / armazenagem.capacidade_maxima) * 100 %}
                         {% set capacidadeClass = 'bg-success' %}
                         {% if percentOcupado >= 90 %}
@@ -172,11 +185,6 @@
                     <li class="nav-item" role="presentation">
                         <button class="rounded-0 nav-link" id="transferencias-tab" data-bs-toggle="tab" data-bs-target="#transferencias" type="button" role="tab">
                             <i class="fas fa-arrows-alt me-2"></i>Transferências
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="rounded-0 nav-link" id="historico-tab" data-bs-toggle="tab" data-bs-target="#historico" type="button" role="tab">
-                            <i class="fas fa-history me-2"></i>Histórico
                         </button>
                     </li>
                 </ul>
@@ -306,7 +314,7 @@
                         <div class="">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="mb-0">Transferências de Produtos</h6>
-                                <button type="button" class="btn btn-sm btn-primary" onclick="abrirModalTransferencia()">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="abrirModalTransferencia()">
                                     <i class="fas fa-arrows-alt me-1"></i>Nova Transferência
                                 </button>
                             </div>
@@ -337,20 +345,7 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Tab Histórico -->
-                    <div class="tab-pane rounded-0 fade" id="historico" role="tabpanel">
-                        <div class="">
-                            <h6 class="mb-3">Histórico Completo</h6>
-                            <div class="timeline" id="historicoTimeline">
-                                <div class="text-center py-4">
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Carregando...</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -362,6 +357,7 @@
 {% include 'components/armazem/modal-nova-entrada.twig' %}
 {% include 'components/armazem/modal-nova-saida.twig' %}
 {% include 'components/armazem/modal-movimentacao.twig' %}
+{% include 'components/partials/modal-transferencia.twig' %}
 {% include 'components/partials/modal-produto-detalhes.twig' %}
 
 {% endblock %}
@@ -371,3 +367,4 @@
 <script src="{{ PATH }}/view/assets/js/armazenagens/modais.js?v={{ VERSION }}"></script>
 <script src="{{ PATH }}/view/assets/js/armazenagens/show.js?v={{ VERSION }}"></script>
 {% endblock %}
+

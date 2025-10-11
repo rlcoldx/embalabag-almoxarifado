@@ -24,13 +24,7 @@ class UsersDataTableController extends BaseDataTableController
                          '4' => 'Inativo'
                      ]
                  ])
-                 ->addColumn('status', 'Status', 'select', [
-                     'options' => [
-                         'ativo' => 'Ativo',
-                         'inativo' => 'Inativo',
-                         'bloqueado' => 'Bloqueado'
-                     ]
-                 ])
+                 ->addColumn('status', 'Status', 'status')
                  ->addColumn('cargos', 'Cargos', 'text')
                  ->addColumn('ultimo_acesso', 'Último Acesso', 'datetime')
                  ->addColumn('actions', 'Ações', 'actions');
@@ -105,13 +99,7 @@ class UsersDataTableController extends BaseDataTableController
                          '4' => 'Inativo'
                      ]
                  ])
-                 ->addColumn('status', 'Status', 'select', [
-                     'options' => [
-                         'ativo' => 'Ativo',
-                         'inativo' => 'Inativo',
-                         'bloqueado' => 'Bloqueado'
-                     ]
-                 ])
+                 ->addColumn('status', 'Status', 'status')
                  ->addColumn('cargos', 'Cargos', 'text')
                  ->addColumn('ultimo_acesso', 'Último Acesso', 'datetime')
                  ->addColumn('actions', 'Ações', 'actions');

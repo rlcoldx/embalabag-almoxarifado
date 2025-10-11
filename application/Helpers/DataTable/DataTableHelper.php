@@ -25,12 +25,13 @@ class DataTableHelper
         $this->table = $table;
     }
 
-    public function addColumn(string $name, string $label, string $type = 'text', array $options = []): self
+    public function addColumn(string $name, string $label, string $type = 'text', array $options = [], string $class = ''): self
     {
         $this->columns[$name] = [
             'label' => $label,
             'type' => $type,
-            'options' => $options
+            'options' => $options,
+            'class' => $class
         ];
         return $this;
     }
@@ -47,12 +48,13 @@ class DataTableHelper
         return $this;
     }
 
-    public function addFilter(string $name, string $label, string $type = 'text', array $options = []): self
+    public function addFilter(string $name, string $label, string $type = 'text', array $options = [], string $class = ''): self
     {
         $this->filters[$name] = [
             'label' => $label,
             'type' => $type,
-            'options' => $options
+            'options' => $options,
+            'class' => $class
         ];
         return $this;
     }
@@ -362,9 +364,12 @@ class DataTableHelper
         }
 
         if (!empty($conditions)) {
-            $whereClause = "WHERE " . implode(' AND ', $conditions) . " AND " . $tableWhere;
+            $whereClause = "WHERE " . implode(' AND ', $conditions);
+            if (!empty($tableWhere)) {
+                $whereClause .= " AND " . $tableWhere;
+            }
         } else {
-            $whereClause = "WHERE " . $tableWhere;
+            $whereClause = !empty($tableWhere) ? "WHERE " . $tableWhere : "";
         }
 
         

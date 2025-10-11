@@ -20,15 +20,7 @@ class RecebimentosDataTableController extends BaseDataTableController
                  ->addColumn('data_emissao', 'Data Emissão', 'date')
                  ->addColumn('data_recebimento', 'Data Recebimento', 'date')
                  ->addColumn('valor_total', 'Valor Total', 'currency')
-                 ->addColumn('status', 'Status', 'select', [
-                     'options' => [
-                         'pendente' => 'Pendente',
-                         'recebida' => 'Recebida',
-                         'conferida' => 'Conferida',
-                         'finalizada' => 'Finalizada',
-                         'cancelada' => 'Cancelada'
-                     ]
-                 ])
+                 ->addColumn('status', 'Status', 'status')
                  ->addColumn('actions', 'Ações', 'actions');
 
         // Configurar colunas pesquisáveis

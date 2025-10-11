@@ -160,14 +160,17 @@ class Armazenagem extends Model
                 e.id as estoque_id,
                 p.nome as nome_produto,
                 p.SKU as sku,
-                pv.cor as nome_cor,
+                COALESCE(pv.cor, 'Sem Variação') as nome_cor,
                 e.quantidade,
-                a.codigo as codigo_armazenagem
+                a.codigo as codigo_armazenagem,
+                e.variacao_id
             FROM estoque e
-            INNER JOIN produtos p ON e.id_produto = p.id
-            INNER JOIN produtos_variations pv ON pv.id_produto = p.id AND pv.id = e.variacao_id
+            INNER JOIN produtos p ON CAST(e.id_produto AS UNSIGNED) = p.id
+            LEFT JOIN produtos_variations pv ON pv.id = e.variacao_id
             INNER JOIN armazenagens a ON e.armazenagem_id = a.id
-            WHERE e.armazenagem_id = :armazenagem_id AND e.quantidade > 0
+            WHERE e.armazenagem_id = :armazenagem_id 
+              AND e.quantidade > 0
+              AND e.status = 'ativo'
             ORDER BY p.nome, pv.cor
         ", "armazenagem_id={$armazenagemId}");
         return $this->read;
@@ -177,11 +180,12 @@ class Armazenagem extends Model
     {
         $this->read = new Read();
         
-        // Total de quantidade
+        // Total de quantidade (apenas estoque ativo)
         $this->read->FullRead("
-            SELECT COALESCE(SUM(e.quantidade), 0) as total_quantidade
-            FROM estoque e
-            WHERE e.armazenagem_id = :armazenagem_id
+            SELECT COALESCE(SUM(quantidade), 0) as total_quantidade
+            FROM estoque
+            WHERE armazenagem_id = :armazenagem_id
+              AND status = 'ativo'
         ", "armazenagem_id={$armazenagemId}");
         $totalQuantidade = $this->read->getResult();
         
@@ -189,7 +193,8 @@ class Armazenagem extends Model
         $this->read->FullRead("
             SELECT COUNT(*) as total_entradas
             FROM movimentacoes_historico
-            WHERE armazenagem_origem_id = :armazenagem_id AND tipo = 'entrada'
+            WHERE armazenagem_origem_id = :armazenagem_id 
+              AND tipo = 'entrada'
         ", "armazenagem_id={$armazenagemId}");
         $entradas = $this->read->getResult();
         
@@ -206,5 +211,27 @@ class Armazenagem extends Model
             'movimentacoes_entrada' => $entradas[0]['total_entradas'] ?? 0,
             'movimentacoes_saida' => $saidas[0]['total_saidas'] ?? 0
         ];
+    }
+
+    public function getMovimentacoesByArmazenagem(int $armazenagemId): Read
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT 
+                m.*,
+                p.nome as produto_nome,
+                p.SKU as produto_sku,
+                COALESCE(pv.cor, 'Sem Variação') as produto_cor,
+                u.nome as usuario_nome
+            FROM movimentacoes_historico m
+            INNER JOIN produtos p ON CAST(m.id_produto AS UNSIGNED) = p.id
+            LEFT JOIN produtos_variations pv ON pv.id = m.variacao_id
+            LEFT JOIN usuarios u ON u.id = m.usuario_id
+            WHERE m.armazenagem_origem_id = :armazenagem_id
+              AND m.motivo NOT IN ('reorganizacao', 'otimizacao_espaco', 'manutencao', 'inventario')
+            ORDER BY m.data_movimentacao DESC
+            LIMIT 100
+        ", "armazenagem_id={$armazenagemId}");
+        return $this->read;
     }
 }

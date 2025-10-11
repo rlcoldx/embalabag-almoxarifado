@@ -16,12 +16,7 @@ class CargosDataTableController extends BaseDataTableController
         $dataTable->addColumn('id', 'ID', 'number')
                  ->addColumn('nome', 'Nome', 'text')
                  ->addColumn('descricao', 'Descrição', 'text')
-                 ->addColumn('status', 'Status', 'select', [
-                     'options' => [
-                         'ativo' => 'Ativo',
-                         'inativo' => 'Inativo'
-                     ]
-                 ])
+                 ->addColumn('status', 'Status', 'status')
                  ->addColumn('permissoes', 'Permissões', 'text')
                  ->addColumn('created_at', 'Criado em', 'datetime')
                  ->addColumn('actions', 'Ações', 'actions');
@@ -74,12 +69,7 @@ class CargosDataTableController extends BaseDataTableController
         $dataTable->addColumn('id', 'ID', 'number')
                  ->addColumn('nome', 'Nome', 'text')
                  ->addColumn('descricao', 'Descrição', 'text')
-                 ->addColumn('status', 'Status', 'select', [
-                     'options' => [
-                         'ativo' => 'Ativo',
-                         'inativo' => 'Inativo'
-                     ]
-                 ])
+                 ->addColumn('status', 'Status', 'status')
                  ->addColumn('permissoes', 'Permissões', 'text')
                  ->addColumn('created_at', 'Criado em', 'datetime')
                  ->addColumn('actions', 'Ações', 'actions');

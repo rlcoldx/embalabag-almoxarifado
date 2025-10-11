@@ -313,12 +313,7 @@ class MovimentacoesApiController extends Controller
      */
     private function registrarHistorico($dados, $armazenagemOrigemId, $armazenagemDestinoId)
     {
-        try {
-            error_log("=== REGISTRAR HISTORICO ===");
-            error_log("Dados para histórico: " . print_r($dados, true));
-            error_log("Armazenagem Origem: {$armazenagemOrigemId}");
-            error_log("Armazenagem Destino: {$armazenagemDestinoId}");
-            
+        try {            
             $create = new Create();
                          $resultadoHistorico = $create->ExeCreate("movimentacoes_historico", [
                  'tipo' => $dados['tipo'],
@@ -385,7 +380,7 @@ class MovimentacoesApiController extends Controller
     }
 
          /**
-      * Atualizar capacidade atual da armazenagem
+      * Atualizar capacidade atual da armazenagem (apenas estoque ativo)
       */
      private function atualizarCapacidadeArmazenagem($armazenagemId)
      {
@@ -393,8 +388,9 @@ class MovimentacoesApiController extends Controller
              $read = new Read();
              $read->FullRead("
                  SELECT COALESCE(SUM(quantidade), 0) as total_quantidade
-                 FROM estoque 
+                 FROM estoque
                  WHERE armazenagem_id = :armazenagem_id
+                   AND status = 'ativo'
              ", "armazenagem_id={$armazenagemId}");
              
              $result = $read->getResult();

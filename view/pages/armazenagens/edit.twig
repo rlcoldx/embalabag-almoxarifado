@@ -29,65 +29,108 @@
                 </div>
             </div>
             <div class="card-body">
-                <form id="formArmazenagem" class="row g-3">
+                <form id="formArmazenagem">
                     <!-- Campo hidden com o ID da armazenagem -->
                     <input type="hidden" name="id" value="{{ armazenagem.id }}">
                     
-                    <div class="col-md-3">
-                        <label class="form-label required">Código</label>
-                        <input type="text" class="form-control" name="codigo" value="{{ armazenagem.codigo }}" required autocomplete="off" placeholder="Ex: A01, PRAT-01">
-                        <small class="form-hint">Código único de identificação</small>
-                    </div>
-                    <div class="col-md-5">
-                        <label class="form-label required">Descrição</label>
-                        <input type="text" class="form-control" name="descricao" value="{{ armazenagem.descricao }}" required autocomplete="off" placeholder="Ex: Prateleira A, Gaveta 01">
-                        <small class="form-hint">Nome descritivo da localização</small>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label required">Tipo</label>
-                        <select class="form-select" name="tipo" required>
-                            <option value="">Selecione...</option>
-                            <option value="corredor" {% if armazenagem.tipo == 'corredor' %}selected{% endif %}>Corredor</option>
-                            <option value="prateleira" {% if armazenagem.tipo == 'prateleira' %}selected{% endif %}>Prateleira</option>
-                            <option value="gaveta" {% if armazenagem.tipo == 'gaveta' %}selected{% endif %}>Gaveta</option>
-                            <option value="caixa" {% if armazenagem.tipo == 'caixa' %}selected{% endif %}>Caixa</option>
-                            <option value="pallet" {% if armazenagem.tipo == 'pallet' %}selected{% endif %}>Pallet</option>
-                            <option value="area" {% if armazenagem.tipo == 'area' %}selected{% endif %}>Área</option>
-                        </select>
-                        <small class="form-hint">Tipo de armazenagem</small>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label required">Setor</label>
-                        <input type="text" class="form-control" name="setor" value="{{ armazenagem.setor }}" required autocomplete="off" placeholder="Ex: Almoxarifado, Estoque, Expedição">
-                        <small class="form-hint">Setor onde está localizado</small>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Capacidade Máxima</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control" name="capacidade_maxima" value="{{ armazenagem.capacidade_maxima }}" min="0" placeholder="0">
-                            <span class="input-group-text">Unidades</span>
+                    <!-- Localização e Identificação -->
+                    <div class="mb-4">
+                        <h6 class="mb-3 fw-semibold text-primary">
+                            <i class="fas fa-map-marker-alt me-2"></i>Localização e Identificação
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-3 col-sm-12">
+                                <label class="form-label required">
+                                    <i class="fas fa-building text-muted me-1"></i>Andar
+                                </label>
+                                <input type="text" class="form-control" name="setor" value="{{ armazenagem.setor }}" required autocomplete="off" placeholder="Ex: Andar 1, Andar 2, Andar 3">
+                                <small class="form-text text-muted">Andar onde está localizado</small>
+                            </div>
+                            <div class="col-md-3 col-sm-12">
+                                <label class="form-label required">
+                                    <i class="fas fa-tag text-muted me-1"></i>Código
+                                </label>
+                                <input type="text" class="form-control" name="codigo" value="{{ armazenagem.codigo }}" required autocomplete="off" placeholder="Ex: A01, PRAT-01">
+                                <small class="form-text text-muted">Código único de identificação</small>
+                            </div>
+                            <div class="col-md-3 col-sm-12">
+                                <label class="form-label required">
+                                    <i class="fas fa-box text-muted me-1"></i>Tipo
+                                </label>
+                                <select class="form-select" name="tipo" required>
+                                    <option value="">Selecione o tipo...</option>
+                                    <option value="corredor" {% if armazenagem.tipo == 'corredor' %}selected{% endif %}>Corredor</option>
+                                    <option value="prateleira" {% if armazenagem.tipo == 'prateleira' %}selected{% endif %}>Prateleira</option>
+                                    <option value="gaveta" {% if armazenagem.tipo == 'gaveta' %}selected{% endif %}>Gaveta</option>
+                                    <option value="caixa" {% if armazenagem.tipo == 'caixa' %}selected{% endif %}>Caixa</option>
+                                    <option value="pallet" {% if armazenagem.tipo == 'pallet' %}selected{% endif %}>Pallet</option>
+                                    <option value="area" {% if armazenagem.tipo == 'area' %}selected{% endif %}>Área</option>
+                                </select>
+                                <small class="form-text text-muted">Tipo de armazenagem</small>
+                            </div>
+                            <div class="col-md-3 col-sm-12">
+                                <label class="form-label">
+                                    <i class="fas fa-layer-group text-muted me-1"></i>Capacidade Máxima
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="capacidade_maxima" value="{{ armazenagem.capacidade_maxima }}" min="0" placeholder="0">
+                                    <span class="input-group-text">Unidades</span>
+                                </div>
+                                <small class="form-text text-muted">Deixe em branco para capacidade ilimitada</small>
+                            </div>
                         </div>
-                        <small class="form-hint">Deixe em branco para capacidade ilimitada</small>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Status</label>
-                        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                            <input type="radio" name="status" value="ativo" class="btn-check" id="btnradio1" {% if armazenagem.status == 'ativo' %}checked{% endif %}>
-                            <label class="btn btn-outline-primary" for="btnradio1">Ativo</label>
-                            <input type="radio" name="status" value="inativo" class="btn-check" id="btnradio2" {% if armazenagem.status == 'inativo' %}checked{% endif %}>
-                            <label class="btn btn-outline-primary" for="btnradio2">Inativo</label>
-                            <input type="radio" name="status" value="manutencao" class="btn-check" id="btnradio3" {% if armazenagem.status == 'manutencao' %}checked{% endif %}>
-                            <label class="btn btn-outline-primary" for="btnradio3">Manutenção</label>
-                        </div>                        
+
+                    <!-- Características -->
+                    <div class="mb-4">
+                        <h6 class="mb-3 fw-semibold text-primary">
+                            <i class="fas fa-info-circle me-2"></i>Características
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-9">
+                                <label class="form-label required">
+                                    <i class="fas fa-file-alt text-muted me-1"></i>Descrição
+                                </label>
+                                <input type="text" class="form-control" name="descricao" value="{{ armazenagem.descricao }}" required autocomplete="off" placeholder="Ex: Prateleira A, Gaveta 01">
+                                <small class="form-text text-muted">Nome descritivo da localização</small>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">
+                                    <i class="fas fa-toggle-on text-muted me-1"></i>Status
+                                </label>
+                                <div class="btn-group w-100 mt-1" role="group">
+                                    <input type="radio" name="status" value="ativo" class="btn-check" id="btnradio1" {% if armazenagem.status == 'ativo' %}checked{% endif %}>
+                                    <label class="btn btn-outline-success" for="btnradio1">
+                                        <i class="fas fa-check-circle me-1"></i>Ativo
+                                    </label>
+                                    <input type="radio" name="status" value="inativo" class="btn-check" id="btnradio2" {% if armazenagem.status == 'inativo' %}checked{% endif %}>
+                                    <label class="btn btn-outline-danger" for="btnradio2">
+                                        <i class="fas fa-times-circle me-1"></i>Inativo
+                                    </label>
+                                    <input type="radio" name="status" value="manutencao" class="btn-check" id="btnradio3" {% if armazenagem.status == 'manutencao' %}checked{% endif %}>
+                                    <label class="btn btn-outline-warning" for="btnradio3">
+                                        <i class="fas fa-tools me-1"></i>Manutenção
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-12">
-                        <label class="form-label">Observações</label>
-                        <textarea class="form-control" name="observacoes" rows="3" placeholder="Informações adicionais sobre a localização de armazenagem">{{ armazenagem.observacoes }}</textarea>
+
+                    <!-- Observações -->
+                    <div class="mb-4">
+                        <h6 class="mb-3 fw-semibold text-primary">
+                            <i class="fas fa-comment-alt me-2"></i>Observações
+                        </h6>
+                        <textarea class="form-control" name="observacoes" rows="4" placeholder="Informações adicionais sobre a localização de armazenagem (opcional)">{{ armazenagem.observacoes }}</textarea>
                     </div>
-                    <div class="col-12 d-flex justify-content-end mt-4">
-                        <a href="{{ DOMAIN }}/armazenagens" class="btn btn-outline-primary me-2">Cancelar</a>
+
+                    <!-- Botões de Ação -->
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a href="{{ DOMAIN }}/armazenagens" class="btn btn-light btn-wave">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
                         <button type="submit" class="btn btn-primary btn-wave">
-                            <i class="fas fa-save me-2 align-middle d-inline-block"></i>Atualizar Armazenagem
+                            <i class="fas fa-save me-2"></i>Atualizar Armazenagem
                         </button>
                     </div>
                 </form>

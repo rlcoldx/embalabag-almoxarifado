@@ -72,11 +72,10 @@
             {% endfor %}
 
             {% for setor, armazenagens in setores %}
-            <!-- Início::row - Setor {{ setor }} -->
             <div class="card custom-card mb-4">
                 <div class="card-header justify-content-between">
                     <div class="card-title">
-                        <i class="fas fa-map-marker-alt me-2"></i>Setor: {{ setor }}
+                        <i class="fas fa-map-marker-alt me-2"></i>Andar: {{ setor }}
                     </div>
                 </div>
                 <div class="card-body">
@@ -141,10 +140,10 @@
                                         
                                         <div class="d-flex mt-3">
                                             <a href="{{ DOMAIN }}/armazenagens/edit/{{ armazenagem.id }}" class="btn btn-sm btn-primary-light btn-wave me-2">
-                                                <i class="fas fa-edit"></i>
+                                                <i class="fas fa-edit"></i> Editar Armazenagem
                                             </a>
                                             <a href="{{ DOMAIN }}/armazenagens/show/{{ armazenagem.id }}" class="btn btn-sm btn-outline-primary btn-wave">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="fas fa-eye"></i> Ver Armazenagem
                                             </a>
                                         </div>
                                     </div>

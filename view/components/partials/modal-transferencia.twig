@@ -16,72 +16,65 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="transferenciaProduto" class="form-label required">Produto (SKU)</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="transferenciaProduto" name="sku" 
-                                           placeholder="Digite ou escaneie o SKU" required autocomplete="off">
-                                    <button class="btn btn-outline-primary" type="button" onclick="abrirScannerTransferencia()">
-                                        <i class="fas fa-barcode"></i>
-                                    </button>
-                                </div>
-                                <small class="form-hint">Digite o SKU do produto a ser transferido</small>
+                                <select class="form-control select2-ajax" id="transferenciaProduto" name="id_produto" 
+                                        data-placeholder="Digite para buscar o produto..." required>
+                                    <option value=""></option>
+                                </select>
+                                <small class="form-hint">Digite o nome ou SKU do produto para buscar</small>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="transferenciaQuantidade" class="form-label required">Quantidade</label>
-                                <input type="number" class="form-control" id="transferenciaQuantidade" name="quantidade" 
-                                       min="1" required>
-                                <small class="form-hint">Quantidade a transferir</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="transferenciaVariacao" class="form-label required">Variação</label>
-                                <select class="form-select" id="transferenciaVariacao" name="variacao_id" required>
-                                    <option value="">Selecione a variação</option>
+                                <select class="form-control" id="transferenciaVariacao" name="variacao_id" required disabled>
+                                    <option value="">Selecione primeiro o produto</option>
                                 </select>
-                                <small class="form-hint">Tamanho e cor do produto</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="transferenciaArmazenagemDestino" class="form-label required">Destino</label>
-                                <select class="form-select" id="transferenciaArmazenagemDestino" name="armazenagem_destino_id" required>
-                                    <option value="">Selecione a armazenagem de destino</option>
-                                </select>
-                                <small class="form-hint">Local de destino da transferência</small>
+                                <small class="form-hint">Tamanho, cor ou variação do produto</small>
                             </div>
                         </div>
                     </div>
                     
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="transferenciaMotivo" class="form-label">Motivo</label>
-                                <select class="form-select" id="transferenciaMotivo" name="motivo">
-                                    <option value="">Selecione o motivo</option>
-                                    <option value="reorganizacao">Reorganização</option>
-                                    <option value="otimizacao">Otimização de Espaço</option>
-                                    <option value="manutencao">Manutenção</option>
-                                    <option value="inventario">Inventário</option>
-                                    <option value="outro">Outro</option>
-                                </select>
-                                <small class="form-hint">Motivo da transferência</small>
+                                <label for="transferenciaQuantidade" class="form-label required">Quantidade</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="transferenciaQuantidade" name="quantidade" 
+                                           min="1" required>
+                                    <span class="input-group-text">unidades</span>
+                                </div>
+                                <small class="form-hint">Quantidade a transferir</small>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="transferenciaPrioridade" class="form-label">Prioridade</label>
-                                <select class="form-select" id="transferenciaPrioridade" name="prioridade">
-                                    <option value="baixa">Baixa</option>
-                                    <option value="media" selected>Média</option>
-                                    <option value="alta">Alta</option>
-                                    <option value="urgente">Urgente</option>
+                                <label for="transferenciaEstoqueAtual" class="form-label">Estoque Disponível</label>
+                                <input type="text" class="form-control" id="transferenciaEstoqueAtual" readonly>
+                                <small class="form-hint">Quantidade disponível na origem</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="transferenciaArmazenagemDestino" class="form-label required">Armazenagem Destino</label>
+                                <select class="form-select" id="transferenciaArmazenagemDestino" name="armazenagem_destino_id" required>
+                                    <option value="">Selecione o destino</option>
                                 </select>
-                                <small class="form-hint">Prioridade da transferência</small>
+                                <small class="form-hint">Local de destino</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="transferenciaMotivo" class="form-label">Motivo da Transferência</label>
+                                <select class="form-control" id="transferenciaMotivo" name="motivo">
+                                    <option value="">Selecione o motivo</option>
+                                    <option value="reorganizacao">Reorganização</option>
+                                    <option value="otimizacao_espaco">Otimização de Espaço</option>
+                                    <option value="manutencao">Manutenção</option>
+                                    <option value="inventario">Inventário</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -118,10 +111,10 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary text-black" data-bs-dismiss="modal">
                     <i class="fas fa-times me-2"></i>Cancelar
                 </button>
-                <button type="button" class="btn btn-primary" onclick="salvarTransferencia()">
+                <button type="button" class="btn btn-primary text-black" onclick="salvarTransferencia()">
                     <i class="fas fa-save me-2"></i>Criar Transferência
                 </button>
             </div>
@@ -187,8 +180,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" onclick="executarTransferencia()">
+                <button type="button" class="btn btn-secondary text-black" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success text-black" onclick="executarTransferencia()">
                     <i class="fas fa-check me-2"></i>Confirmar e Criar
                 </button>
             </div>

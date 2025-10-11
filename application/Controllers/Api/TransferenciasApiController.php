@@ -23,7 +23,7 @@ class TransferenciasApiController extends Controller
             return $this->jsonResponse(['success' => false, 'message' => 'Dados inválidos']);
         }
 
-        $requiredFields = ['sku', 'variacao_id', 'quantidade', 'armazenagem_origem_id', 'armazenagem_destino_id'];
+        $requiredFields = ['id_produto', 'variacao_id', 'quantidade', 'armazenagem_origem_id', 'armazenagem_destino_id'];
         foreach ($requiredFields as $field) {
             if (empty($input[$field])) {
                 return $this->jsonResponse(['success' => false, 'message' => "Campo {$field} é obrigatório"]);
@@ -34,98 +34,128 @@ class TransferenciasApiController extends Controller
             // Verificar se a variação existe e tem estoque suficiente na origem
             $read = new Read();
             $read->FullRead("
-                SELECT pv.*, p.SKU, p.nome
-                FROM produtos_variations pv
-                INNER JOIN produtos p ON pv.id_produto = p.id
-                WHERE pv.id = :variacao_id AND pv.armazenagem_id = :armazenagem_origem_id
+                SELECT e.*, p.SKU, p.nome, pv.cor
+                FROM estoque e
+                INNER JOIN produtos p ON e.id_produto = p.id
+                INNER JOIN produtos_variations pv ON e.variacao_id = pv.id
+                WHERE e.id_produto = :id_produto 
+                  AND e.variacao_id = :variacao_id 
+                  AND e.armazenagem_id = :armazenagem_origem_id
+                  AND e.status = 'ativo'
                 LIMIT 1
-            ", "variacao_id={$input['variacao_id']}&armazenagem_origem_id={$input['armazenagem_origem_id']}");
+            ", "id_produto={$input['id_produto']}&variacao_id={$input['variacao_id']}&armazenagem_origem_id={$input['armazenagem_origem_id']}");
 
             if (!$read->getResult()) {
-                return $this->jsonResponse(['success' => false, 'message' => 'Variação não encontrada na armazenagem de origem']);
+                return $this->jsonResponse(['success' => false, 'message' => 'Estoque não encontrado na armazenagem de origem']);
             }
 
-            $variacao = $read->getResult()[0];
+            $estoque = $read->getResult()[0];
             
-            if ($variacao['estoque'] < $input['quantidade']) {
+            if ($estoque['quantidade'] < $input['quantidade']) {
                 return $this->jsonResponse(['success' => false, 'message' => 'Estoque insuficiente na armazenagem de origem']);
             }
 
-            // Verificar se a armazenagem de destino existe
-            $read->FullRead("SELECT id FROM armazenagens WHERE id = :id LIMIT 1", "id={$input['armazenagem_destino_id']}");
+            // Verificar se a armazenagem de destino existe e obter códigos
+            $read->FullRead("SELECT id, codigo FROM armazenagens WHERE id = :id LIMIT 1", "id={$input['armazenagem_destino_id']}");
             if (!$read->getResult()) {
                 return $this->jsonResponse(['success' => false, 'message' => 'Armazenagem de destino não encontrada']);
             }
+            $armazenagemDestino = $read->getResult()[0];
+            
+            // Obter código da armazenagem de origem
+            $read->FullRead("SELECT id, codigo FROM armazenagens WHERE id = :id LIMIT 1", "id={$input['armazenagem_origem_id']}");
+            $armazenagemOrigem = $read->getResult()[0];
 
-            // Criar registro de transferência
+            // 1. REDUZIR estoque da armazenagem de origem (SAÍDA)
+            $update = new Update();
+            $novoEstoqueOrigem = $estoque['quantidade'] - $input['quantidade'];
+            $update->ExeUpdate('estoque', 
+                ['quantidade' => $novoEstoqueOrigem], 
+                "WHERE id = :id", 
+                "id={$estoque['id']}"
+            );
+
+            // 2. ADICIONAR estoque na armazenagem de destino (ENTRADA)
+            $read->FullRead("
+                SELECT id, quantidade FROM estoque 
+                WHERE id_produto = :produto_id 
+                  AND variacao_id = :variacao_id 
+                  AND armazenagem_id = :armazenagem_id
+                  AND status = 'ativo'
+                LIMIT 1
+            ", "produto_id={$input['id_produto']}&variacao_id={$input['variacao_id']}&armazenagem_id={$input['armazenagem_destino_id']}");
+
+            if ($read->getResult()) {
+                // Atualizar estoque existente no destino
+                $estoqueDestino = $read->getResult()[0];
+                $novoEstoqueDestino = $estoqueDestino['quantidade'] + $input['quantidade'];
+                $update->ExeUpdate('estoque', 
+                    ['quantidade' => $novoEstoqueDestino], 
+                    "WHERE id = :id", 
+                    "id={$estoqueDestino['id']}"
+                );
+            } else {
+                // Criar novo estoque na armazenagem de destino
+                $create = new Create();
+                $dadosEstoque = [
+                    'id_produto' => $input['id_produto'],
+                    'variacao_id' => $input['variacao_id'],
+                    'armazenagem_id' => $input['armazenagem_destino_id'],
+                    'quantidade' => $input['quantidade'],
+                    'status' => 'ativo'
+                ];
+                
+                error_log("Tentando criar estoque com dados: " . json_encode($dadosEstoque));
+                
+                $create->ExeCreate('estoque', $dadosEstoque);
+                
+                // Log para debug
+                $estoqueDestinoId = $create->getResult();
+                error_log("Criado novo estoque no destino - ID: {$estoqueDestinoId}, Quantidade: {$input['quantidade']}");
+                
+                // Verificar se a criação foi bem-sucedida
+                if (!$estoqueDestinoId) {
+                    error_log("ERRO: Falha ao criar estoque no destino");
+                    return $this->jsonResponse(['success' => false, 'message' => 'Erro ao criar estoque no destino']);
+                }
+            }
+
+            // 3. REGISTRAR MOVIMENTAÇÃO DE SAÍDA (origem)
             $create = new Create();
-            $transferenciaData = [
+            $create->ExeCreate('movimentacoes_historico', [
+                'tipo' => 'saida',
+                'id_produto' => $input['id_produto'],
                 'variacao_id' => $input['variacao_id'],
                 'quantidade' => $input['quantidade'],
                 'armazenagem_origem_id' => $input['armazenagem_origem_id'],
                 'armazenagem_destino_id' => $input['armazenagem_destino_id'],
-                'motivo' => $input['motivo'] ?? 'Transferência entre armazenagens',
-                'prioridade' => $input['prioridade'] ?? 'normal',
-                'observacoes' => $input['observacoes'] ?? '',
-                'usuario_id' => $_SESSION['user_id'] ?? 1,
-                'status' => 'pendente',
-                'data_transferencia' => date('Y-m-d H:i:s')
-            ];
+                'motivo' => $input['motivo'] ?? 'reorganizacao',
+                'observacoes' => ($input['observacoes'] ?? '') . ' | Transferência: ' . $armazenagemOrigem['codigo'] . ' → ' . $armazenagemDestino['codigo'],
+                'usuario_id' => $_SESSION[BASE.'user_id'] ?? 1,
+                'data_movimentacao' => date('Y-m-d H:i:s')
+            ]);
 
-            $create->ExeCreate('armazenagem_transferencias', $transferenciaData);
-
-            if (!$create->getResult()) {
-                return $this->jsonResponse(['success' => false, 'message' => 'Erro ao criar transferência']);
-            }
+            // 4. REGISTRAR MOVIMENTAÇÃO DE ENTRADA (destino)
+            $create->ExeCreate('movimentacoes_historico', [
+                'tipo' => 'entrada',
+                'id_produto' => $input['id_produto'],
+                'variacao_id' => $input['variacao_id'],
+                'quantidade' => $input['quantidade'],
+                'armazenagem_origem_id' => $input['armazenagem_destino_id'],
+                'armazenagem_destino_id' => $input['armazenagem_origem_id'],
+                'motivo' => $input['motivo'] ?? 'reorganizacao',
+                'observacoes' => ($input['observacoes'] ?? '') . ' | Transferência: ' . $armazenagemOrigem['codigo'] . ' → ' . $armazenagemDestino['codigo'],
+                'usuario_id' => $_SESSION[BASE.'user_id'] ?? 1,
+                'data_movimentacao' => date('Y-m-d H:i:s')
+            ]);
 
             $transferenciaId = $create->getResult();
 
-            // Reduzir estoque da armazenagem de origem
-            $update = new Update();
-            $novoEstoqueOrigem = $variacao['estoque'] - $input['quantidade'];
-            $update->ExeUpdate('produtos_variations', 
-                ['estoque' => $novoEstoqueOrigem], 
-                "WHERE id = :id", 
-                "id={$input['variacao_id']}"
-            );
-
-            // Verificar se já existe a variação na armazenagem de destino
-            $read->FullRead("
-                SELECT id, estoque FROM produtos_variations 
-                WHERE id_produto = :produto_id AND armazenagem_id = :armazenagem_id
-                LIMIT 1
-            ", "produto_id={$variacao['id_produto']}&armazenagem_id={$input['armazenagem_destino_id']}");
-
-            if ($read->getResult()) {
-                // Atualizar estoque existente
-                $variacaoDestino = $read->getResult()[0];
-                $novoEstoqueDestino = $variacaoDestino['estoque'] + $input['quantidade'];
-                $update->ExeUpdate('produtos_variations', 
-                    ['estoque' => $novoEstoqueDestino], 
-                    "WHERE id = :id", 
-                    "id={$variacaoDestino['id']}"
-                );
-            } else {
-                // Criar nova variação na armazenagem de destino
-                $create->ExeCreate('produtos_variations', [
-                    'id_produto' => $variacao['id_produto'],
-                    'cor' => $variacao['cor'],
-                    'gerenciar_estoque' => $variacao['gerenciar_estoque'],
-                    'estoque' => $input['quantidade'],
-                    'encomenda' => $variacao['encomenda'],
-                    'atraso' => $variacao['atraso'],
-                    'armazenagem_id' => $input['armazenagem_destino_id'],
-                    'estoque_minimo' => $variacao['estoque_minimo'] ?? 0,
-                    'date_create' => date('Y-m-d H:i:s')
-                ]);
-            }
-
-            // Marcar transferência como concluída
-            $update->ExeUpdate('armazenagem_transferencias', 
-                ['status' => 'concluida', 'data_conclusao' => date('Y-m-d H:i:s')], 
-                "WHERE id = :id", 
-                "id={$transferenciaId}"
-            );
+            // 5. ATUALIZAR CAPACIDADE DAS ARMAZENAGENS
+            error_log("Iniciando atualização de capacidade - Origem: {$input['armazenagem_origem_id']}, Destino: {$input['armazenagem_destino_id']}");
+            $this->atualizarCapacidadeArmazenagem($input['armazenagem_origem_id']);
+            $this->atualizarCapacidadeArmazenagem($input['armazenagem_destino_id']);
+            error_log("Atualização de capacidade concluída");
 
             return $this->jsonResponse([
                 'success' => true,
@@ -136,6 +166,37 @@ class TransferenciasApiController extends Controller
         } catch (\Exception $e) {
             return $this->jsonResponse(['success' => false, 'message' => 'Erro interno: ' . $e->getMessage()]);
         }
+    }
+
+    private function atualizarCapacidadeArmazenagem($armazenagemId)
+    {
+        $read = new Read();
+        $update = new Update();
+        
+        // Calcular capacidade atual baseada no estoque ativo
+        $read->FullRead("
+            SELECT COALESCE(SUM(quantidade), 0) as capacidade_atual
+            FROM estoque
+            WHERE armazenagem_id = :armazenagem_id AND status = 'ativo'
+        ", "armazenagem_id={$armazenagemId}");
+        
+        $result = $read->getResult();
+        $capacidadeAtual = $result[0]['capacidade_atual'] ?? 0;
+        
+        // Log para debug
+        error_log("Atualizando capacidade armazenagem {$armazenagemId}: {$capacidadeAtual}");
+        
+        // Atualizar a capacidade na tabela armazenagens
+        $update->ExeUpdate('armazenagens', 
+            ['capacidade_atual' => $capacidadeAtual], 
+            "WHERE id = :id", 
+            "id={$armazenagemId}"
+        );
+        
+        // Verificar se a atualização foi bem-sucedida
+        $read->FullRead("SELECT capacidade_atual FROM armazenagens WHERE id = :id", "id={$armazenagemId}");
+        $verificacao = $read->getResult();
+        error_log("Capacidade após atualização: " . ($verificacao[0]['capacidade_atual'] ?? 'ERRO'));
     }
 
     private function jsonResponse($data)

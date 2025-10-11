@@ -264,7 +264,43 @@ class Produtos extends Model
     public function excluirProduto($id_produto)
     {
         $read = new Read();
+        
+        // Buscar todos os estoques do produto antes de deletar
+        $read->FullRead("
+            SELECT id, armazenagem_id, variacao_id, quantidade 
+            FROM estoque 
+            WHERE id_produto = :id_produto AND quantidade > 0 AND status = 'ativo'
+        ", "id_produto={$id_produto}");
+        $estoques = $read->getResult();
+        
+        // Obter ID do usuário logado
+        $usuario_id = $_SESSION[BASE.'user_id'] ?? 1; // Default 1 se não houver sessão
+        
+        // Registrar movimentações de saída para cada estoque
+        if ($estoques && is_array($estoques)) {
+            foreach ($estoques as $estoque) {
+                $create = new Create();
+                $create->ExeCreate('movimentacoes_historico', [
+                    'tipo' => 'saida',
+                    'id_produto' => $id_produto,
+                    'variacao_id' => $estoque['variacao_id'],
+                    'quantidade' => $estoque['quantidade'],
+                    'armazenagem_origem_id' => $estoque['armazenagem_id'],
+                    'armazenagem_destino_id' => null,
+                    'motivo' => 'Produto deletado',
+                    'documento_referencia' => null,
+                    'observacoes' => 'Estoque removido automaticamente ao deletar o produto',
+                    'usuario_id' => $usuario_id,
+                    'data_movimentacao' => date('Y-m-d H:i:s')
+                ]);
+            }
+        }
+        
+        // Marcar produto como deletado
         $read->FullRead("UPDATE `produtos` SET `status` = 'Deletado' WHERE `id` = :id_produto", "id_produto={$id_produto}");
+        
+        // Marcar estoque como inativo para que não conte mais na capacidade das armazenagens
+        $read->FullRead("UPDATE `estoque` SET `status` = 'inativo' WHERE `id_produto` = :id_produto", "id_produto={$id_produto}");
     }
 
     public function saveCategory($id_produto, $categorias)

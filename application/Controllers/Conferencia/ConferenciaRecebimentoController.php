@@ -181,7 +181,7 @@ class ConferenciaRecebimentoController extends Controller
         }
 
         $conferencia = new ConferenciaRecebimento();
-        $usuarioId = $_SESSION['user_id'] ?? 1;
+        $usuarioId = $_SESSION[BASE.'user_id'] ?? 1;
 
         try {
             foreach ($itens as $item) {
@@ -295,7 +295,7 @@ class ConferenciaRecebimentoController extends Controller
                 'acao' => 'atualizacao',
                 'dados_anteriores' => json_encode($_POST['dados_anteriores'] ?? []),
                 'dados_novos' => json_encode($dados),
-                'usuario_id' => $_SESSION['user_id'] ?? 1
+                'usuario_id' => $_SESSION[BASE.'user_id'] ?? 1
             ]);
 
             header("Location: " . DOMAIN . "/conferencia/{$conferenciaId}");
@@ -329,7 +329,7 @@ class ConferenciaRecebimentoController extends Controller
             'conferencia_id' => $conferenciaId,
             'acao' => 'exclusao',
             'dados_anteriores' => json_encode(['conferencia_id' => $conferenciaId]),
-            'usuario_id' => $_SESSION['user_id'] ?? 1
+            'usuario_id' => $_SESSION[BASE.'user_id'] ?? 1
         ]);
 
         // Redirecionar para lista

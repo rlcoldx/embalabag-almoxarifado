@@ -116,7 +116,7 @@ class PedidosItens extends Model
             $create = new Create();
             $item = [
                 'id_pedido' => $params['id_pedido'],
-                'id_user' => $params['id_user'] ?? $_SESSION['user_id'] ?? 1,
+                'id_user' => $params['id_user'] ?? $_SESSION[BASE.'user_id'] ?? 1,
                 'id_produto' => $params['id_produto'],
                 'qty' => $params['qty'] ?? 1,
                 'qty_base' => $params['qty_base'] ?? $params['qty'] ?? 1,

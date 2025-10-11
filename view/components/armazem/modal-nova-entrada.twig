@@ -105,13 +105,120 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary text-black" data-bs-dismiss="modal">
                     <i class="fas fa-times me-2"></i>Cancelar
                 </button>
-                <button type="button" class="btn btn-primary" onclick="salvarEntrada()">
+                <button type="button" class="btn btn-primary text-black" onclick="salvarEntrada()">
                     <i class="fas fa-plus me-2"></i>Registrar Entrada
                 </button>
             </div>
         </div>
     </div>
 </div>
+<script>
+/**
+* Salvar entrada de estoque
+*/
+function salvarEntrada() {
+    try {
+        // Validar formulário
+        const form = document.getElementById('formNovaEntrada');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
+        // Coletar dados do formulário
+        const formData = new FormData(form);
+        
+        // Pegar o variacao_id e id_produto corretos do select
+        const variacaoSelect = document.querySelector('#modalNovaEntrada select[name="variacao_id"]');
+        const selectedOption = variacaoSelect.options[variacaoSelect.selectedIndex];
+        const variacaoId = selectedOption ? selectedOption.value : '';
+        const idProduto = selectedOption ? selectedOption.getAttribute('data-id-produto') : formData.get('id_produto');
+        
+        const dados = {
+            armazenagem_id: formData.get('armazenagem_id'),
+            id_produto: idProduto,
+            variacao_id: variacaoId,
+            quantidade: parseInt(formData.get('quantidade')),
+            motivo: formData.get('motivo'),
+            documento_referencia: formData.get('documento_referencia'),
+            observacoes: formData.get('observacoes'),
+            tipo: 'entrada'
+        };
+        
+        // Validar campos obrigatórios
+        if (!dados.armazenagem_id || !dados.id_produto || !dados.variacao_id || !dados.quantidade) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos Obrigatórios',
+                text: 'Por favor, preencha todos os campos obrigatórios.'
+            });
+            return;
+        }
+        
+        // Mostrar loading no botão
+        const btnSalvar = document.querySelector('#modalNovaEntrada button[onclick="salvarEntrada()"]');
+        if (!btnSalvar) {
+            return;
+        }
+        const textoOriginal = btnSalvar.innerHTML;
+        btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Salvando...';
+        btnSalvar.disabled = true;
+        
+        // Fazer requisição AJAX
+        $.ajax({
+            url: buildUrl('/api/movimentacoes/criar'),
+            method: 'POST',
+            dataType: 'json',
+            data: dados,
+            success: function(response) {
+                if (response.success) {
+                    // Sucesso
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso!',
+                        text: 'Entrada de estoque registrada com sucesso!'
+                    });
+                    
+                    // Fechar modal
+                    $('#modalNovaEntrada').modal('hide');
+                    
+                    // Limpar formulário
+                    form.reset();
+                    
+                    // Recarregar página ou atualizar tabela
+                    location.reload();                    
+                } else {
+                    // Erro da API
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: 'Erro ao salvar entrada: ' + (response.error || 'Erro desconhecido')
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Erro ao salvar entrada de estoque. Tente novamente.'
+                });
+            },
+            complete: function() {
+                // Restaurar botão
+                btnSalvar.innerHTML = textoOriginal;
+                btnSalvar.disabled = false;
+            }
+        });
+        
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro',
+            text: 'Erro ao processar entrada de estoque. Tente novamente.'
+        });
+    }
+}
+</script>

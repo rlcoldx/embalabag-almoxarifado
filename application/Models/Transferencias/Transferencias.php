@@ -98,7 +98,7 @@ class Transferencias extends Model
                 'quantidade' => $params['quantidade'],
                 'motivo' => $params['motivo'],
                 'observacoes' => $params['observacoes'] ?? '',
-                'usuario_solicitante' => $_SESSION['user_id'] ?? 1
+                'usuario_solicitante' => $_SESSION[BASE.'user_id'] ?? 1
             ];
             
             $create->ExeCreate('armazenagem_transferencias', $transferencia);
@@ -165,7 +165,7 @@ class Transferencias extends Model
             $update->ExeUpdate('armazenagem_transferencias', 
                 [
                     'status' => 'concluida',
-                    'usuario_executor' => $_SESSION['user_id'] ?? 1,
+                    'usuario_executor' => $_SESSION[BASE.'user_id'] ?? 1,
                     'data_execucao' => date('Y-m-d H:i:s'),
                     'data_conclusao' => date('Y-m-d H:i:s')
                 ], 

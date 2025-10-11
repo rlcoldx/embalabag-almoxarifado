@@ -18,18 +18,14 @@ class ProdutosDataTableController extends BaseDataTableController
         
         // Configurar colunas
         $dataTable->addColumn('id', 'ID', 'number')
-                 ->addColumn('SKU', 'SKU', 'text')
-                 ->addColumn('nome', 'Nome', 'text')
-                 ->addColumn('estoque_atual', 'Estoque Atual', 'number')
-                 ->addColumn('estoque_minimo', 'Estoque Mínimo', 'number')
-                 ->addColumn('valor', 'Valor', 'text')
-                 ->addColumn('status', 'Status', 'select', [
-                     'options' => [
-                         'ativo' => 'Ativo',
-                         'inativo' => 'Inativo'
-                     ]
-                 ])
-                 ->addColumn('actions', 'Ações', 'actions');
+                ->addColumn('SKU', 'SKU', 'text')
+                ->addColumn('nome', 'Nome', 'text')
+                ->addColumn('estoque_total', 'Estoque Total', 'number', [
+                    'select' => '(SELECT COALESCE(SUM(estoque), 0) FROM produtos_variations WHERE produtos_variations.id_produto = produtos.id) as estoque_total'
+                ], 'text-center')
+                ->addColumn('valor', 'Valor', 'text')
+                ->addColumn('status', 'Status', 'status')
+                ->addColumn('actions', 'Ações', 'actions');
 
         // Configurar colunas pesquisáveis
         $dataTable->addSearchableColumn('SKU')
@@ -39,7 +35,7 @@ class ProdutosDataTableController extends BaseDataTableController
         $dataTable->addOrderableColumn('id')
                  ->addOrderableColumn('SKU')
                  ->addOrderableColumn('nome')
-                 ->addOrderableColumn('estoque_atual')
+                 ->addOrderableColumn('estoque_total')
                  ->addOrderableColumn('status');
 
         // Configurar filtros

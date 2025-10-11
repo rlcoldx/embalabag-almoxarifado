@@ -33,13 +33,7 @@ class ProdutosApiController extends Controller
             $produtos = $read->getResult();
             
             // Contar total
-            if (!empty($search)) {
-                $read->ExeRead("produtos", "WHERE (SKU LIKE '%{$search}%' OR nome LIKE '%{$search}%' OR categoria LIKE '%{$search}%') AND status <> 'Deletado'");
-            } else {
-                $read->ExeRead("produtos", "WHERE status <> 'Deletado'");
-            }
-            
-            $total = $read->getResult()[0]['total'] ?? 0;
+            $total = count($produtos);
             
             $response = [
                 'success' => true,

@@ -25,12 +25,7 @@ class LogAcessosDataTableController extends BaseDataTableController
                          'timeout' => 'Timeout'
                      ]
                  ])
-                 ->addColumn('status', 'Status', 'select', [
-                     'options' => [
-                         'sucesso' => 'Sucesso',
-                         'falha' => 'Falha'
-                     ]
-                 ])
+                 ->addColumn('status', 'Status', 'status')
                  ->addColumn('mensagem', 'Mensagem', 'text')
                  ->addColumn('data_acesso', 'Data/Hora', 'datetime');
 
@@ -98,12 +93,7 @@ class LogAcessosDataTableController extends BaseDataTableController
                          'timeout' => 'Timeout'
                      ]
                  ])
-                 ->addColumn('status', 'Status', 'select', [
-                     'options' => [
-                         'sucesso' => 'Sucesso',
-                         'falha' => 'Falha'
-                     ]
-                 ])
+                 ->addColumn('status', 'Status', 'status')
                  ->addColumn('mensagem', 'Mensagem', 'text')
                  ->addColumn('data_acesso', 'Data/Hora', 'datetime');
 

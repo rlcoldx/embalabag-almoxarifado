@@ -19,14 +19,7 @@ class NotasFiscaisDataTableController extends BaseDataTableController
                  ->addColumn('fornecedor', 'Fornecedor', 'text')
                  ->addColumn('data_emissao', 'Data Emissão', 'date')
                  ->addColumn('valor_total', 'Valor Total', 'currency')
-                 ->addColumn('status', 'Status', 'select', [
-                     'options' => [
-                         'pendente' => 'Pendente',
-                         'recebida' => 'Recebida',
-                         'conferida' => 'Conferida',
-                         'finalizada' => 'Finalizada'
-                     ]
-                 ])
+                 ->addColumn('status', 'Status', 'status')
                  ->addColumn('numero_pedido', 'Pedido', 'text')
                  ->addColumn('usuario_recebimento_nome', 'Recebido por', 'text')
                  ->addColumn('usuario_conferencia_nome', 'Conferido por', 'text')

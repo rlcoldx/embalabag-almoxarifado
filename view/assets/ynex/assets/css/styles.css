@@ -2684,7 +2684,6 @@ typography
 .btn-primary {
   background-color: rgb(var(--primary-rgb)) !important;
   border-color: rgb(var(--primary-rgb)) !important;
-  color: #fff !important;
 }
 .btn-primary:hover {
   background-color: rgba(var(--primary-rgb), 0.9) !important;
@@ -2727,17 +2726,14 @@ typography
 .btn-secondary {
   background-color: rgb(var(--secondary-rgb)) !important;
   border-color: rgb(var(--secondary-rgb)) !important;
-  color: #fff !important;
 }
 .btn-secondary:hover {
   background-color: rgba(var(--secondary-rgb), 0.9) !important;
   border-color: rgb(var(--secondary-rgb)) !important;
-  color: #fff;
 }
 .btn-secondary:focus {
   background-color: rgb(var(--secondary-rgb));
   border-color: rgb(var(--secondary-rgb));
-  color: #fff;
 }
 
 .btn-check:focus + .btn-secondary,
@@ -2770,7 +2766,6 @@ typography
 .btn-warning {
   background-color: rgb(var(--warning-rgb)) !important;
   border-color: rgb(var(--warning-rgb)) !important;
-  color: #fff !important;
 }
 .btn-warning:hover {
   background-color: rgba(var(--warning-rgb), 0.9) !important;
@@ -2813,7 +2808,6 @@ typography
 .btn-info {
   background-color: rgb(var(--info-rgb)) !important;
   border-color: rgb(var(--info-rgb)) !important;
-  color: #fff !important;
 }
 .btn-info:hover {
   background-color: rgba(var(--info-rgb), 0.9) !important;
@@ -2856,7 +2850,6 @@ typography
 .btn-danger {
   background-color: rgb(var(--danger-rgb)) !important;
   border-color: rgb(var(--danger-rgb)) !important;
-  color: #fff !important;
 }
 .btn-danger:hover {
   background-color: rgba(var(--danger-rgb), 0.9) !important;
@@ -2899,7 +2892,6 @@ typography
 .btn-success {
   background-color: rgb(var(--success-rgb)) !important;
   border-color: rgb(var(--success-rgb)) !important;
-  color: #fff !important;
 }
 .btn-success:hover {
   background-color: rgba(var(--success-rgb), 0.9) !important;
@@ -3033,7 +3025,6 @@ typography
 .btn-teal {
   background-color: rgb(var(--teal-rgb)) !important;
   border-color: rgb(var(--teal-rgb)) !important;
-  color: #fff !important;
 }
 .btn-teal:hover {
   background-color: rgba(var(--teal-rgb), 0.9) !important;
@@ -3076,7 +3067,6 @@ typography
 .btn-purple {
   background-color: rgb(var(--purple-rgb)) !important;
   border-color: rgb(var(--purple-rgb)) !important;
-  color: #fff !important;
 }
 .btn-purple:hover {
   background-color: rgba(var(--purple-rgb), 0.9) !important;
@@ -3119,7 +3109,6 @@ typography
 .btn-orange {
   background-color: rgb(var(--orange-rgb)) !important;
   border-color: rgb(var(--orange-rgb)) !important;
-  color: #fff !important;
 }
 .btn-orange:hover {
   background-color: rgba(var(--orange-rgb), 0.9) !important;
@@ -3764,7 +3753,6 @@ typography
 .btn-outline-primary.dropdown-toggle.show,
 .btn-outline-primary:active,
 .btn-check + .btn.btn-outline-primary:hover {
-  color: #fff !important;
   background-color: rgb(var(--primary-rgb)) !important;
   border-color: rgb(var(--primary-rgb)) !important;
 }
@@ -3775,7 +3763,6 @@ typography
 .btn-outline-secondary.dropdown-toggle.show,
 .btn-outline-secondary:active,
 .btn-check + .btn.btn-outline-secondary:hover {
-  color: #fff !important;
   background-color: rgb(var(--secondary-rgb)) !important;
   border-color: rgb(var(--secondary-rgb)) !important;
 }
@@ -3786,7 +3773,6 @@ typography
 .btn-outline-info.dropdown-toggle.show,
 .btn-outline-info:active,
 .btn-check + .btn.btn-outline-info:hover {
-  color: #fff !important;
   background-color: rgb(var(--info-rgb)) !important;
   border-color: rgb(var(--info-rgb)) !important;
 }
@@ -3797,7 +3783,6 @@ typography
 .btn-outline-warning.dropdown-toggle.show,
 .btn-outline-warning:active,
 .btn-check + .btn.btn-outline-warning:hover {
-  color: #fff !important;
   background-color: rgb(var(--warning-rgb)) !important;
   border-color: rgb(var(--warning-rgb)) !important;
 }
@@ -3808,7 +3793,6 @@ typography
 .btn-outline-danger.dropdown-toggle.show,
 .btn-outline-danger:active,
 .btn-check + .btn.btn-outline-danger:hover {
-  color: #fff !important;
   background-color: rgb(var(--danger-rgb)) !important;
   border-color: rgb(var(--danger-rgb)) !important;
 }
@@ -3819,7 +3803,6 @@ typography
 .btn-outline-success.dropdown-toggle.show,
 .btn-outline-success:active,
 .btn-check + .btn.btn-outline-success:hover {
-  color: #fff !important;
   background-color: rgb(var(--success-rgb)) !important;
   border-color: rgb(var(--success-rgb)) !important;
 }
@@ -3853,7 +3836,6 @@ typography
 .btn-outline-teal.dropdown-toggle.show,
 .btn-outline-teal:active,
 .btn-check + .btn.btn-outline-teal:hover {
-  color: #fff !important;
   background-color: rgb(var(--teal-rgb)) !important;
   border-color: rgb(var(--teal-rgb)) !important;
 }

@@ -99,7 +99,7 @@ class Pedidos extends Model
         try {
             $create = new Create();
             $pedido = [
-                'id_user' => $params['id_user'] ?? $_SESSION['user_id'] ?? 1,
+                'id_user' => $params['id_user'] ?? $_SESSION[BASE.'user_id'] ?? 1,
                 'qtd_opcoes_p' => $params['qtd_opcoes_p'] ?? 0,
                 'qtd_opcoes_m' => $params['qtd_opcoes_m'] ?? 0,
                 'qtd_opcoes_g' => $params['qtd_opcoes_g'] ?? 0,

@@ -64,7 +64,7 @@ class EtiquetasController extends Controller
             'conteudo' => $_POST['conteudo'] ?? '',
             'qr_code_data' => $_POST['qr_code_data'] ?? '',
             'status' => 'ativa',
-            'usuario_criacao' => $_SESSION['user_id'] ?? null,
+            'usuario_criacao' => $_SESSION[BASE.'user_id'] ?? null,
             'data_impressao' => null
         ];
         
@@ -347,7 +347,7 @@ class EtiquetasController extends Controller
             'tipo_etiqueta' => 'localizacao',
             'conteudo' => $dados['descricao'] . ' - ' . $dados['codigo'],
             'status' => 'ativa',
-            'usuario_criacao' => $_SESSION['user_id'] ?? null
+            'usuario_criacao' => $_SESSION[BASE.'user_id'] ?? null
         ];
         
         if ($etiqueta->create($data)) {
@@ -407,7 +407,7 @@ class EtiquetasController extends Controller
             'tipo_etiqueta' => 'produto',
             'conteudo' => $item['descricao_produto'] . ' - Qtd: ' . $item['quantidade'],
             'status' => 'ativa',
-            'usuario_criacao' => $_SESSION['user_id'] ?? null
+            'usuario_criacao' => $_SESSION[BASE.'user_id'] ?? null
         ];
         
         if ($etiqueta->create($data)) {
@@ -450,7 +450,7 @@ class EtiquetasController extends Controller
                 'tipo_etiqueta' => 'localizacao',
                 'conteudo' => $arm['descricao'] . ' - ' . $arm['codigo'],
                 'status' => 'ativa',
-                'usuario_criacao' => $_SESSION['user_id'] ?? null
+                'usuario_criacao' => $_SESSION[BASE.'user_id'] ?? null
             ];
             
             if ($etiqueta->create($data)) {
@@ -491,7 +491,7 @@ class EtiquetasController extends Controller
                 'tipo_etiqueta' => 'produto',
                 'conteudo' => $item['descricao_produto'] . ' - Qtd: ' . $item['quantidade'],
                 'status' => 'ativa',
-                'usuario_criacao' => $_SESSION['user_id'] ?? null
+                'usuario_criacao' => $_SESSION[BASE.'user_id'] ?? null
             ];
             
             if ($etiqueta->create($data)) {
