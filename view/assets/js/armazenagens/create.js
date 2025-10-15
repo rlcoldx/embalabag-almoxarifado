@@ -24,7 +24,7 @@ function iniciarFormulario() {
         
         // Usar a função global para construir a URL
         const url = buildUrl('/armazenagens/store');
-        ajaxRequest(url, {
+        fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: urlEncoded

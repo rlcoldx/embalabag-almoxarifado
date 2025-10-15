@@ -37,8 +37,21 @@ class MigrationController extends Controller
         foreach ($files as $file) {
             $sql = file_get_contents($file);
             try {
+                // Remover DELIMITER statements que não funcionam com PDO
+                $sql = preg_replace('/^DELIMITER\s+\S+.*$/m', '', $sql);
+                $sql = preg_replace('/^\s*\/\/\s*$/m', '', $sql);
+                
+                // Dividir em statements individuais
+                $statements = array_filter(array_map('trim', explode(';', $sql)));
+                
                 $pdo->beginTransaction();
-                $pdo->exec($sql);
+                
+                foreach ($statements as $statement) {
+                    if (!empty($statement)) {
+                        $pdo->exec($statement);
+                    }
+                }
+                
                 $pdo->commit();
                 $result[] = basename($file) . ' executado com sucesso';
                 $executed++;
