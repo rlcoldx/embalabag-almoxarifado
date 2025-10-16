@@ -68,18 +68,10 @@ class ArmazenagensController extends Controller
             return;
         }
         
-        if (empty($data['descricao'])) {
+        if ($data['capacidade_maxima'] <= 0) {
             $this->responseJson([
                 'success' => false,
-                'error' => 'Descrição é obrigatória'
-            ]);
-            return;
-        }
-        
-        if (empty($data['tipo'])) {
-            $this->responseJson([
-                'success' => false,
-                'error' => 'Tipo é obrigatório'
+                'error' => 'Capacidade máxima é obrigatória'
             ]);
             return;
         }
@@ -178,19 +170,11 @@ class ArmazenagensController extends Controller
             ]);
             return;
         }
-        
-        if (empty($data['descricao'])) {
+
+        if ($data['capacidade_maxima'] <= 0) {
             $this->responseJson([
                 'success' => false,
-                'error' => 'Descrição é obrigatória'
-            ]);
-            return;
-        }
-        
-        if (empty($data['tipo'])) {
-            $this->responseJson([
-                'success' => false,
-                'error' => 'Tipo é obrigatório'
+                'error' => 'Capacidade máxima é obrigatória'
             ]);
             return;
         }

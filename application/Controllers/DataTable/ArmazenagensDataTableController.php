@@ -14,8 +14,8 @@ class ArmazenagensDataTableController extends BaseDataTableController
         
         // Configurar colunas
         $dataTable->addColumn('id', 'ID', 'number')
-                ->addColumn('setor', 'Andar', 'text')
-                ->addColumn('codigo', 'Código', 'text')
+                ->addColumn('setor', 'Corredor', 'text')
+                ->addColumn('codigo', 'Andar', 'text')
                 ->addColumn('descricao', 'Descrição', 'text')
                 ->addColumn('tipo', 'Tipo', 'select', [
                      'options' => [
@@ -79,7 +79,7 @@ class ArmazenagensDataTableController extends BaseDataTableController
                 'manutencao' => 'Manutenção'
             ]
         ])
-        ->addFilter('setor', 'Setor', 'text');
+        ->addFilter('setor', 'Corredor', 'text');
 
         // Buscar dados
         $result = $dataTable->getData($_GET);

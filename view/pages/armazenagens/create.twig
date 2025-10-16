@@ -37,42 +37,45 @@
                         <div class="row g-3">
                             <div class="col-md-3 col-sm-12">
                                 <label class="form-label required">
-                                    <i class="fas fa-building text-muted me-1"></i>Andar
+                                    <i class="fas fa-building text-muted me-1"></i>Corredor
                                 </label>
-                                <input type="text" class="form-control" name="setor" required autocomplete="off" placeholder="Ex: Andar 1, Andar 2, Andar 3">
-                                <small class="form-text text-muted">Andar onde está localizado</small>
+                                <input type="text" class="form-control" name="setor" required autocomplete="off" placeholder="Ex: A, B, C">
                             </div>
                             <div class="col-md-3 col-sm-12">
-                                <label class="form-label required">
-                                    <i class="fas fa-tag text-muted me-1"></i>Código
+                                <label class="form-label mb-0 required">
+                                    <i class="fas fa-tag text-muted me-1"></i>Código do Andar
                                 </label>
-                                <input type="text" class="form-control" name="codigo" required autocomplete="off" placeholder="Ex: A01, PRAT-01">
-                                <small class="form-text text-muted">Código único de identificação</small>
-                            </div>
-                            <div class="col-md-3 col-sm-12">
-                                <label class="form-label required">
-                                    <i class="fas fa-box text-muted me-1"></i>Tipo
-                                </label>
-                                <select class="form-select" name="tipo" required>
-                                    <option value="">Selecione o tipo...</option>
-                                    <option value="corredor">Corredor</option>
-                                    <option value="prateleira">Prateleira</option>
-                                    <option value="gaveta">Gaveta</option>
-                                    <option value="caixa">Caixa</option>
-                                    <option value="pallet">Pallet</option>
-                                    <option value="area">Área</option>
-                                </select>
-                                <small class="form-text text-muted">Tipo de armazenagem</small>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" name="codigo" value="A" class="btn-check" id="andarbtn1" checked>
+                                    <label class="btn btn-outline-primary" for="andarbtn1">
+                                        Andar A
+                                    </label>
+                                    <input type="radio" name="codigo" value="B" class="btn-check" id="andarbtn2">
+                                    <label class="btn btn-outline-primary" for="andarbtn2">
+                                        Andar B
+                                    </label>
+                                    <input type="radio" name="codigo" value="C" class="btn-check" id="andarbtn3">
+                                    <label class="btn btn-outline-primary" for="andarbtn3">
+                                        Andar C
+                                    </label>
+                                </div>
                             </div>
                             <div class="col-md-3 col-sm-12">
                                 <label class="form-label">
+                                    <i class="fas fa-box text-muted me-1"></i>Tipo
+                                </label>
+                                <select class="form-select" name="tipo">
+                                    <option value="prateleira">Prateleira</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 col-sm-12">
+                                <label class="form-label required">
                                     <i class="fas fa-layer-group text-muted me-1"></i>Capacidade Máxima
                                 </label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" name="capacidade_maxima" min="0" placeholder="0">
+                                    <input type="number" class="form-control" name="capacidade_maxima" required min="0" placeholder="0">
                                     <span class="input-group-text">Unidades</span>
                                 </div>
-                                <small class="form-text text-muted">Deixe em branco para capacidade ilimitada</small>
                             </div>
                         </div>
                     </div>
@@ -84,28 +87,28 @@
                         </h6>
                         <div class="row g-3">
                             <div class="col-md-9">
-                                <label class="form-label required">
+                                <label class="form-label">
                                     <i class="fas fa-file-alt text-muted me-1"></i>Descrição
                                 </label>
-                                <input type="text" class="form-control" name="descricao" required autocomplete="off" placeholder="Ex: Prateleira A, Gaveta 01">
+                                <input type="text" class="form-control" name="descricao" autocomplete="off" placeholder="Ex: Prateleira A, Gaveta 01">
                                 <small class="form-text text-muted">Nome descritivo da localização</small>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">
                                     <i class="fas fa-toggle-on text-muted me-1"></i>Status
                                 </label>
-                                <div class="btn-group w-100 mt-1" role="group">
+                                <div class="btn-group w-100" role="group">
                                     <input type="radio" name="status" value="ativo" class="btn-check" id="btnradio1" checked>
                                     <label class="btn btn-outline-success" for="btnradio1">
-                                        <i class="fas fa-check-circle me-1"></i>Ativo
+                                        Ativo
                                     </label>
                                     <input type="radio" name="status" value="inativo" class="btn-check" id="btnradio2">
                                     <label class="btn btn-outline-danger" for="btnradio2">
-                                        <i class="fas fa-times-circle me-1"></i>Inativo
+                                        Inativo
                                     </label>
                                     <input type="radio" name="status" value="manutencao" class="btn-check" id="btnradio3">
                                     <label class="btn btn-outline-warning" for="btnradio3">
-                                        <i class="fas fa-tools me-1"></i>Manutenção
+                                        Manutenção
                                     </label>
                                 </div>
                             </div>

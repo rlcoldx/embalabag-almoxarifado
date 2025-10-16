@@ -3154,13 +3154,16 @@ typography
   color: rgb(var(--primary-rgb));
   border-color: rgb(var(--primary-rgb));
 }
+.btn-check+.btn:hover {
+  color: #fff !important;
+}
 .btn-outline-primary:hover, .btn-outline-primary:active {
-  color: #fff;
+  color: #fff !important;
   background-color: rgb(var(--primary-rgb));
   border-color: rgb(var(--primary-rgb));
 }
 .btn-outline-primary:focus {
-  color: #fff;
+  color: #fff!important;
   background-color: rgb(var(--primary-rgb));
   border-color: rgb(var(--primary-rgb));
   box-shadow: none;

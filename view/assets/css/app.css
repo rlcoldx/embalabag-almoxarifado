@@ -1399,3 +1399,10 @@ input[type="datetime-local"] {
     font-size: 0.875rem;
     margin-top: 0.25rem;
 }
+.andar-icone {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 150px;
+    opacity: 0.5;
+}

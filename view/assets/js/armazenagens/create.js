@@ -3,10 +3,7 @@
  * Agora usando o sistema global de configurações
  */
 
-document.addEventListener('DOMContentLoaded', function() {
-    // DOMAIN agora está disponível globalmente
-    console.log('🌐 DOMAIN global:', DOMAIN);
-    
+document.addEventListener('DOMContentLoaded', function() {    
     // Inicializar formulário
     iniciarFormulario();
 });
