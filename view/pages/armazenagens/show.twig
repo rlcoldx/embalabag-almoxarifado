@@ -41,21 +41,17 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="mb-3 text-success">
-                            <label class="form-label fw-semibold text-success">CORREDOR:</label>
-                            <p class="mb-0 fs-16">{{ armazenagem.setor }}</p>
+                        <div class="mb-5 text-success">
+                            <label class="form-label fw-semibold text-success">CORREDOR: <span class="mb-2 fs-16">{{ armazenagem.setor }}</span></label>
+                            <label class="form-label fw-semibold text-warning">ANDAR: <span class="mb-0 fs-16 fw-semibold">{{ armazenagem.codigo }} </span></label>
                         </div>
-                        <div class="mb-3 text-warning">
-                            <label class="form-label fw-semibold text-warning">ANDAR:</label>
-                            <p class="mb-0 fs-16 fw-semibold">{{ armazenagem.codigo }} </p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-5">
                             <label class="form-label fw-semibold ">Descrição:</label>
                             <p class="mb-0 fs-16">{{ armazenagem.descricao }}</p>
                         </div>
-                        <div class="mb-3">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-5">
                             <label class="form-label fw-semibold ">Capacidade:</label>
                             <p class="mb-0 fs-16">
                                 {{ armazenagem.quantidade_ocupada|default(0) }} / {{ armazenagem.capacidade_maxima|default('Ilimitada') }}
@@ -64,10 +60,10 @@
                                 {% endif %}
                             </p>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold ">Observações:</label>
-                        <p class="mb-0 fs-16">{{ armazenagem.observacoes|default('Nenhuma observação') }}</p>
+                        <div class="mb-5">
+                            <label class="form-label fw-semibold ">Observações:</label>
+                            <p class="mb-0 fs-16">{{ armazenagem.observacoes|default('Nenhuma observação') }}</p>
+                        </div>
                     </div>
                     <img src="{{ PATH }}/view/assets/ynex/assets/images/icones/andar-{{ armazenagem.codigo|lower }}.svg" class="andar-icone">
                 </div>
