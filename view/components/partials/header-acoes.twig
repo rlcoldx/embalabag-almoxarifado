@@ -1,9 +1,15 @@
-{% if menu_permissions.produtos_new or menu_permissions.recebimento_nf or menu_permissions.armazenagens_new or menu_permissions.conferencia_new %}
+{% if menu_permissions.produtos_new or menu_permissions.pedidos_new or menu_permissions.recebimento_nf or menu_permissions.armazenagens_new or menu_permissions.conferencia_new %}
 <nav class="header-acoes" aria-label="Ações rápidas">
     {% if menu_permissions.produtos_new %}
     <a href="{{ DOMAIN }}/produtos/new" class="header-acoes__link">
         <i class="fas fa-plus"></i>
         <span>Novo produto</span>
+    </a>
+    {% endif %}
+    {% if menu_permissions.pedidos_new %}
+    <a href="{{ DOMAIN }}/pedidos/create" class="header-acoes__link">
+        <i class="fas fa-file-invoice"></i>
+        <span>Novo pedido</span>
     </a>
     {% endif %}
     {% if menu_permissions.recebimento_nf %}
