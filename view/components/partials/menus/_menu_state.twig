@@ -1,0 +1,12 @@
+{# Estados de abertura dos menus principais quando um sub-item está ativo #}
+{% set menu_key = menu|default('') %}
+{% set users_open = menu_key in ['users', 'cargos', 'permissoes', 'log_acessos'] %}
+{% set produtos_open = menu_key == 'produtos' or menu_key starts with 'produtos_' or menu_key in ['categorias', 'cores', 'estoque_baixo', 'dashboard_produtos'] %}
+{% set armazenagens_open = menu_key == 'armazenagens' or menu_key starts with 'armazenagens_' or menu_key == 'dashboard_armazenagens' %}
+{% set conferencia_open = menu_key == 'conferencia' or menu_key starts with 'conferencia_' %}
+{% set pedidos_open = menu_key == 'pedidos' or menu_key starts with 'pedidos_' %}
+{% set recebimento_open = menu_key == 'recebimento' or menu_key starts with 'recebimento_' or menu_key == 'dashboard_movimentacoes' %}
+{% set relatorios_open = menu_key in ['relatorios', 'recebimento_relatorios'] %}
+{% set dashboard_open = menu_key starts with 'dashboard_' or menu_key == 'recebimento_dashboard' %}
+{% set expedicao_open = menu_key == 'expedicao' or menu_key starts with 'expedicao_' %}
+{% set cia_aerea_open = menu_key == 'cia_aerea' %}

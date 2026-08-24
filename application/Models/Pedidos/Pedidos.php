@@ -53,13 +53,23 @@ class Pedidos extends Model
             FROM pedidos p
             LEFT JOIN usuarios u ON p.id_user = u.id
             WHERE p.id_user = :user_id
-            ORDER BY p.data_pedido DESC
+            ORDER BY p.date_create DESC
         ", "user_id={$user_id}");
         return $read;
     }
 
     public function getPedidosPorStatus($status): Read
     {
+        $statusMap = [
+            'pendente' => '1',
+            'aprovado' => '2',
+            'cancelado' => '0',
+        ];
+
+        if (isset($statusMap[$status])) {
+            $status = $statusMap[$status];
+        }
+
         $read = new Read();
         $read->FullRead("
             SELECT 
@@ -89,12 +99,12 @@ class Pedidos extends Model
                 u.email as usuario_email
             FROM pedidos p
             LEFT JOIN usuarios u ON p.id_user = u.id
-            WHERE p.numero_pedido = :numero
+            WHERE p.codigo = :numero
         ", "numero={$numero}");
         return $read;
     }
 
-    public function createPedido($params): bool
+    public function createPedido($params): int|false
     {
         try {
             $create = new Create();
@@ -139,9 +149,16 @@ class Pedidos extends Model
                 'pre_aprovado' => $params['pre_aprovado'] ?? 'no',
                 'status_pedido' => $params['status_pedido'] ?? '1'
             ];
+
+            foreach (['etiqueta_cia_aerea', 'status_expedicao', 'companhia_id'] as $campo) {
+                if (array_key_exists($campo, $params)) {
+                    $pedido[$campo] = $params[$campo];
+                }
+            }
             
             $create->ExeCreate('pedidos', $pedido);
-            return $create->getResult();
+            $id = $create->getResult();
+            return $id ? (int) $id : false;
         } catch (Exception $e) {
             return false;
         }

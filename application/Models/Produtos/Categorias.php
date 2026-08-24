@@ -20,7 +20,7 @@ class Categorias extends Model
     public function getCategoriasID($id): Read
     {
         $this->read = new Read();
-        $this->read->FullRead("SELECT * FROM categorias WHERE id = :id", "id={$id} ORDER BY nome ASC");
+        $this->read->FullRead("SELECT * FROM categorias WHERE id = :id", "id={$id}");
         return $this->read;
     }
 

@@ -7,6 +7,7 @@ use Agencia\Close\Conn\Read;
 use Agencia\Close\Conn\Create;
 use Agencia\Close\Conn\Update;
 use Agencia\Close\Conn\Delete;
+use Agencia\Close\Helpers\QrCode\QrCodeGenerator;
 
 class EtiquetaInterna extends Model
 {
@@ -17,7 +18,7 @@ class EtiquetaInterna extends Model
             SELECT ei.*, 
                    u.nome as usuario_criacao_nome
             FROM etiquetas_internas ei
-            INNER JOIN usuarios u ON ei.usuario_criacao = u.id
+            LEFT JOIN usuarios u ON ei.usuario_criacao = u.id
             ORDER BY ei.created_at DESC
         ");
         return $this->read;
@@ -30,7 +31,7 @@ class EtiquetaInterna extends Model
             SELECT ei.*, 
                    u.nome as usuario_criacao_nome
             FROM etiquetas_internas ei
-            INNER JOIN usuarios u ON ei.usuario_criacao = u.id
+            LEFT JOIN usuarios u ON ei.usuario_criacao = u.id
             WHERE ei.id = :id
         ", "id={$id}");
         return $this->read;
@@ -43,7 +44,7 @@ class EtiquetaInterna extends Model
             SELECT ei.*, 
                    u.nome as usuario_criacao_nome
             FROM etiquetas_internas ei
-            INNER JOIN usuarios u ON ei.usuario_criacao = u.id
+            LEFT JOIN usuarios u ON ei.usuario_criacao = u.id
             WHERE ei.codigo = :codigo
         ", "codigo={$codigo}");
         return $this->read;
@@ -56,7 +57,7 @@ class EtiquetaInterna extends Model
             SELECT ei.*, 
                    u.nome as usuario_criacao_nome
             FROM etiquetas_internas ei
-            INNER JOIN usuarios u ON ei.usuario_criacao = u.id
+            LEFT JOIN usuarios u ON ei.usuario_criacao = u.id
             WHERE ei.tipo_etiqueta = :tipo
             ORDER BY ei.created_at DESC
         ", "tipo={$tipo}");
@@ -70,7 +71,7 @@ class EtiquetaInterna extends Model
             SELECT ei.*, 
                    u.nome as usuario_criacao_nome
             FROM etiquetas_internas ei
-            INNER JOIN usuarios u ON ei.usuario_criacao = u.id
+            LEFT JOIN usuarios u ON ei.usuario_criacao = u.id
             WHERE ei.referencia_id = :referencia_id AND ei.referencia_tipo = :referencia_tipo
             ORDER BY ei.created_at DESC
         ", "referencia_id={$referenciaId}&referencia_tipo={$referenciaTipo}");
@@ -84,7 +85,7 @@ class EtiquetaInterna extends Model
             SELECT ei.*, 
                    u.nome as usuario_criacao_nome
             FROM etiquetas_internas ei
-            INNER JOIN usuarios u ON ei.usuario_criacao = u.id
+            LEFT JOIN usuarios u ON ei.usuario_criacao = u.id
             WHERE ei.status = :status
             ORDER BY ei.created_at DESC
         ", "status={$status}");
@@ -158,6 +159,7 @@ class EtiquetaInterna extends Model
             'referencia_tipo' => 'armazenagem',
             'conteudo' => json_encode($conteudo),
             'codigo_barras' => $codigo,
+            'qr_code' => $codigo,
             'usuario_criacao' => $usuarioId,
             'status' => 'criada'
         ];
@@ -201,6 +203,7 @@ class EtiquetaInterna extends Model
             'referencia_tipo' => 'item_nf',
             'conteudo' => json_encode($conteudo),
             'codigo_barras' => $codigo,
+            'qr_code' => $codigo,
             'usuario_criacao' => $usuarioId,
             'status' => 'criada'
         ];
@@ -231,9 +234,25 @@ class EtiquetaInterna extends Model
 
     public function gerarQRCode(string $conteudo): string
     {
-        // Aqui você pode implementar a geração de QR Code
-        // Por enquanto, retornamos uma string simples
-        return base64_encode($conteudo);
+        if ($conteudo === '') {
+            return '';
+        }
+
+        try {
+            return QrCodeGenerator::toDataUri($conteudo);
+        } catch (\Throwable $e) {
+            return QrCodeGenerator::toDataUri(substr($conteudo, 0, 42));
+        }
+    }
+
+    public function payloadQrCode(array $etiqueta): string
+    {
+        $qr = trim((string)($etiqueta['qr_code'] ?? ''));
+        if ($qr !== '' && strpos($qr, 'data:image') !== 0 && strlen($qr) <= 62) {
+            return $qr;
+        }
+
+        return trim((string)($etiqueta['codigo'] ?? ''));
     }
 
     public function buscarEtiquetas(array $filtros = []): Read
@@ -243,7 +262,7 @@ class EtiquetaInterna extends Model
             SELECT ei.*, 
                    u.nome as usuario_criacao_nome
             FROM etiquetas_internas ei
-            INNER JOIN usuarios u ON ei.usuario_criacao = u.id
+            LEFT JOIN usuarios u ON ei.usuario_criacao = u.id
             WHERE 1=1
         ";
         $params = "";
@@ -359,8 +378,9 @@ class EtiquetaInterna extends Model
                 CASE 
                     WHEN ei.tipo_etiqueta = 'localizacao' THEN 'Localização'
                     WHEN ei.tipo_etiqueta = 'produto' THEN 'Produto'
-                    WHEN ei.tipo_etiqueta = 'pallet' THEN 'Pallet'
+                    WHEN ei.tipo_etiqueta = 'palete' THEN 'Palete'
                     WHEN ei.tipo_etiqueta = 'caixa' THEN 'Caixa'
+                    WHEN ei.tipo_etiqueta = 'armazenagem' THEN 'Armazenagem'
                     ELSE ei.tipo_etiqueta
                 END as tipo_etiqueta_descricao,
                 CASE 
@@ -370,22 +390,21 @@ class EtiquetaInterna extends Model
                     WHEN ei.status = 'inativa' THEN 'Inativa'
                     ELSE ei.status
                 END as status_descricao,
-                DATE_FORMAT(ei.data_criacao, '%d/%m/%Y %H:%i') as data_criacao_formatada,
-                DATE_FORMAT(ei.data_impressao, '%d/%m/%Y %H:%i') as data_impressao_formatada,
-                DATE_FORMAT(ei.data_aplicacao, '%d/%m/%Y %H:%i') as data_aplicacao_formatada
+                DATE_FORMAT(ei.created_at, '%d/%m/%Y %H:%i') as data_criacao_formatada,
+                DATE_FORMAT(ei.data_impressao, '%d/%m/%Y %H:%i') as data_impressao_formatada
             FROM etiquetas_internas ei
-            INNER JOIN usuarios u ON ei.usuario_criacao = u.id
+            LEFT JOIN usuarios u ON ei.usuario_criacao = u.id
             WHERE 1=1
         ";
         $params = "";
         
         if (!empty($filtros['data_inicio'])) {
-            $sql .= " AND ei.data_criacao >= :data_inicio";
+            $sql .= " AND ei.created_at >= :data_inicio";
             $params .= "data_inicio={$filtros['data_inicio']}&";
         }
         
         if (!empty($filtros['data_fim'])) {
-            $sql .= " AND ei.data_criacao <= :data_fim";
+            $sql .= " AND ei.created_at <= :data_fim";
             $params .= "data_fim={$filtros['data_fim']}&";
         }
         
@@ -409,13 +428,18 @@ class EtiquetaInterna extends Model
             $params .= "codigo=%{$filtros['codigo']}%&";
         }
         
-        $sql .= " ORDER BY ei.data_criacao DESC";
+        $sql .= " ORDER BY ei.created_at DESC";
         
         $this->read->FullRead($sql, rtrim($params, '&'));
-        $result = $this->read->getResult();
+        $result = $this->read->getResult() ?: [];
+
+        foreach ($result as &$item) {
+            $item['qr_code_image'] = $this->gerarQRCode($this->payloadQrCode($item));
+        }
+        unset($item);
         
         return [
-            'dados' => $result ?: [],
+            'dados' => $result,
             'total_registros' => count($result ?: []),
             'total_etiquetas' => count($result ?: []),
             'etiquetas_criadas' => count(array_filter($result ?: [], function($item) {

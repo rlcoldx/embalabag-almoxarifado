@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Conferência</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; color: #222; }
+        h1 { font-size: 20px; margin-bottom: 8px; }
+        p { margin: 4px 0 16px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+        th { background: #f5f5f5; }
+    </style>
+</head>
+<body onload="window.print()">
+    <h1>Relatório de Conferência</h1>
+    <p>
+        Período:
+        {{ filtros.data_inicio|default('—') }} até {{ filtros.data_fim|default('—') }}
+        {% if filtros.periodo %} | Últimos {{ filtros.periodo }} dias{% endif %}
+    </p>
+    <p>Total de registros: {{ dados.total_registros|default(0) }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>NFE</th>
+                <th>Fornecedor</th>
+                <th>Produto</th>
+                <th>Qtd. Prevista</th>
+                <th>Qtd. Conferida</th>
+                <th>Status</th>
+                <th>Qualidade</th>
+                <th>Data</th>
+                <th>Usuário</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in dados.dados|default([]) %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.numero_nfe|default('-') }}</td>
+                <td>{{ item.fornecedor_nome|default('-') }}</td>
+                <td>{{ item.produto_nome|default('-') }}</td>
+                <td>{{ item.quantidade_prevista|default(0) }}</td>
+                <td>{{ item.quantidade_conferida|default(0) }}</td>
+                <td>{{ item.status_conferencia|default('-') }}</td>
+                <td>{{ item.status_qualidade|default('-') }}</td>
+                <td>{{ item.data_conferencia|default('-') }}</td>
+                <td>{{ item.usuario_nome|default('-') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="10">Nenhum registro encontrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

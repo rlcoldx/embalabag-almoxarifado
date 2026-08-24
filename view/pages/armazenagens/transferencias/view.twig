@@ -1,0 +1,124 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Transferência #{{ transferencia.id }}{% endblock %}
+{% block content %}
+
+{% set motivoLabels = {
+    reorganizacao: 'Reorganização',
+    otimizacao_espaco: 'Otimização de espaço',
+    manutencao: 'Manutenção',
+    outro: 'Outro'
+} %}
+{% set statusClass = transferencia.status == 'concluida' ? 'success' : (transferencia.status == 'em_andamento' ? 'info' : (transferencia.status == 'cancelada' ? 'danger' : 'warning')) %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Transferência #{{ transferencia.id }}</p>
+        <span class="badge bg-{{ statusClass }}-transparent">
+            {{ transferencia.status|replace({'_': ' '})|capitalize }}
+        </span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        {% if transferencia.status == 'pendente' %}
+        <button type="button" class="btn btn-success btn-wave me-2" id="btnExecutarTransferencia" data-id="{{ transferencia.id }}">
+            <i class="fas fa-play me-2"></i>Executar
+        </button>
+        <button type="button" class="btn btn-outline-danger btn-wave me-2" id="btnCancelarTransferencia" data-id="{{ transferencia.id }}">
+            <i class="fas fa-times me-2"></i>Cancelar
+        </button>
+        {% endif %}
+        <a href="{{ DOMAIN }}/transferencias" class="btn btn-outline-secondary btn-wave">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card custom-card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-info-circle me-2"></i>Informações da Transferência</div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Item</label>
+                        <p class="mb-0 fs-16">{{ transferencia.item_descricao|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Código</label>
+                        <p class="mb-0 fs-16">{{ transferencia.item_codigo|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Origem</label>
+                        <p class="mb-0 fs-16">
+                            {% if transferencia.origem_codigo %}
+                                {{ transferencia.origem_codigo }} — {{ transferencia.origem_nome|default('') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Destino</label>
+                        <p class="mb-0 fs-16">
+                            {% if transferencia.destino_codigo %}
+                                {{ transferencia.destino_codigo }} — {{ transferencia.destino_nome|default('') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Motivo</label>
+                        <p class="mb-0 fs-16">{{ motivoLabels[transferencia.motivo]|default(transferencia.motivo|replace({'_': ' '})|capitalize) }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Solicitante</label>
+                        <p class="mb-0 fs-16">{{ transferencia.solicitante_nome|default('-') }}</p>
+                    </div>
+                    <div class="col-md-12 mb-0">
+                        <label class="form-label fw-semibold">Observações</label>
+                        <p class="mb-0 fs-16">{{ transferencia.observacoes|default('Nenhuma observação') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card custom-card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-boxes me-2"></i>Quantidade</div>
+            </div>
+            <div class="card-body">
+                <p class="mb-0 fs-20 fw-semibold text-primary">{{ transferencia.quantidade|default(0) }}</p>
+            </div>
+        </div>
+
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-clock me-2"></i>Datas</div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Solicitada em</label>
+                    <p class="mb-0 fs-16">{{ transferencia.data_solicitacao ? transferencia.data_solicitacao|date('d/m/Y H:i') : '-' }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Executada em</label>
+                    <p class="mb-0 fs-16">{{ transferencia.data_execucao ? transferencia.data_execucao|date('d/m/Y H:i') : 'Ainda não executada' }}</p>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-semibold">Executor</label>
+                    <p class="mb-0 fs-16">{{ transferencia.executor_nome|default('-') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/armazenagens/transferencias/view.js?v={{ VERSION }}"></script>
+{% endblock %}

@@ -7,22 +7,44 @@
 $router->namespace("Agencia\Close\Controllers\Recebimento");
 
 // Rotas específicas com prioridade máxima (devem vir ANTES das rotas com parâmetros)
+$router->get("/recebimento/notas-fiscais", "NotasFiscaisController:index");
 $router->get("/recebimento/notas-fiscais/create", "NotasFiscaisController:create");
 $router->post("/recebimento/notas-fiscais/store", "NotasFiscaisController:store");
+$router->get("/recebimento/movimentacoes", "MovimentacoesController:index");
 $router->get("/recebimento/movimentacoes/create", "MovimentacoesController:create");
 $router->post("/recebimento/movimentacoes/store", "MovimentacoesController:store");
 $router->get("/recebimento/movimentacoes/put-away", "MovimentacoesController:putAway");
 $router->post("/recebimento/movimentacoes/put-away/store", "MovimentacoesController:realizarPutAway");
 $router->get("/recebimento/movimentacoes/transferencia", "MovimentacoesController:transferencia");
 $router->post("/recebimento/movimentacoes/transferencia/store", "MovimentacoesController:realizarTransferencia");
+$router->get("/recebimento/etiquetas", "EtiquetasController:index");
 $router->get("/recebimento/etiquetas/create", "EtiquetasController:create");
 $router->post("/recebimento/etiquetas/store", "EtiquetasController:store");
 $router->get("/recebimento/dashboard", "DashboardController:index");
+$router->get("/recebimento/dashboard/estatisticas", "DashboardController:estatisticas");
+$router->get("/recebimento/dashboard/grafico-nf", "DashboardController:graficoNF");
+$router->get("/recebimento/dashboard/grafico-conferencias", "DashboardController:graficoConferencias");
+$router->get("/recebimento/dashboard/grafico-movimentacoes", "DashboardController:graficoMovimentacoes");
+$router->get("/recebimento/dashboard/nf-recentes", "DashboardController:nfRecentes");
+$router->get("/recebimento/dashboard/conferencias-recentes", "DashboardController:conferenciasRecentes");
+$router->get("/recebimento/dashboard/movimentacoes-recentes", "DashboardController:movimentacoesRecentes");
 $router->get("/recebimento/relatorios", "RelatoriosController:index");
 $router->get("/recebimento/relatorios/recebimento", "RelatoriosController:recebimento");
 $router->get("/recebimento/relatorios/conferencia", "RelatoriosController:conferencia");
 $router->get("/recebimento/relatorios/movimentacao", "RelatoriosController:movimentacao");
 $router->get("/recebimento/relatorios/etiquetas", "RelatoriosController:etiquetas");
+$router->get("/recebimento/relatorios/transferencia", "RelatoriosController:transferencia");
+$router->post("/recebimento/relatorios/transferencia", "RelatoriosController:transferencia");
+$router->get("/recebimento/relatorios/exportar/recebimento", "RelatoriosController:exportarRecebimento");
+$router->get("/recebimento/relatorios/exportar/conferencia", "RelatoriosController:exportarConferencia");
+$router->get("/recebimento/relatorios/exportar/movimentacao", "RelatoriosController:exportarMovimentacao");
+$router->get("/recebimento/relatorios/exportar/etiquetas", "RelatoriosController:exportarEtiquetas");
+$router->get("/recebimento/relatorios/exportar/transferencia", "RelatoriosController:exportarTransferencia");
+$router->get("/recebimento/relatorios/imprimir/recebimento", "RelatoriosController:imprimirRecebimento");
+$router->get("/recebimento/relatorios/imprimir/conferencia", "RelatoriosController:imprimirConferencia");
+$router->get("/recebimento/relatorios/imprimir/movimentacao", "RelatoriosController:imprimirMovimentacao");
+$router->get("/recebimento/relatorios/imprimir/etiquetas", "RelatoriosController:imprimirEtiquetas");
+$router->get("/recebimento/relatorios/imprimir/transferencia", "RelatoriosController:imprimirTransferencia");
 
 // Rotas com parâmetros por último (devem vir DEPOIS das rotas específicas)
 $router->get("/recebimento/notas-fiscais/show/{id}", "NotasFiscaisController:show");
@@ -47,6 +69,7 @@ $router->post("/recebimento/etiquetas/update/{id}", "EtiquetasController:update"
 $router->get("/recebimento/etiquetas/delete/{id}", "EtiquetasController:delete");
 $router->get("/recebimento/etiquetas/imprimir/{id}", "EtiquetasController:imprimir");
 $router->get("/recebimento/etiquetas/aplicar/{id}", "EtiquetasController:aplicar");
+$router->post("/recebimento/etiquetas/gerar", "EtiquetasController:gerarEtiquetaProduto");
 $router->get("/recebimento/etiquetas/gerar/localizacao/{armazenagem_id}", "EtiquetasController:gerarEtiquetaLocalizacao");
 $router->get("/recebimento/etiquetas/gerar/produto/{item_nf_id}", "EtiquetasController:gerarEtiquetaProduto");
 $router->get("/recebimento/etiquetas/lote/armazenagens", "EtiquetasController:gerarLoteArmazenagens");

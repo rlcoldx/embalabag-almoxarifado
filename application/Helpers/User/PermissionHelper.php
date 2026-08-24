@@ -6,6 +6,57 @@ use Agencia\Close\Models\User\User;
 
 class PermissionHelper
 {
+    private static function companyAllowedModules(): array
+    {
+        return ['produtos', 'estoque', 'relatorios', 'cia_aerea'];
+    }
+
+    private static function companyCan($modulo, $acao): bool
+    {
+        if ($modulo === 'cia_aerea') {
+            return in_array($acao, ['visualizar', 'receber'], true);
+        }
+        return $acao === 'visualizar' && in_array($modulo, ['produtos', 'estoque', 'relatorios'], true);
+    }
+
+    /**
+     * Aceita nomes no singular/plural e ações equivalentes usadas no seed.
+     */
+    private static function permissionCandidates(string $modulo, string $acao): array
+    {
+        $modulos = [$modulo];
+        $moduloAliases = [
+            'movimentacao' => 'movimentacoes',
+            'movimentacoes' => 'movimentacao',
+            'etiqueta' => 'etiquetas',
+            'etiquetas' => 'etiqueta',
+            'relatorio' => 'relatorios',
+            'relatorios' => 'relatorio',
+            'transferencias' => 'movimentacoes',
+        ];
+        if (isset($moduloAliases[$modulo])) {
+            $modulos[] = $moduloAliases[$modulo];
+        }
+
+        $acoes = [$acao];
+        $acaoAliases = [
+            'criar' => ['realizar'],
+            'realizar' => ['criar'],
+        ];
+        if (isset($acaoAliases[$acao])) {
+            $acoes = array_merge($acoes, $acaoAliases[$acao]);
+        }
+
+        $pairs = [];
+        foreach ($modulos as $mod) {
+            foreach ($acoes as $act) {
+                $pairs[] = [$mod, $act];
+            }
+        }
+
+        return $pairs;
+    }
+
     /**
      * Verifica se o usuário tem permissão para uma ação específica
      */
@@ -22,16 +73,26 @@ class PermissionHelper
         if ($tipo === '1') {
             return true;
         }
-        
-        // Companhias têm acesso limitado (será implementado depois)
+
+        // Companhias: produtos/estoque/relatórios (ver) e portal cia aérea
         if ($tipo === '3') {
-            return false; // Por enquanto, sem acesso
+            foreach (self::permissionCandidates($modulo, $acao) as [$mod, $act]) {
+                if (self::companyCan($mod, $act)) {
+                    return true;
+                }
+            }
+            return false;
         }
         
         // Funcionários: verificar permissões através dos cargos
         if ($tipo === '2') {
             $user = new User();
-            return $user->usuarioTemPermissao($usuarioId, $modulo, $acao);
+            foreach (self::permissionCandidates($modulo, $acao) as [$mod, $act]) {
+                if ($user->usuarioTemPermissao($usuarioId, $mod, $act)) {
+                    return true;
+                }
+            }
+            return false;
         }
         
         return false;
@@ -53,9 +114,18 @@ class PermissionHelper
             return true;
         }
         
-        // Companhias têm acesso limitado
+        $modulos = array_unique(array_map(static function ($pair) {
+            return $pair[0];
+        }, self::permissionCandidates($modulo, 'visualizar')));
+
+        // Companhias: acesso de visualização aos módulos liberados
         if ($tipo === '3') {
-            return false; // Por enquanto, sem acesso
+            foreach ($modulos as $mod) {
+                if (in_array($mod, self::companyAllowedModules(), true)) {
+                    return true;
+                }
+            }
+            return false;
         }
         
         // Funcionários: verificar permissões através dos cargos
@@ -65,7 +135,7 @@ class PermissionHelper
             
             if ($permissoes->getResult()) {
                 foreach ($permissoes->getResult() as $permissao) {
-                    if ($permissao['modulo'] === $modulo) {
+                    if (in_array($permissao['modulo'], $modulos, true)) {
                         return true;
                     }
                 }
@@ -94,6 +164,15 @@ class PermissionHelper
             return $todasPermissoes->getResult() ?? [];
         }
         
+        // Companhias: apenas visualização dos módulos liberados
+        if ($tipo === '3') {
+            $permissao = new \Agencia\Close\Models\User\Permissao();
+            $todas = $permissao->getAllPermissoes()->getResult() ?? [];
+            return array_values(array_filter($todas, function ($item) {
+                return self::companyCan($item['modulo'] ?? '', $item['acao'] ?? '');
+            }));
+        }
+
         // Funcionários: buscar permissões dos cargos
         if ($tipo === '2') {
             $user = new User();

@@ -1,0 +1,140 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Novo Pedido de Compra{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Novo Pedido de Compra</p>
+        <span class="fs-semibold">Cadastre um pedido com os produtos solicitados.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/pedidos" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-arrow-left me-2 align-middle d-inline-block"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fas fa-file-invoice me-2"></i>Dados do Pedido
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="formPedido">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label required">Fornecedor / Solicitante</label>
+                            <input type="text" class="form-control" name="nome_cliente" required placeholder="Nome do fornecedor ou solicitante">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Base Solicitante</label>
+                            <input type="text" class="form-control" name="base_solicitante" value="Base Principal">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Base Destino</label>
+                            <input type="text" class="form-control" name="base_destino" placeholder="Opcional">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Previsão de Entrega</label>
+                            <input type="date" class="form-control" name="previsao_entrega">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Prioridade</label>
+                            <select class="form-select" name="prioridade">
+                                <option value="Normal">Normal</option>
+                                <option value="Urgente">Urgente</option>
+                            </select>
+                        </div>
+                        {% include 'components/partials/select-responsavel.twig' with {
+                            field_name: 'id_user',
+                            field_label: 'Responsável',
+                            selected_id: session[BASE ~ 'user_id'],
+                            required: true,
+                            col_class: 'col-md-3'
+                        } %}
+                        <div class="col-md-12">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="2" placeholder="Observações do pedido"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="fw-semibold text-primary mb-3">
+                            <i class="fas fa-box me-2"></i>Itens do Pedido
+                        </h6>
+                        <div class="row g-2 align-items-end mb-3">
+                            <div class="col-md-5">
+                                <label class="form-label">Buscar produto</label>
+                                <input type="text" class="form-control" id="buscaProduto" placeholder="SKU ou nome do produto" autocomplete="off">
+                                <div id="resultadosProduto" class="list-group mt-1 position-absolute z-3 w-100" style="max-height: 200px; overflow-y: auto;"></div>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Quantidade</label>
+                                <input type="number" class="form-control" id="itemQty" min="1" value="1">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Valor Unit.</label>
+                                <input type="number" class="form-control" id="itemValor" min="0" step="0.01" value="0">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-outline-primary w-100" id="btnAdicionarItem" disabled>
+                                    <i class="fas fa-plus me-1"></i>Adicionar Item
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="tabelaItens">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>SKU</th>
+                                        <th class="text-center">Qtd</th>
+                                        <th class="text-end">Valor Unit.</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itensBody">
+                                    <tr id="linhaVazia">
+                                        <td colspan="6" class="text-center py-4">Nenhum item adicionado</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="4" class="text-end">Total do Pedido:</th>
+                                        <th class="text-end" id="totalPedido">R$ 0,00</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="itens" id="itensJson" value="[]">
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ DOMAIN }}/pedidos" class="btn btn-light">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Salvar Pedido
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/pedidos/form.js?v={{ VERSION }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initPedidoForm({ mode: 'create', storeUrl: buildUrl('/pedidos/store') });
+    });
+</script>
+{% endblock %}

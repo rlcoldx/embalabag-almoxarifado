@@ -6,6 +6,7 @@ use Agencia\Close\Controllers\Controller;
 use Agencia\Close\Conn\Create;
 use Agencia\Close\Conn\Read;
 use Agencia\Close\Conn\Update;
+use Agencia\Close\Helpers\User\PermissionHelper;
 
 /**
  * Controller para API de Movimentações de Estoque
@@ -23,6 +24,16 @@ class MovimentacoesApiController extends Controller
      */
     public function criarMovimentacao($params)
     {
+        $this->checkSession();
+        $permissionHelper = new PermissionHelper();
+        if (
+            !$permissionHelper->userHasPermission('movimentacoes', 'criar')
+            && !$permissionHelper->userHasPermission('estoque', 'movimentar')
+        ) {
+            $this->sendErrorResponse('Sem permissão para criar movimentações', 403);
+            return;
+        }
+
         try {
             // Verificar se é POST
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -40,7 +51,7 @@ class MovimentacoesApiController extends Controller
                 'documento_referencia' => $_POST['documento_referencia'] ?? '',
                 'observacoes' => $_POST['observacoes'] ?? '',
                 'data_movimentacao' => date('Y-m-d H:i:s'),
-                'usuario_id' => $_SESSION['bagalmo_user_id'] ?? 1
+                'usuario_id' => (int)($_SESSION[BASE . 'user_id'] ?? 0)
              ];
             
             // Log simples para debug
@@ -49,7 +60,7 @@ class MovimentacoesApiController extends Controller
             error_log("Dados processados: " . print_r($dados, true));
 
                          // Validar dados básicos
-             if (empty($dados['tipo']) || empty($dados['id_produto']) || empty($dados['variacao_id']) || $dados['quantidade'] <= 0) {
+             if (empty($dados['tipo']) || empty($dados['id_produto']) || empty($dados['variacao_id']) || $dados['quantidade'] <= 0 || empty($dados['usuario_id'])) {
                  $this->sendErrorResponse('Dados obrigatórios não fornecidos', 400);
                  return;
              }
@@ -98,10 +109,10 @@ class MovimentacoesApiController extends Controller
 
                          // Verificar se já existe estoque para este produto/variação nesta armazenagem
              $read = new Read();
-             $query = "WHERE armazenagem_id = {$armazenagemId} AND id_produto = '{$dados['id_produto']}' AND variacao_id = '{$dados['variacao_id']}'";
-            error_log("Query de busca: {$query}");
-            
-            $read->ExeRead("estoque", $query);
+             $read->FullRead(
+                 "SELECT * FROM estoque WHERE armazenagem_id = :armazenagem_id AND id_produto = :id_produto AND variacao_id = :variacao_id",
+                 "armazenagem_id={$armazenagemId}&id_produto={$dados['id_produto']}&variacao_id={$dados['variacao_id']}"
+             );
             $resultado = $read->getResult();
             error_log("Resultado da busca: " . print_r($resultado, true));
             
@@ -172,7 +183,10 @@ class MovimentacoesApiController extends Controller
 
                          // Verificar estoque disponível
              $read = new Read();
-             $read->ExeRead("estoque", "WHERE armazenagem_id = {$armazenagemId} AND id_produto = '{$dados['id_produto']}' AND variacao_id = '{$dados['variacao_id']}'");
+             $read->FullRead(
+                 "SELECT * FROM estoque WHERE armazenagem_id = :armazenagem_id AND id_produto = :id_produto AND variacao_id = :variacao_id",
+                 "armazenagem_id={$armazenagemId}&id_produto={$dados['id_produto']}&variacao_id={$dados['variacao_id']}"
+             );
             
             if (!$read->getResult()) {
                 $this->sendErrorResponse('Produto não encontrado no estoque desta armazenagem', 404);
@@ -236,7 +250,10 @@ class MovimentacoesApiController extends Controller
 
                          // Verificar estoque na armazenagem de origem
              $read = new Read();
-             $read->ExeRead("estoque", "WHERE armazenagem_id = {$armazenagemOrigemId} AND id_produto = '{$dados['id_produto']}' AND variacao_id = '{$dados['variacao_id']}'");
+             $read->FullRead(
+                 "SELECT * FROM estoque WHERE armazenagem_id = :armazenagem_id AND id_produto = :id_produto AND variacao_id = :variacao_id",
+                 "armazenagem_id={$armazenagemOrigemId}&id_produto={$dados['id_produto']}&variacao_id={$dados['variacao_id']}"
+             );
             
             if (!$read->getResult()) {
                 $this->sendErrorResponse('Produto não encontrado no estoque da armazenagem de origem', 404);
@@ -263,7 +280,10 @@ class MovimentacoesApiController extends Controller
              "armazenagem_id={$armazenagemOrigemId}&id_produto={$dados['id_produto']}&variacao_id={$dados['variacao_id']}");
 
              // Adicionar estoque na armazenagem de destino
-             $read->ExeRead("estoque", "WHERE armazenagem_id = {$armazenagemDestinoId} AND id_produto = '{$dados['id_produto']}' AND variacao_id = '{$dados['variacao_id']}'");
+             $read->FullRead(
+                 "SELECT * FROM estoque WHERE armazenagem_id = :armazenagem_id AND id_produto = :id_produto AND variacao_id = :variacao_id",
+                 "armazenagem_id={$armazenagemDestinoId}&id_produto={$dados['id_produto']}&variacao_id={$dados['variacao_id']}"
+             );
             
             if ($read->getResult()) {
                 // Atualizar estoque existente
@@ -343,16 +363,28 @@ class MovimentacoesApiController extends Controller
      */
     public function getMovimentacoesArmazenagem($params)
     {
+        $this->checkSession();
+        $permissionHelper = new PermissionHelper();
+        if (!$permissionHelper->userHasPermission('movimentacoes', 'visualizar')) {
+            $this->sendErrorResponse('Sem permissão para visualizar movimentações', 403);
+            return;
+        }
+
         try {
-            $armazenagemId = $params['id'] ?? '';
+            $armazenagemId = (int)($params['id'] ?? 0);
             
-            if (empty($armazenagemId)) {
+            if ($armazenagemId <= 0) {
                 $this->sendErrorResponse('ID da armazenagem é obrigatório', 400);
                 return;
             }
 
             $read = new Read();
-            $read->ExeRead("movimentacoes_historico", "WHERE armazenagem_origem_id = {$armazenagemId} OR armazenagem_destino_id = {$armazenagemId} ORDER BY data_movimentacao DESC");
+            $read->FullRead(
+                "SELECT * FROM movimentacoes_historico
+                 WHERE armazenagem_origem_id = :id OR armazenagem_destino_id = :id
+                 ORDER BY data_movimentacao DESC",
+                "id={$armazenagemId}"
+            );
 
             $movimentacoes = $read->getResult() ?? [];
 

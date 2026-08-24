@@ -6,6 +6,7 @@ use Agencia\Close\Controllers\Controller;
 use Agencia\Close\Models\Conferencia\ConferenciaRecebimento;
 use Agencia\Close\Models\Recebimento\NotaFiscalEletronica;
 use Agencia\Close\Helpers\User\PermissionHelper;
+use Agencia\Close\Helpers\User\ResponsavelHelper;
 
 class ConferenciaRecebimentoController extends Controller
 {
@@ -30,7 +31,7 @@ class ConferenciaRecebimentoController extends Controller
 
             $this->render('pages/conferencia/index.twig', [
                 'conferencias' => $conferencias->getResult() ?? [],
-                'estatisticas' => [], // Simplificar para não depender de estatísticas
+                'estatisticas' => $conferencia->getEstatisticasConferencia(),
                 'menu' => 'conferencia'
             ]);
         } catch (\PDOException $e) {
@@ -103,7 +104,7 @@ class ConferenciaRecebimentoController extends Controller
         }
 
         $nfe = new NotaFiscalEletronica();
-        $nfeData = $nfe->getByNumero($nfeId);
+        $nfeData = $nfe->getById((int) $nfeId);
         
         if (!$nfeData->getResult()) {
             echo 'NFE não encontrada.';
@@ -111,12 +112,13 @@ class ConferenciaRecebimentoController extends Controller
         }
 
         $nfeInfo = $nfeData->getResult()[0];
-        $itens = $nfe->getItens($nfeId);
+        $itens = $nfe->getItensParaConferencia((int) $nfeId);
 
         $this->render('pages/conferencia/conferir.twig', [
             'nfe' => $nfeInfo,
             'itens' => $itens->getResult() ?? [],
-            'menu' => 'conferencia_new'
+            'menu' => 'conferencia_new',
+            'usuarios_responsaveis' => ResponsavelHelper::listar()
         ]);
     }
 
@@ -165,6 +167,7 @@ class ConferenciaRecebimentoController extends Controller
     public function store($params)
     {
         $this->setParams($params);
+        $this->checkSession();
 
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('conferencia', 'criar')) {
@@ -181,14 +184,20 @@ class ConferenciaRecebimentoController extends Controller
         }
 
         $conferencia = new ConferenciaRecebimento();
-        $usuarioId = $_SESSION[BASE.'user_id'] ?? 1;
+        $usuarioId = ResponsavelHelper::idFromPost('usuario_conferente_id', (int) ($_SESSION[BASE.'user_id'] ?? 1));
+        $nfeModel = new NotaFiscalEletronica();
 
         try {
             foreach ($itens as $item) {
+                $produtoId = (int) ($item['produto_id'] ?? 0);
+                $variacaoId = (int) ($item['variacao_id'] ?? 0);
+                $itemNfeId = !empty($item['item_nfe_id']) ? (int) $item['item_nfe_id'] : null;
+
                 $dadosConferencia = [
                     'nfe_id' => $nfeId,
-                    'produto_id' => $item['produto_id'],
-                    'variacao_id' => $item['variacao_id'],
+                    'item_nfe_id' => $itemNfeId,
+                    'produto_id' => $produtoId,
+                    'variacao_id' => $variacaoId,
                     'quantidade_prevista' => $item['quantidade_prevista'],
                     'quantidade_recebida' => $item['quantidade_recebida'],
                     'quantidade_conferida' => $item['quantidade_conferida'],
@@ -201,17 +210,28 @@ class ConferenciaRecebimentoController extends Controller
                     'data_conferencia' => date('Y-m-d H:i:s')
                 ];
 
-                $result = $conferencia->criarConferencia($dadosConferencia);
-                
-                if ($result->getResult()) {
-                    // Registrar no histórico
+                $existente = $conferencia->getConferenciaExistente((int) $nfeId, $produtoId, $variacaoId, $itemNfeId)->getResult();
+                if ($existente) {
+                    $conferenciaId = (int) $existente[0]['id'];
+                    $conferencia->atualizarConferencia($conferenciaId, $dadosConferencia);
+                    $acaoHistorico = 'atualizacao';
+                } else {
+                    $conferenciaId = (int) $conferencia->criarConferencia($dadosConferencia)->getResult();
+                    $acaoHistorico = 'criacao';
+                }
+
+                if ($conferenciaId > 0) {
                     $conferencia->registrarHistorico([
-                        'conferencia_id' => $result->getResult(),
-                        'acao' => 'criacao',
+                        'conferencia_id' => $conferenciaId,
+                        'acao' => $acaoHistorico,
                         'dados_novos' => json_encode($dadosConferencia),
                         'usuario_id' => $usuarioId
                     ]);
                 }
+            }
+
+            if ($nfeModel->todosItensConferidos((int) $nfeId)) {
+                $nfeModel->updateStatus((int) $nfeId, 'conferida');
             }
 
             // Redirecionar para lista de conferências
@@ -229,6 +249,7 @@ class ConferenciaRecebimentoController extends Controller
     public function edit(array $params)
     {
         $this->setParams($params);
+        $this->checkSession();
 
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('conferencia', 'editar')) {
@@ -264,6 +285,7 @@ class ConferenciaRecebimentoController extends Controller
     public function update(array $params)
     {
         $this->setParams($params);
+        $this->checkSession();
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('conferencia', 'editar')) {
             echo 'Sem permissão para editar conferências.';
@@ -298,7 +320,7 @@ class ConferenciaRecebimentoController extends Controller
                 'usuario_id' => $_SESSION[BASE.'user_id'] ?? 1
             ]);
 
-            header("Location: " . DOMAIN . "/conferencia/{$conferenciaId}");
+            header("Location: " . DOMAIN . "/conferencia/show/" . $conferenciaId);
             exit;
         } else {
             echo 'Erro ao atualizar conferência.';
@@ -310,31 +332,28 @@ class ConferenciaRecebimentoController extends Controller
      */
     public function destroy(array $params)
     {
+        $this->checkSession();
+        $this->setParams($params);
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('conferencia', 'excluir')) {
-            echo 'Sem permissão para excluir conferências.';
+            $this->responseJson(['success' => false, 'message' => 'Sem permissão para excluir conferências.']);
             return;
         }
 
-        $conferenciaId = $params['id'] ?? null;
-        if (!$conferenciaId) {
-            echo 'ID da conferência não informado.';
+        $conferenciaId = (int) ($params['id'] ?? 0);
+        if ($conferenciaId <= 0) {
+            $this->responseJson(['success' => false, 'message' => 'ID da conferência não informado.']);
             return;
         }
 
         $conferencia = new ConferenciaRecebimento();
-        
-        // Registrar exclusão no histórico antes de excluir
-        $conferencia->registrarHistorico([
-            'conferencia_id' => $conferenciaId,
-            'acao' => 'exclusao',
-            'dados_anteriores' => json_encode(['conferencia_id' => $conferenciaId]),
-            'usuario_id' => $_SESSION[BASE.'user_id'] ?? 1
-        ]);
+        if ($conferencia->excluirConferencia($conferenciaId)) {
+            $this->responseJson(['success' => true, 'message' => 'Conferência excluída com sucesso.']);
+            return;
+        }
 
-        // Redirecionar para lista
-        header("Location: " . DOMAIN . "/conferencia");
-        exit;
+        $this->responseJson(['success' => false, 'message' => 'Erro ao excluir conferência.']);
     }
 
     /**
@@ -342,6 +361,7 @@ class ConferenciaRecebimentoController extends Controller
      */
     public function relatorio($params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('conferencia', 'visualizar')) {

@@ -9,7 +9,7 @@
 <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
     <div>
         <p class="fw-semibold fs-18 mb-0">Editar Nota Fiscal</p>
-        <span class="fs-semibold text-muted">Edite as informações da nota fiscal.</span>
+        <span class="fs-semibold">Edite as informações da nota fiscal.</span>
     </div>
     <div class="btn-list mt-md-0 mt-2">
         <a href="{{ DOMAIN }}/recebimento/notas-fiscais" class="btn btn-outline-primary btn-wave">
@@ -29,39 +29,37 @@
                 </div>
             </div>
             <div class="card-body">
-                <form id="formNotaFiscal" method="POST">
-                    <!-- Dados Básicos -->
+                <form id="formNotaFiscal" method="POST" action="{{ DOMAIN }}/recebimento/notas-fiscais/update/{{ nota_fiscal.id }}">
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Número da NF-e <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="numero" required>
+                            <input type="text" class="form-control" name="numero" value="{{ nota_fiscal.numero }}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Série</label>
-                            <input type="text" class="form-control" name="serie">
+                            <input type="text" class="form-control" name="serie" value="{{ nota_fiscal.serie }}">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Data de Emissão <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" name="data_emissao" required>
+                            <input type="date" class="form-control" name="data_emissao" value="{{ nota_fiscal.data_emissao|date('Y-m-d') }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Data de Entrada</label>
-                            <input type="date" class="form-control" name="data_entrada">
+                            <label class="form-label">Valor Total</label>
+                            <input type="number" class="form-control" name="valor_total" step="0.01" min="0" value="{{ nota_fiscal.valor_total }}">
                         </div>
                     </div>
 
-                    <!-- Dados do Fornecedor -->
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">CNPJ do Fornecedor <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="cnpj_fornecedor" required>
+                            <label class="form-label">CNPJ do Fornecedor</label>
+                            <input type="text" class="form-control" name="cnpj_fornecedor" value="{{ nota_fiscal.cnpj_fornecedor }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Nome do Fornecedor <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="fornecedor" required>
+                            <input type="text" class="form-control" name="fornecedor" value="{{ nota_fiscal.fornecedor }}" required>
                         </div>
                     </div>
 
@@ -70,42 +68,43 @@
                             <label class="form-label">Pedido Relacionado</label>
                             <select class="form-select" name="pedido_id">
                                 <option value="">Selecione um pedido</option>
-                                <!-- Opções carregadas via AJAX -->
+                                {% for pedido in pedidos %}
+                                <option value="{{ pedido.id }}" {{ nota_fiscal.pedido_id == pedido.id ? 'selected' : '' }}>{{ pedido.codigo|default(pedido.id) }} — {{ pedido.nome_cliente|default('') }}</option>
+                                {% endfor %}
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Valor Total</label>
-                            <input type="number" class="form-control" name="valor_total" step="0.01" min="0">
-                        </div>
-                    </div>
-
-                    <!-- Chave de Acesso -->
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label class="form-label">Chave de Acesso</label>
-                            <input type="text" class="form-control" name="chave_acesso" placeholder="Chave de acesso da NF-e">
-                        </div>
-                    </div>
-
-                    <!-- Observações -->
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label class="form-label">Observações</label>
-                            <textarea class="form-control" name="observacoes" rows="3" placeholder="Observações adicionais sobre a nota fiscal"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Status -->
-                    <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Status</label>
                             <select class="form-select" name="status">
-                                <option value="pendente">Pendente</option>
-                                <option value="recebida">Recebida</option>
-                                <option value="conferida">Conferida</option>
-                                <option value="finalizada">Finalizada</option>
+                                <option value="pendente" {{ nota_fiscal.status == 'pendente' ? 'selected' : '' }}>Pendente</option>
+                                <option value="recebida" {{ nota_fiscal.status == 'recebida' ? 'selected' : '' }}>Recebida</option>
+                                <option value="conferida" {{ nota_fiscal.status == 'conferida' ? 'selected' : '' }}>Conferida</option>
+                                <option value="finalizada" {{ nota_fiscal.status == 'finalizada' ? 'selected' : '' }}>Finalizada</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Chave de Acesso</label>
+                            <input type="text" class="form-control" name="chave_acesso" value="{{ nota_fiscal.chave_acesso }}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="3">{{ nota_fiscal.observacoes }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        {% include 'components/partials/select-responsavel.twig' with {
+                            field_name: 'usuario_recebimento',
+                            field_label: 'Responsável pelo recebimento',
+                            selected_id: nota_fiscal.usuario_recebimento,
+                            required: true
+                        } %}
                     </div>
 
                     <!-- Botões -->
@@ -125,8 +124,4 @@
     </div>
 </div>
 <!-- Fim::row -->
-{% endblock %}
-
-{% block scripts %}
-<script src="{{ DOMAIN }}/view/assets/js/recebimento/notas-fiscais/edit.js"></script>
 {% endblock %} 

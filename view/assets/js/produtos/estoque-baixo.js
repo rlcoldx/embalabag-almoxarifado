@@ -35,14 +35,14 @@ function abrirModalCompra(produtoId) {
                         </span>
                     </div>
                     <h5 class="mb-1">${produto.nome}</h5>
-                    <p class="text-muted mb-1">Código: ${produto.codigo}</p>
+                    <p class="mb-1">Código: ${produto.codigo}</p>
                     <div class="d-flex justify-content-center gap-3 mb-2">
                         <div>
-                            <span class="text-muted d-block fs-12">Estoque Atual</span>
+                            <span class="d-block fs-12">Estoque Atual</span>
                             <span class="badge bg-danger-transparent">${produto.estoque_atual}</span>
                         </div>
                         <div>
-                            <span class="text-muted d-block fs-12">Estoque Mínimo</span>
+                            <span class="d-block fs-12">Estoque Mínimo</span>
                             <span class="badge bg-info-transparent">${produto.estoque_minimo}</span>
                         </div>
                     </div>

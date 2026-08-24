@@ -1,0 +1,45 @@
+{% include 'components/partials/menus/_menu_state.twig' %}
+{% include 'components/partials/menus/_cia_aerea.twig' %}
+
+{% if menu_permissions.produtos %}
+<li class="slide__category"><span class="category-name">Produtos</span></li>
+<li class="slide has-sub {{ produtos_open ? 'active open' : '' }}">
+    <a href="javascript:void(0);" class="side-menu__item">
+        <i class="fa-light fa-box side-menu__icon"></i>
+        <span class="side-menu__label">Produtos</span>
+        <i class="fa-light fa-chevron-right side-menu__angle"></i>
+    </a>
+    <ul class="slide-menu">
+        <li class="slide {{ menu and menu == 'dashboard_produtos' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/dashboard/produtos" class="side-menu__item">
+                <i class="fa-light fa-chart-line side-menu__icon"></i>
+                <span class="side-menu__label">Estatísticas</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'produtos' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/produtos" class="side-menu__item">
+                <i class="fa-light fa-list side-menu__icon"></i>
+                <span class="side-menu__label">Lista de Produtos</span>
+            </a>
+        </li>
+        {% if menu_permissions.estoque_baixo %}
+        <li class="slide {{ menu and menu == 'estoque_baixo' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/produtos/estoque-baixo" class="side-menu__item">
+                <i class="fa-light fa-exclamation-triangle side-menu__icon"></i>
+                <span class="side-menu__label">Estoque Baixo</span>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</li>
+{% endif %}
+
+{% if menu_permissions.relatorios %}
+<li class="slide__category"><span class="category-name">Relatórios</span></li>
+<li class="slide {{ relatorios_open or (menu and menu == 'recebimento_relatorios') ? 'active' : '' }}">
+    <a href="{{ DOMAIN }}/recebimento/relatorios" class="side-menu__item">
+        <i class="fa-light fa-chart-simple side-menu__icon"></i>
+        <span class="side-menu__label">Relatórios</span>
+    </a>
+</li>
+{% endif %}

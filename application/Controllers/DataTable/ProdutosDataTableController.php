@@ -45,11 +45,12 @@ class ProdutosDataTableController extends BaseDataTableController
         ->addFilter('status', 'Status', 'select', [
             'options' => [
                 '' => 'Todos',
-                'ativo' => 'Ativo',
-                'inativo' => 'Inativo'
+                'Publicado' => 'Publicado',
+                'Rascunho' => 'Rascunho'
             ]
         ])
         ->addFilter('estoque', 'Estoque', 'select', [
+            'skip_column' => true,
             'options' => [
                 '' => 'Todos',
                 'baixo' => 'Estoque Baixo',
@@ -57,11 +58,18 @@ class ProdutosDataTableController extends BaseDataTableController
             ]
         ]);
 
-        // Adicionar condições baseadas nos filtros
         if (isset($_GET['filters']['estoque']) && $_GET['filters']['estoque'] === 'baixo') {
-            $dataTable->addWhereCondition('estoque_atual <= estoque_minimo');
+            $dataTable->addWhereCondition('EXISTS (
+                SELECT 1 FROM produtos_variations pv
+                WHERE pv.id_produto = produtos.id
+                  AND pv.estoque <= IF(pv.estoque_minimo > 0, pv.estoque_minimo, 1)
+            )');
         } elseif (isset($_GET['filters']['estoque']) && $_GET['filters']['estoque'] === 'normal') {
-            $dataTable->addWhereCondition('estoque_atual > estoque_minimo');
+            $dataTable->addWhereCondition('NOT EXISTS (
+                SELECT 1 FROM produtos_variations pv
+                WHERE pv.id_produto = produtos.id
+                  AND pv.estoque <= IF(pv.estoque_minimo > 0, pv.estoque_minimo, 1)
+            )');
         }
 
         $this->tableWhere = '`status` <> "Deletado"';

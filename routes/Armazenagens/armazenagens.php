@@ -28,4 +28,5 @@ $router->get("/transferencias/create", "TransferenciasController:create");
 $router->post("/transferencias/store", "TransferenciasController:store");
 $router->post("/transferencias/execute/{id}", "TransferenciasController:execute");
 $router->post("/transferencias/cancel/{id}", "TransferenciasController:cancel");
-$router->post("/transferencias/view/{id}", "TransferenciasController:view");
+$router->get("/transferencias/view/{id}", "TransferenciasController:view");
+$router->get("/transferencias/show/{id}", "TransferenciasController:view");

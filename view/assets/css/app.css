@@ -61,6 +61,12 @@
 .app-sidebar .slide-menu {
     margin: 0;
 }
+.app-sidebar .side-menu__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .slide.has-sub.open>.slide-menu>li a {
     padding: 0.5rem 0.75rem;
 }
@@ -1294,6 +1300,10 @@ input[type="datetime-local"] {
     .form-category-list {
         max-height: 200px;
     }
+    .header-content-left {
+        justify-content: space-between;
+        width: 100%;
+    }
 }
 
 /* ===== ESTILOS DO SELECT2 ===== */
@@ -1405,4 +1415,56 @@ input[type="datetime-local"] {
     bottom: 0;
     width: 150px;
     opacity: 0.5;
+}
+
+/* Menu lateral permanece escuro: o tema Ynex só troca .desktop-logo/.desktop-dark
+   com data-nav-layout. Sem isso, o modo claro esconde o único logo visível. */
+html[data-menu-styles="dark"] .app-sidebar .main-sidebar-header .header-logo .desktop-dark {
+    display: block;
+}
+html[data-menu-styles="dark"] .app-sidebar .main-sidebar-header .header-logo .desktop-logo,
+html[data-menu-styles="dark"] .app-sidebar .main-sidebar-header .header-logo .toggle-logo,
+html[data-menu-styles="dark"] .app-sidebar .main-sidebar-header .header-logo .desktop-white,
+html[data-menu-styles="dark"] .app-sidebar .main-sidebar-header .header-logo .toggle-white {
+    display: none;
+}
+
+.header-acoes {
+    display: none;
+}
+
+@media (min-width: 992px) {
+    .header-acoes {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        gap: 1.25rem;
+        min-width: 0;
+        padding: 0 1rem;
+    }
+
+    .header-acoes__link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--header-prime-color);
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        border-bottom: 2px solid transparent;
+        padding: 0.2rem 0;
+        transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .header-acoes__link i {
+        font-size: 0.85rem;
+    }
+
+    .header-acoes__link:hover,
+    .header-acoes__link:focus {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+    }
 }

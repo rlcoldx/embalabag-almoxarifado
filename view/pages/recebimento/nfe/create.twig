@@ -1,0 +1,103 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Nova NF-e{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Nova Nota Fiscal Eletrônica</p>
+        <span class="fs-semibold">Cadastre uma NF-e de entrada com itens e vinculação a pedido.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento/nfe" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<div class="card custom-card">
+    <div class="card-body">
+        <form id="formNfeCreate" method="POST" action="{{ DOMAIN }}/recebimento/nfe/store">
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label class="form-label required">Número da NF-e</label>
+                    <input type="text" class="form-control" name="numero_nfe" required>
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label required">Chave de Acesso</label>
+                    <input type="text" class="form-control" name="chave_acesso" required maxlength="100">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label required">Data de Emissão</label>
+                    <input type="date" class="form-control" name="data_emissao" id="data_emissao" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label required">Valor Total</label>
+                    <div class="input-group">
+                        <span class="input-group-text">R$</span>
+                        <input type="number" class="form-control" name="valor_total" id="valor_total" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label required">Fornecedor</label>
+                    <select class="form-select" name="fornecedor_id" required>
+                        <option value="">Selecione</option>
+                        {% for fornecedor in fornecedores %}
+                        <option value="{{ fornecedor.id }}">{{ fornecedor.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Pedido (código)</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="numero_pedido" placeholder="Código do pedido">
+                        <button class="btn btn-outline-secondary" type="button" id="btnBuscarPedido">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" id="pedido_id" name="pedido_id">
+                    <div id="pedidoInfo" class="mt-2 d-none">
+                        <span class="badge bg-info-transparent">Pedido: <span id="pedidoNumero"></span></span>
+                    </div>
+                </div>
+                {% include 'components/partials/select-responsavel.twig' with {
+                    field_name: 'usuario_recebimento_id',
+                    field_label: 'Responsável pelo recebimento',
+                    selected_id: session[BASE ~ 'user_id'],
+                    required: true,
+                    col_class: 'col-md-6'
+                } %}
+                <div class="col-md-12">
+                    <label class="form-label">Observações</label>
+                    <textarea class="form-control" name="observacoes" rows="2"></textarea>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-semibold text-primary mb-0"><i class="fas fa-boxes me-2"></i>Itens da NF-e</h6>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="btnAddItem">
+                    <i class="fas fa-plus me-1"></i>Adicionar Item
+                </button>
+            </div>
+
+            <div id="itensContainer" class="d-none"></div>
+            <div class="text-center py-4" id="semItens">
+                <p>Nenhum item adicionado</p>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a href="{{ DOMAIN }}/recebimento/nfe" class="btn btn-light">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Salvar NF-e
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% include 'components/partials/modal-nfe-item.twig' %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/recebimento/nfe.js?v={{ VERSION }}"></script>
+{% endblock %}

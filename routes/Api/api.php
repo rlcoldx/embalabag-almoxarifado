@@ -23,3 +23,8 @@ $router->get("/api/movimentacoes/armazenagem/{id}", "MovimentacoesApiController:
 // API de Transferências
 $router->post("/api/transferencias/criar", "TransferenciasApiController:criar");
 $router->get("/api/transferencias/armazenagem/{id}", "TransferenciasApiController:getTransferenciasArmazenagem");
+
+// API de Conferência
+$router->get("/api/conferencia/buscar-item", "ConferenciaApiController:buscarItem");
+$router->post("/api/conferencia/conferir-item", "ConferenciaApiController:conferirItem");
+$router->get("/api/conferencia/relatorio", "ConferenciaApiController:relatorio");

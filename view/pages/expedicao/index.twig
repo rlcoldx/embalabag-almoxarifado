@@ -1,0 +1,65 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Expedição{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Expedição</p>
+        <span class="fs-semibold">Separar, embalar, conferir e enviar pedidos para a cia aérea.</span>
+    </div>
+</div>
+
+{% if not sige_ok %}
+<div class="alert alert-warning">
+    O SIGE Cloud ainda não está autenticado. Preencha <strong>SIGE_AUTHORIZATIONTOKEN</strong>, <strong>SIGE_USER</strong> e <strong>SIGE_APP</strong> no <code>config.php</code>. Sem isso, a bipagem usa só o cadastro local.
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <a href="{{ DOMAIN }}/expedicao/aprovados" class="card custom-card home-card-link">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-1">{{ aprovados }}</h6>
+                <span>Pedidos aprovados</span>
+            </div>
+        </a>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <a href="{{ DOMAIN }}/expedicao/separacao" class="card custom-card home-card-link">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-1">{{ separacao }}</h6>
+                <span>Em separação</span>
+            </div>
+        </a>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <a href="{{ DOMAIN }}/expedicao/embalagem" class="card custom-card home-card-link">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-1">{{ embalagem }}</h6>
+                <span>Embalagem</span>
+            </div>
+        </a>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <a href="{{ DOMAIN }}/expedicao/conferencia" class="card custom-card home-card-link">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-1">{{ conferencia }}</h6>
+                <span>Conferência de saída</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <a href="{{ DOMAIN }}/expedicao/romaneios" class="btn btn-primary btn-wave w-100">Romaneios ({{ romaneios }})</a>
+    </div>
+    <div class="col-md-4 mb-3">
+        <a href="{{ DOMAIN }}/expedicao/bipagem" class="btn btn-outline-primary btn-wave w-100">Bipar SIGE + etiqueta cia</a>
+    </div>
+    <div class="col-md-4 mb-3">
+        <a href="{{ DOMAIN }}/cia-aerea" class="btn btn-outline-secondary btn-wave w-100">Portal da cia aérea</a>
+    </div>
+</div>
+
+{% endblock %}

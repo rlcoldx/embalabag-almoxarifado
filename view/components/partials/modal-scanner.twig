@@ -1,0 +1,26 @@
+<div class="modal fade" id="modalScanner" tabindex="-1" aria-labelledby="modalScannerLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalScannerLabel">
+                    <i class="fas fa-barcode me-2"></i>Scanner de Código de Barras
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <video id="scannerVideo" class="w-100 rounded d-none" playsinline muted style="max-height: 240px; object-fit: cover; background: #111;"></video>
+                    <p class="mb-0 mt-2" id="scannerCameraHint">Preparando o scanner...</p>
+                </div>
+                <div class="mb-0">
+                    <label for="scannerInput" class="form-label">Código</label>
+                    <input type="text" class="form-control" id="scannerInput" placeholder="Escaneie, use o leitor USB ou digite o SKU" autocomplete="off">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnConfirmarScanner">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>

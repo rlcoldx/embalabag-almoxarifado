@@ -344,11 +344,13 @@
 {% include 'components/armazem/modal-movimentacao.twig' %}
 {% include 'components/partials/modal-transferencia.twig' %}
 {% include 'components/partials/modal-produto-detalhes.twig' %}
+{% include 'components/partials/modal-scanner.twig' %}
 
 {% endblock %}
 
 {% block scripts %}
 {% include "components/partials/sweetalert.twig" %}
+<script src="{{ PATH }}/view/assets/js/scanner.js?v={{ VERSION }}"></script>
 <script src="{{ PATH }}/view/assets/js/armazenagens/modais.js?v={{ VERSION }}"></script>
 <script src="{{ PATH }}/view/assets/js/armazenagens/show.js?v={{ VERSION }}"></script>
 {% endblock %}

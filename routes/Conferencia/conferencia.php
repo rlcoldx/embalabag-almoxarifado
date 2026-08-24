@@ -13,7 +13,7 @@ $router->get("/conferencia/nfe/iniciar/{nfe_id}", "ConferenciaRecebimentoControl
 $router->get("/conferencia", "ConferenciaRecebimentoController:index");
 
 // Rotas com parâmetros por último (devem vir DEPOIS das rotas específicas)
-//$router->get("/conferencia/show/{id}", "ConferenciaRecebimentoController:show");
+$router->get("/conferencia/show/{id}", "ConferenciaRecebimentoController:show");
 $router->get("/conferencia/edit/{id}", "ConferenciaRecebimentoController:edit");
 $router->post("/conferencia/update/{id}", "ConferenciaRecebimentoController:update");
 $router->post("/conferencia/destroy/{id}", "ConferenciaRecebimentoController:destroy");

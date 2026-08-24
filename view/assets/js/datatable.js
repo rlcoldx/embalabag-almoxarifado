@@ -97,18 +97,18 @@ function loadData(tableName) {
 
     // Adicionar filtros
     Object.keys(state.filters).forEach(key => {
-        if (state.filters[key] !== '' && state.filters[key] !== null) {
-            if (typeof state.filters[key] === 'object') {
-                // Para filtros de data range
-                Object.keys(state.filters[key]).forEach(subKey => {
-                    if (state.filters[key][subKey]) {
-                        params.append(`filters[${key}][${subKey}]`, state.filters[key][subKey]);
-                    }
-                });
-            } else {
-                params.append(`filters[${key}]`, state.filters[key]);
-            }
+        if (state.filters[key] === '' || state.filters[key] === null || isFilterDefinition(state.filters[key])) {
+            return;
         }
+        if (typeof state.filters[key] === 'object') {
+            Object.keys(state.filters[key]).forEach(subKey => {
+                if (state.filters[key][subKey]) {
+                    params.append(`filters[${key}][${subKey}]`, state.filters[key][subKey]);
+                }
+            });
+            return;
+        }
+        params.append(`filters[${key}]`, state.filters[key]);
     });
 
     const url = `${state.dataUrl}?${params.toString()}`;
@@ -136,33 +136,60 @@ function loadData(tableName) {
     });
 }
 
+function isFilterDefinition(value) {
+    return Boolean(
+        value
+        && typeof value === 'object'
+        && (value.label !== undefined || value.type !== undefined)
+        && value.start === undefined
+        && value.value === undefined
+    );
+}
+
+function getSelectedFilters(state) {
+    const selected = {};
+    Object.keys(state.filters || {}).forEach((key) => {
+        const value = state.filters[key];
+        if (value === '' || value == null || isFilterDefinition(value)) {
+            return;
+        }
+        selected[key] = value;
+    });
+    return selected;
+}
+
+function getFilterOptions(filter) {
+    if (!filter || !filter.options || typeof filter.options !== 'object') {
+        return {};
+    }
+
+    if (
+        filter.options.options
+        && typeof filter.options.options === 'object'
+        && !Array.isArray(filter.options.options)
+    ) {
+        return filter.options.options;
+    }
+
+    return filter.options;
+}
+
 /**
  * Renderiza a tabela com os dados recebidos
  */
 function renderTable(tableName, data) {    
     const state = dataTableState[tableName];
+    const selectedFilters = getSelectedFilters(state);
     
-    // Atualizar estado PRIMEIRO
     state.columns = data.columns;
-    state.filters = data.filters;
     state.orderable_columns = data.orderable_columns;
+    state.filters = selectedFilters;
     
-    // Renderizar cabeçalhos
     renderHeaders(tableName, data.columns);
-    
-    // Renderizar dados
     renderData(tableName, data.data);
-    
-    // Renderizar paginação
     renderPagination(tableName, data.pagination);
-    
-    // Renderizar filtros
-    renderFilters(tableName, data.filters);
-    
-    // Renderizar controles de ordenação
+    renderFilters(tableName, data.filters, selectedFilters);
     renderOrderControls(tableName, data.orderable_columns);
-    
-    // Atualizar informações
     updateInfo(tableName, data.pagination);
 }
 
@@ -490,7 +517,7 @@ function renderPagination(tableName, pagination) {
 /**
  * Renderiza os filtros
  */
-function renderFilters(tableName, filters) {
+function renderFilters(tableName, filters, selectedFilters = {}) {
     const filtersContainer = document.getElementById(`filters-${tableName}`);
     if (!filtersContainer) return;
 
@@ -502,18 +529,26 @@ function renderFilters(tableName, filters) {
     
     Object.keys(filters).forEach(filterName => {
         const filter = filters[filterName];
+        if (!filter || typeof filter !== 'object' || !filter.label) {
+            return;
+        }
         const col = document.createElement('div');
         col.className = 'col-md-3 col-sm-6 mb-2';
+        const selectedValue = selectedFilters[filterName] ?? '';
         
         let html = `<label class="form-label">${filter.label}</label>`;
         
         switch (filter.type) {
             case 'select':
-                html += `<select class="form-select form-select-sm ${filter.class}" id="filter-${tableName}-${filterName}" onchange="applyFilter('${tableName}', '${filterName}')">
+                html += `<select class="form-select form-select-sm ${filter.class || ''}" id="filter-${tableName}-${filterName}" onchange="applyFilter('${tableName}', '${filterName}')">
                             <option value="">Todos</option>`;
-                const options = filter.options?.options || {};
+                const options = getFilterOptions(filter);
                 Object.keys(options).forEach(value => {
-                    html += `<option value="${value}">${options[value]}</option>`;
+                    if (value === '') {
+                        return;
+                    }
+                    const selected = String(selectedValue) === String(value) ? ' selected' : '';
+                    html += `<option value="${value}"${selected}>${options[value]}</option>`;
                 });
                 html += '</select>';
                 break;
@@ -527,10 +562,16 @@ function renderFilters(tableName, filters) {
                 break;
                 
             default:
-                html += `<input type="text" class="form-control form-control-sm" id="filter-${tableName}-${filterName}" placeholder="${filter.label}" onchange="applyFilter('${tableName}', '${filterName}')">`;
+                html += `<input type="text" class="form-control form-control-sm" id="filter-${tableName}-${filterName}" placeholder="${filter.label}" onchange="applyFilter('${tableName}', '${filterName}')" value="${selectedValue || ''}">`;
         }
         
         col.innerHTML = html;
+        if (filter.type === 'date_range' && selectedValue && typeof selectedValue === 'object') {
+            const startInput = col.querySelector(`#filter-${tableName}-${filterName}-start`);
+            const endInput = col.querySelector(`#filter-${tableName}-${filterName}-end`);
+            if (startInput && selectedValue.start) startInput.value = selectedValue.start;
+            if (endInput && selectedValue.end) endInput.value = selectedValue.end;
+        }
         filtersContainer.appendChild(col);
     });
 }
@@ -798,7 +839,7 @@ function exportToCSV(tableName) {
     // Adicionar filtros
     Object.keys(state.filters).forEach(key => {
         const filter = state.filters[key];
-        if (filter && filter !== '') {
+        if (filter && filter !== '' && !isFilterDefinition(filter)) {
             if (typeof filter === 'object') {
                 // Para filtros de data range
                 if (filter.start) params.append(`filters[${key}][start]`, filter.start);

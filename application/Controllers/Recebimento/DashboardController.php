@@ -4,7 +4,7 @@ namespace Agencia\Close\Controllers\Recebimento;
 
 use Agencia\Close\Controllers\Controller;
 use Agencia\Close\Models\NotaFiscal\NotaFiscal;
-use Agencia\Close\Models\Conferencia\ConferenciaProduto;
+use Agencia\Close\Models\Conferencia\ConferenciaRecebimento;
 use Agencia\Close\Models\Movimentacao\MovimentacaoInterna;
 use Agencia\Close\Helpers\User\PermissionHelper;
 
@@ -41,7 +41,7 @@ class DashboardController extends Controller
         }
         
         $notaFiscal = new NotaFiscal();
-        $conferencia = new ConferenciaProduto();
+        $conferencia = new ConferenciaRecebimento();
         $movimentacao = new MovimentacaoInterna();
         
         // Estatísticas de Notas Fiscais
@@ -115,7 +115,7 @@ class DashboardController extends Controller
             return;
         }
         
-        $conferencia = new ConferenciaProduto();
+        $conferencia = new ConferenciaRecebimento();
         $dados = $conferencia->getEstatisticasPorQualidade();
         
         $labels = [];
@@ -208,7 +208,7 @@ class DashboardController extends Controller
             return;
         }
         
-        $conferencia = new ConferenciaProduto();
+        $conferencia = new ConferenciaRecebimento();
         $conferencias = $conferencia->getRecentes(5);
         
         $this->responseJson([
@@ -233,10 +233,24 @@ class DashboardController extends Controller
         
         $movimentacao = new MovimentacaoInterna();
         $movimentacoes = $movimentacao->getRecentes(5);
+
+        $movimentacoesFormatadas = array_map(function (array $mov) {
+            $destino = trim(($mov['armazenagem_destino_codigo'] ?? '') . ' ' . ($mov['armazenagem_destino_descricao'] ?? ''));
+            $produto = $mov['descricao_produto'] ?? $mov['codigo_produto'] ?? '-';
+
+            return [
+                'produto' => $produto,
+                'tipo_movimentacao' => $mov['tipo_movimentacao'] ?? '-',
+                'armazenagem_destino' => $destino !== '' ? $destino : '-',
+                'quantidade_movimentada' => $mov['quantidade_movimentada'] ?? 0,
+                'status' => $mov['status'] ?? 'pendente',
+                'data_movimentacao' => $mov['data_movimentacao'] ?? null,
+            ];
+        }, $movimentacoes);
         
         $this->responseJson([
             'success' => true,
-            'movimentacoes' => $movimentacoes
+            'movimentacoes' => $movimentacoesFormatadas
         ]);
     }
 } 

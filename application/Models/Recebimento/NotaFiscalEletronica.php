@@ -25,6 +25,37 @@ class NotaFiscalEletronica extends Model
     }
 
     /**
+     * Buscar NF-e por ID com dados do fornecedor
+     */
+    public function getById(int $id): Read
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT nfe.*,
+                   f.nome as fornecedor_nome,
+                   f.email as fornecedor_email,
+                   p.codigo as pedido_codigo,
+                   p.codigo as numero_pedido,
+                   u.nome as usuario_nome
+            FROM {$this->table} nfe
+            LEFT JOIN usuarios f ON nfe.fornecedor_id = f.id
+            LEFT JOIN pedidos p ON nfe.pedido_id = p.id
+            LEFT JOIN usuarios u ON nfe.usuario_recebimento_id = u.id
+            WHERE nfe.id = :id
+            LIMIT 1
+        ", "id={$id}");
+        return $this->read;
+    }
+
+    /**
+     * Buscar NF-e por ID com dados do fornecedor (alias legado)
+     */
+    public function getByIdWithDetails(int $id): Read
+    {
+        return $this->getById($id);
+    }
+
+    /**
      * Buscar NF-e por chave de acesso
      */
     public function getByChaveAcesso(string $chave): Read
@@ -54,7 +85,8 @@ class NotaFiscalEletronica extends Model
             SELECT nfe.*, 
                    f.nome as fornecedor_nome,
                    f.email as fornecedor_email,
-                   p.numero_pedido,
+                   p.codigo as pedido_codigo,
+                   p.codigo as numero_pedido,
                    u.nome as usuario_nome
             FROM {$this->table} nfe
             LEFT JOIN usuarios f ON nfe.fornecedor_id = f.id
@@ -110,21 +142,91 @@ class NotaFiscalEletronica extends Model
      */
     public function getItens(int $nfeId): Read
     {
+        return $this->getItensParaConferencia($nfeId);
+    }
+
+    /**
+     * Itens da NF-e formatados para a tela/modal de conferência
+     */
+    public function getItensParaConferencia(int $nfeId): Read
+    {
         $this->read = new Read();
         $this->read->FullRead("
-            SELECT i.*, 
-                   p.nome as produto_nome,
-                   p.sku as produto_sku,
+            SELECT i.id as item_nfe_id,
+                   i.nfe_id,
+                   i.produto_id,
+                   i.variacao_id,
+                   i.quantidade,
+                   i.valor_unitario,
+                   i.valor_total,
+                   p.nome as nome_produto,
+                   p.SKU as sku,
+                   p.categoria,
                    v.tamanho,
-                   v.cor,
-                   v.estoque_atual
+                   c.nome as cor,
+                   v.estoque as estoque_atual
             FROM {$this->tableItens} i
             INNER JOIN produtos p ON i.produto_id = p.id
             INNER JOIN produtos_variations v ON i.variacao_id = v.id
+            LEFT JOIN cores c ON v.cor = c.id
             WHERE i.nfe_id = :nfe_id
-            ORDER BY p.nome, v.tamanho, v.cor
+            ORDER BY p.nome, v.tamanho, c.nome
         ", "nfe_id={$nfeId}");
         return $this->read;
+    }
+
+    /**
+     * Buscar item da NF-e por SKU do produto
+     */
+    public function getItemBySkuForNfe(int $nfeId, string $sku): Read
+    {
+        $sku = trim($sku);
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT i.id as item_nfe_id,
+                   i.nfe_id,
+                   i.produto_id,
+                   i.variacao_id,
+                   i.quantidade,
+                   i.valor_unitario,
+                   i.valor_total,
+                   p.nome as nome_produto,
+                   p.SKU as sku,
+                   p.categoria,
+                   v.tamanho,
+                   c.nome as cor
+            FROM {$this->tableItens} i
+            INNER JOIN produtos p ON i.produto_id = p.id
+            INNER JOIN produtos_variations v ON i.variacao_id = v.id
+            LEFT JOIN cores c ON v.cor = c.id
+            WHERE i.nfe_id = :nfe_id
+              AND p.SKU = :sku
+            LIMIT 1
+        ", "nfe_id={$nfeId}&sku={$sku}");
+        return $this->read;
+    }
+
+    /**
+     * Verificar se todos os itens da NF-e foram conferidos
+     */
+    public function todosItensConferidos(int $nfeId): bool
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT COUNT(*) as pendentes
+            FROM {$this->tableItens} i
+            WHERE i.nfe_id = :nfe_id
+              AND NOT EXISTS (
+                  SELECT 1 FROM conferencia_recebimento cr
+                  WHERE cr.nfe_id = i.nfe_id
+                    AND cr.produto_id = i.produto_id
+                    AND cr.variacao_id = i.variacao_id
+                    AND cr.status_conferencia = 'concluida'
+              )
+        ", "nfe_id={$nfeId}");
+
+        $result = $this->read->getResult();
+        return (int) ($result[0]['pendentes'] ?? 0) === 0;
     }
 
     /**
@@ -159,7 +261,14 @@ class NotaFiscalEletronica extends Model
     public function getPendentesConferencia(): Read
     {
         $this->read = new Read();
-        $this->read->ExeRead($this->table, 'WHERE status = :status', "status=pendente");
+        $this->read->FullRead("
+            SELECT nfe.*,
+                   f.nome as fornecedor_nome
+            FROM {$this->table} nfe
+            LEFT JOIN usuarios f ON nfe.fornecedor_id = f.id
+            WHERE nfe.status = 'pendente'
+            ORDER BY nfe.data_recebimento DESC
+        ");
         return $this->read;
     }
 }

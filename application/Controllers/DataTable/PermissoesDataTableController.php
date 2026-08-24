@@ -18,8 +18,7 @@ class PermissoesDataTableController extends BaseDataTableController
                  ->addColumn('descricao', 'Descrição', 'text')
                  ->addColumn('modulo', 'Módulo', 'text')
                  ->addColumn('acao', 'Ação', 'text')
-                 ->addColumn('created_at', 'Criado em', 'datetime')
-                 ->addColumn('actions', 'Ações', 'actions');
+                 ->addColumn('created_at', 'Criado em', 'datetime');
 
         // Configurar colunas pesquisáveis
         $dataTable->addSearchableColumn('nome')
@@ -76,8 +75,7 @@ class PermissoesDataTableController extends BaseDataTableController
                  ->addColumn('descricao', 'Descrição', 'text')
                  ->addColumn('modulo', 'Módulo', 'text')
                  ->addColumn('acao', 'Ação', 'text')
-                 ->addColumn('created_at', 'Criado em', 'datetime')
-                 ->addColumn('actions', 'Ações', 'actions');
+                 ->addColumn('created_at', 'Criado em', 'datetime');
 
         // Configurar colunas pesquisáveis
         $dataTable->addSearchableColumn('nome')

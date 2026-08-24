@@ -1,0 +1,127 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Editar Movimentação #{{ movimentacao.id }}{% endblock %}
+{% block content %}
+
+{% set bloqueada = movimentacao.status == 'concluida' or movimentacao.status == 'cancelada' %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Editar Movimentação #{{ movimentacao.id }}</p>
+        <span class="fs-semibold">Atualize origem, destino, quantidade e observações.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento/movimentacoes/show/{{ movimentacao.id }}" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-eye me-2"></i>Ver Detalhes
+        </a>
+    </div>
+</div>
+
+{% if bloqueada %}
+<div class="alert alert-warning">
+    Esta movimentação está {{ movimentacao.status|replace({'_': ' '}) }} e não pode ser editada.
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-edit me-2"></i>Dados da Movimentação</div>
+            </div>
+            <div class="card-body">
+                <form id="formMovimentacao" method="POST" action="{{ DOMAIN }}/recebimento/movimentacoes/update/{{ movimentacao.id }}">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Produto</label>
+                            <input type="text" class="form-control" value="{{ movimentacao.codigo_produto }} — {{ movimentacao.descricao_produto }}" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">NF</label>
+                            <input type="text" class="form-control" value="{{ movimentacao.numero_nf|default('-') }}" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <input type="text" class="form-control" value="{{ movimentacao.status|replace({'_': ' '})|capitalize }}" disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Movimentação <span class="text-danger">*</span></label>
+                            <select class="form-select" name="tipo_movimentacao" id="tipoMovimentacao" required {{ bloqueada ? 'disabled' : '' }}>
+                                <option value="put_away" {{ movimentacao.tipo_movimentacao == 'put_away' ? 'selected' : '' }}>Put-away</option>
+                                <option value="transferencia" {{ movimentacao.tipo_movimentacao == 'transferencia' ? 'selected' : '' }}>Transferência</option>
+                                <option value="reposicao" {{ movimentacao.tipo_movimentacao == 'reposicao' ? 'selected' : '' }}>Reposição</option>
+                                <option value="ajuste" {{ movimentacao.tipo_movimentacao == 'ajuste' ? 'selected' : '' }}>Ajuste</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Quantidade a Movimentar <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" name="quantidade_movimentada" id="quantidadeMovimentada" min="1" required value="{{ movimentacao.quantidade_movimentada }}" {{ bloqueada ? 'disabled' : '' }}>
+                        </div>
+                        <div class="col-md-6" id="divArmazenagemOrigem">
+                            <label class="form-label">Armazenagem de Origem</label>
+                            <select class="form-select" name="armazenagem_origem_id" id="selectArmazenagemOrigem" {{ bloqueada ? 'disabled' : '' }}>
+                                <option value="">Recebimento (sem origem)</option>
+                                {% for armazenagem in armazenagens %}
+                                <option value="{{ armazenagem.id }}" {{ movimentacao.armazenagem_origem_id == armazenagem.id ? 'selected' : '' }}>
+                                    {{ armazenagem.codigo }} — {{ armazenagem.descricao }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Armazenagem de Destino <span class="text-danger">*</span></label>
+                            <select class="form-select" name="armazenagem_destino_id" id="selectArmazenagemDestino" required {{ bloqueada ? 'disabled' : '' }}>
+                                <option value="">Selecione o destino</option>
+                                {% for armazenagem in armazenagens %}
+                                <option value="{{ armazenagem.id }}" data-capacidade="{{ armazenagem.capacidade_maxima|default(0) }}" {{ movimentacao.armazenagem_destino_id == armazenagem.id ? 'selected' : '' }}>
+                                    {{ armazenagem.codigo }} — {{ armazenagem.descricao }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Motivo</label>
+                            <input type="text" class="form-control" name="motivo" value="{{ movimentacao.motivo }}" {{ bloqueada ? 'disabled' : '' }}>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="3" {{ bloqueada ? 'disabled' : '' }}>{{ movimentacao.observacoes }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ DOMAIN }}/recebimento/movimentacoes/show/{{ movimentacao.id }}" class="btn btn-light">Cancelar</a>
+                        {% if not bloqueada %}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Salvar Alterações
+                        </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">Resumo</div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Fornecedor</label>
+                    <p class="mb-0 fs-16">{{ movimentacao.fornecedor|default('-') }}</p>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-semibold">Usuário</label>
+                    <p class="mb-0 fs-16">{{ movimentacao.usuario_movimentacao_nome|default('-') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/recebimento/movimentacoes/form.js?v={{ VERSION }}"></script>
+{% endblock %}

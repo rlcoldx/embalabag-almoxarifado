@@ -224,7 +224,7 @@ typography
 /* Respoonsive Logo Styles */
 @media (max-width: 991.98px) {
   .app-header .horizontal-logo .header-logo img {
-    height: 2rem;
+    height: 3.3rem;
     line-height: 2rem;
   }
 }
@@ -16970,7 +16970,7 @@ code[class*=language-] {
 }
 
 .horizontal-logo {
-  padding: 0.85rem 0rem;
+  padding: 0.2rem 0rem;
 }
 
 .slide.has-sub .slide-menu {
@@ -21075,10 +21075,6 @@ code[class*=language-] {
 /* Start::text colors */
 .text-default {
   color: var(--default-text-color) !important;
-}
-
-.text-muted {
-  color: var(--text-muted) !important;
 }
 
 .text-primary {

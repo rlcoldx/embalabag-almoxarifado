@@ -11,6 +11,8 @@ require  __DIR__ . '/Users/users.php';
 require  __DIR__ . '/Produtos/produtos.php';
 require  __DIR__ . '/Conferencia/conferencia.php';
 require  __DIR__ . '/Armazenagens/armazenagens.php';
+require  __DIR__ . '/Pedidos/pedidos.php';
+require  __DIR__ . '/Expedicao/expedicao.php';
 require  __DIR__ . '/Recebimento/recebimento.php';
 require  __DIR__ . '/Recebimento/nfe.php';
 require  __DIR__ . '/Api/api.php';

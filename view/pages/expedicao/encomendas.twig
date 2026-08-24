@@ -1,0 +1,50 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Encomendas{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Encomendas</p>
+        <span class="fs-semibold">Itens sob encomenda e previsão de chegada.</span>
+    </div>
+</div>
+
+<div id="expedicao-msg" class="alert d-none"></div>
+
+<div class="card custom-card">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Pedido</th>
+                    <th>Produto</th>
+                    <th>Qtd</th>
+                    <th>Previsão</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in encomendas %}
+                <tr>
+                    <td>{{ item.pedido_codigo }}</td>
+                    <td>{{ item.produto_nome }} <small>{{ item.produto_sku }}</small></td>
+                    <td>{{ item.qty }}</td>
+                    <td>
+                        <input type="date" class="form-control form-control-sm" data-previsao value="{{ item.previsao_chegada|default(item.previsao_entrega) }}">
+                    </td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-primary btn-wave" data-salvar-encomenda data-pedido="{{ item.pedido_id }}" data-produto="{{ item.id_produto }}">Salvar</button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center py-4">Nenhuma encomenda marcada nos itens.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/expedicao/expedicao.js?v={{ VERSION }}"></script>
+{% endblock %}

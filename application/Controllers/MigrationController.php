@@ -5,7 +5,7 @@ namespace Agencia\Close\Controllers;
 use Agencia\Close\Controllers\Controller;
 use Agencia\Close\Conn\Read;
 use Agencia\Close\Conn\Database\MainDatabase;
-use PDO;
+use Agencia\Close\Helpers\Migration\SqlFileExecutor;
 
 class MigrationController extends Controller
 {
@@ -25,51 +25,30 @@ class MigrationController extends Controller
         $files = glob($migrationDir . '/*.sql');
         sort($files);
 
-        // Usar a classe Read que já estende Conn e tem acesso ao método protegido
         $read = new Read(new MainDatabase());
-        
-        // Acessar a conexão PDO através de reflexão
         $reflection = new \ReflectionClass($read);
         $method = $reflection->getMethod('getConn');
         $method->setAccessible(true);
         $pdo = $method->invoke($read);
+        $executor = new SqlFileExecutor();
 
         foreach ($files as $file) {
-            $sql = file_get_contents($file);
             try {
-                // Remover DELIMITER statements que não funcionam com PDO
-                $sql = preg_replace('/^DELIMITER\s+\S+.*$/m', '', $sql);
-                $sql = preg_replace('/^\s*\/\/\s*$/m', '', $sql);
-                
-                // Dividir em statements individuais
-                $statements = array_filter(array_map('trim', explode(';', $sql)));
-                
-                $pdo->beginTransaction();
-                
-                foreach ($statements as $statement) {
-                    if (!empty($statement)) {
-                        $pdo->exec($statement);
-                    }
-                }
-                
-                $pdo->commit();
-                $result[] = basename($file) . ' executado com sucesso';
+                $info = $executor->executeFile($pdo, $file);
+                $result[] = $info['file'] . ' executado com sucesso (' . $info['statements'] . ' statements)';
                 $executed++;
             } catch (\PDOException $e) {
-                // Verificar se há transação ativa antes de fazer rollback
-                if ($pdo->inTransaction()) {
-                    $pdo->rollBack();
-                }
+                $errors[] = 'Erro em ' . basename($file) . ': ' . $e->getMessage();
+            } catch (\Throwable $e) {
                 $errors[] = 'Erro em ' . basename($file) . ': ' . $e->getMessage();
             }
         }
 
-        // Resposta amigável
         echo '<h2>Migrations executadas</h2>';
         if ($executed > 0) {
             echo '<ul>';
             foreach ($result as $msg) {
-                echo '<li style="color:green">' . $msg . '</li>';
+                echo '<li style="color:green">' . htmlspecialchars($msg) . '</li>';
             }
             echo '</ul>';
         } else {
@@ -78,10 +57,10 @@ class MigrationController extends Controller
         if ($errors) {
             echo '<h3>Erros:</h3><ul>';
             foreach ($errors as $err) {
-                echo '<li style="color:red">' . $err . '</li>';
+                echo '<li style="color:red">' . htmlspecialchars($err) . '</li>';
             }
             echo '</ul>';
         }
         echo '<p>Processo finalizado.</p>';
     }
-} 
+}

@@ -1,0 +1,160 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Dashboard de Movimentações - EmbalaBag{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ PATH }}/view/assets/css/home.css?v={{ VERSION }}">
+{% endblock %}
+
+{% block content %}
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Dashboard de Movimentações</p>
+        <span class="fs-semibold">Entradas, saídas e movimentações internas.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento/movimentacoes" class="btn btn-primary btn-wave">
+            <i class="fas fa-exchange-alt me-2 align-middle d-inline-block"></i>Ver movimentações
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-3 col-lg-6">
+        <div class="card custom-card">
+            <div class="card-body text-center">
+                <h4 class="fw-bold text-success mb-1">{{ stats.movimentacoes.entradas|number_format(0, ',', '.') }}</h4>
+                <span class="home-card-label">Entradas</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6">
+        <div class="card custom-card">
+            <div class="card-body text-center">
+                <h4 class="fw-bold text-danger mb-1">{{ stats.movimentacoes.saidas|number_format(0, ',', '.') }}</h4>
+                <span class="home-card-label">Saídas</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6">
+        <div class="card custom-card">
+            <div class="card-body text-center">
+                <h4 class="fw-bold mb-1">{{ stats.movimentacoes.hoje|number_format(0, ',', '.') }}</h4>
+                <span class="home-card-label">Hoje</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6">
+        <div class="card custom-card">
+            <div class="card-body text-center">
+                <h4 class="fw-bold mb-1">{{ stats.movimentacoes.este_mes|number_format(0, ',', '.') }}</h4>
+                <span class="home-card-label">Este mês</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-body text-center">
+                <h4 class="fw-bold mb-1">{{ stats.movimentacoes.internas_total|default(0)|number_format(0, ',', '.') }}</h4>
+                <span class="home-card-label">Movimentações internas</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-body text-center">
+                <h4 class="fw-bold mb-1">{{ stats.movimentacoes.put_away|default(0)|number_format(0, ',', '.') }}</h4>
+                <span class="home-card-label">Put-away</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-body text-center">
+                <h4 class="fw-bold mb-1">{{ stats.movimentacoes.transferencia|default(0)|number_format(0, ',', '.') }}</h4>
+                <span class="home-card-label">Transferências</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-history me-2"></i>Últimas entradas e saídas</div>
+            </div>
+            <div class="card-body">
+                {% if stats.recentes.movimentacoes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Tipo</th>
+                                <th>Qtd</th>
+                                <th>Usuário</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mov in stats.recentes.movimentacoes %}
+                            <tr>
+                                <td>{{ mov.produto_nome|default('N/A') }}</td>
+                                <td>{{ mov.tipo|default('-')|title }}</td>
+                                <td>{{ mov.quantidade|number_format(0, ',', '.') }}</td>
+                                <td>{{ mov.usuario_nome|default('N/A') }}</td>
+                                <td>{{ mov.created_at|date('d/m/Y H:i') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="mb-0">Nenhuma movimentação recente.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-arrows-up-down-left-right me-2"></i>Últimas internas</div>
+            </div>
+            <div class="card-body">
+                {% if stats.recentes.movimentacoes_internas %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Tipo</th>
+                                <th>Qtd</th>
+                                <th>Usuário</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mov in stats.recentes.movimentacoes_internas %}
+                            <tr>
+                                <td>{{ mov.produto_nome|default('N/A') }}</td>
+                                <td>{{ mov.tipo|default('-')|replace({'_': ' '})|title }}</td>
+                                <td>{{ mov.quantidade|number_format(0, ',', '.') }}</td>
+                                <td>{{ mov.usuario_nome|default('N/A') }}</td>
+                                <td>{{ mov.created_at|date('d/m/Y H:i') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="mb-0">Nenhuma movimentação interna recente.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

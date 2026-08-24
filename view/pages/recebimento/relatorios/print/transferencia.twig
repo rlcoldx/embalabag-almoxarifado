@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Transferências</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; color: #222; }
+        h1 { font-size: 20px; margin-bottom: 8px; }
+        .meta { font-size: 13px; margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { border: 1px solid #ccc; padding: 6px 8px; }
+        th { background: #f5f5f5; }
+        .totais { margin-bottom: 16px; font-size: 13px; }
+    </style>
+</head>
+<body onload="window.print()">
+    <h1>Relatório de Transferências</h1>
+    <p class="meta">
+        Período:
+        {{ dados.periodo.inicio|default(filtros.data_inicio|default('início')) }}
+        a
+        {{ dados.periodo.fim|default(filtros.data_fim|default('hoje')) }}
+    </p>
+    <p class="totais">
+        Total: {{ dados.total_registros|default(0) }}
+        · Concluídas: {{ dados.total_concluidas|default(0) }}
+        · Pendentes: {{ dados.total_pendentes|default(0) }}
+        · Quantidade: {{ dados.total_quantidade|default(0) }}
+    </p>
+    <table>
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Origem</th>
+                <th>Destino</th>
+                <th>Qtd</th>
+                <th>Motivo</th>
+                <th>Status</th>
+                <th>Solicitante</th>
+                <th>Solicitação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in dados.dados|default([]) %}
+            <tr>
+                <td>{{ item.item_codigo|default('-') }} {{ item.item_descricao|default('') }}</td>
+                <td>{{ item.origem_codigo|default('-') }}</td>
+                <td>{{ item.destino_codigo|default('-') }}</td>
+                <td>{{ item.quantidade|default(0) }}</td>
+                <td>{{ item.motivo_descricao|default(item.motivo|default('-')) }}</td>
+                <td>{{ item.status_descricao|default(item.status|default('-')) }}</td>
+                <td>{{ item.solicitante_nome|default('-') }}</td>
+                <td>{{ item.data_solicitacao|default('-') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8">Nenhum registro encontrado.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

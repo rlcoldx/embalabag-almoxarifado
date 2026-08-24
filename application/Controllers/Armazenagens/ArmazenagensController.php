@@ -28,6 +28,7 @@ class ArmazenagensController extends Controller
 
     public function create(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'criar')) {
@@ -40,6 +41,7 @@ class ArmazenagensController extends Controller
 
     public function store(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'criar')) {
@@ -95,6 +97,7 @@ class ArmazenagensController extends Controller
 
     public function edit(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'editar')) {
@@ -122,6 +125,7 @@ class ArmazenagensController extends Controller
 
     public function update(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'editar')) {
@@ -197,6 +201,7 @@ class ArmazenagensController extends Controller
 
     public function delete(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'excluir')) {
@@ -232,6 +237,7 @@ class ArmazenagensController extends Controller
 
     public function show(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'visualizar')) {
@@ -271,6 +277,7 @@ class ArmazenagensController extends Controller
 
     public function mapa(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'visualizar')) {
@@ -279,16 +286,22 @@ class ArmazenagensController extends Controller
         }
         
         $armazenagem = new Armazenagem();
-        $mapa = $armazenagem->getMapaArmazenagens();
-        
+        $mapa = $armazenagem->getMapaArmazenagens()->getResult() ?? [];
+        $skus = $armazenagem->getSkuPorArmazenagens();
+        foreach ($mapa as &$item) {
+            $item['skus'] = $skus[(int)$item['id']] ?? [];
+        }
+        unset($item);
+
         $this->render('pages/armazenagens/mapa.twig', [
-            'mapa' => $mapa->getResult() ?? []
+            'mapa' => $mapa
         ]);
     }
 
 
     public function buscarPorCodigo(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $codigo = $_GET['codigo'] ?? '';
         
@@ -318,6 +331,7 @@ class ArmazenagensController extends Controller
 
     public function buscarPorTipo(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $tipo = $_GET['tipo'] ?? '';
         
@@ -340,6 +354,7 @@ class ArmazenagensController extends Controller
 
     public function buscarPorSetor(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $setor = $_GET['setor'] ?? '';
         

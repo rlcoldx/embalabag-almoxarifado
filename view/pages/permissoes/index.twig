@@ -1,0 +1,28 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Permissões do Sistema{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Permissões do Sistema</p>
+        <span class="fs-semibold">Consulte os módulos e ações disponíveis. A atribuição é feita no cadastro de cargos.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/cargos" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-briefcase me-2 align-middle d-inline-block"></i>Gerenciar Cargos
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12">
+        {% include 'components/partials/datatable.twig' with {
+            table_name: 'permissoes',
+            data_url: DOMAIN ~ '/api/permissoes',
+            title: 'Lista de Permissões',
+            show_create_button: false
+        } %}
+    </div>
+</div>
+
+{% endblock %}

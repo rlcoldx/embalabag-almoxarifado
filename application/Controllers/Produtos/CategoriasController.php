@@ -12,6 +12,7 @@ class CategoriasController extends Controller
 
     public function index($params)
     {
+        $this->checkSession();
         $this->setParams($params);
 
         $semcategorias = new Categorias();
@@ -24,6 +25,7 @@ class CategoriasController extends Controller
 
     public function editar($params)
     {
+        $this->checkSession();
         $this->setParams($params);
 
         $semcategorias = new Categorias();
@@ -64,6 +66,7 @@ class CategoriasController extends Controller
 
     public function save($params)
     {
+        $this->checkSession();
         // Para dados JSON, precisamos ler do input stream
         $input = json_decode(file_get_contents('php://input'), true);
         
@@ -80,6 +83,7 @@ class CategoriasController extends Controller
 
     public function save_edit($params)
     {
+        $this->checkSession();
         // Para dados JSON, precisamos ler do input stream
         $input = json_decode(file_get_contents('php://input'), true);
         

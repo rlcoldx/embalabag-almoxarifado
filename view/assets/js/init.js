@@ -1,5 +1,4 @@
-// APP
-import './app';
+// APP (carregado no head via mainhead.twig — não importar de novo)
 
 // YNEX
 import '../ynex/assets/js/custom.js';

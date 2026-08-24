@@ -1,0 +1,9 @@
+{% if menu_permissions.cia_aerea %}
+<li class="slide__category"><span class="category-name">Cia Aérea</span></li>
+<li class="slide {{ cia_aerea_open ? 'active' : '' }}">
+    <a href="{{ DOMAIN }}/cia-aerea" class="side-menu__item">
+        <i class="fa-light fa-plane side-menu__icon"></i>
+        <span class="side-menu__label">Romaneios da cia</span>
+    </a>
+</li>
+{% endif %}

@@ -2,14 +2,11 @@
 
 {% block title %}Nova Etiqueta - EmbalaBag{% endblock %}
 
-
-
 {% block content %}
-<!-- Início::page-header -->
 <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
     <div>
         <p class="fw-semibold fs-18 mb-0">Nova Etiqueta</p>
-        <span class="fs-semibold text-muted">Crie uma nova etiqueta interna.</span>
+        <span class="fs-semibold">Crie uma nova etiqueta interna.</span>
     </div>
     <div class="btn-list mt-md-0 mt-2">
         <a href="{{ DOMAIN }}/recebimento/etiquetas" class="btn btn-outline-primary btn-wave">
@@ -17,9 +14,7 @@
         </a>
     </div>
 </div>
-<!-- Fim::page-header -->
 
-<!-- Início::row -->
 <div class="row">
     <div class="col-xl-12">
         <div class="card custom-card">
@@ -30,7 +25,6 @@
             </div>
             <div class="card-body">
                 <form id="formEtiqueta" method="POST" action="{{ DOMAIN }}/recebimento/etiquetas/store">
-                    <!-- Tipo de Etiqueta -->
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Tipo de Etiqueta <span class="text-danger">*</span></label>
@@ -45,16 +39,15 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Código</label>
-                            <input type="text" class="form-control" name="codigo" id="codigoEtiqueta" placeholder="Código será gerado automaticamente" readonly>
+                            <input type="text" class="form-control" name="codigo" id="codigoEtiqueta" placeholder="Gerado automaticamente se ficar vazio">
                         </div>
                     </div>
 
-                    <!-- Referência -->
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Tipo de Referência</label>
                             <select class="form-select" name="referencia_tipo" id="referenciaTipo">
-                                <option value="">Selecione o tipo de referência</option>
+                                <option value="">Sem referência</option>
                                 <option value="armazenagem">Armazenagem</option>
                                 <option value="item_nf">Item da NF</option>
                                 <option value="palete">Palete</option>
@@ -64,35 +57,39 @@
                         <div class="col-md-6">
                             <label class="form-label">Referência</label>
                             <select class="form-select" name="referencia_id" id="referenciaId">
-                                <option value="">Selecione primeiro o tipo de referência</option>
+                                <option value="">Selecione a referência</option>
+                                {% for armazenagem in armazenagens %}
+                                <option value="{{ armazenagem.id }}" data-tipo="armazenagem">
+                                    {{ armazenagem.codigo }} — {{ armazenagem.descricao }}
+                                </option>
+                                {% endfor %}
+                                {% for item in itens %}
+                                <option value="{{ item.id }}" data-tipo="item_nf">
+                                    NF {{ item.numero_nf }} · {{ item.codigo_produto }} — {{ item.descricao_produto }}
+                                </option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
 
-                    <!-- Conteúdo da Etiqueta -->
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <label class="form-label">Conteúdo da Etiqueta <span class="text-danger">*</span></label>
-                            <textarea class="form-control" name="conteudo" rows="5" placeholder="Conteúdo que será impresso na etiqueta" required></textarea>
-                            <small class="form-text text-muted">
-                                Você pode usar as seguintes variáveis: {CODIGO}, {TIPO}, {REFERENCIA}, {DATA}, {USUARIO}
-                            </small>
+                            <textarea class="form-control" name="conteudo" id="conteudoEtiqueta" rows="5" placeholder="Conteúdo que será impresso na etiqueta" required></textarea>
                         </div>
                     </div>
 
-                    <!-- Código de Barras e QR Code -->
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Código de Barras</label>
-                            <input type="text" class="form-control" name="codigo_barras" placeholder="Código de barras (opcional)">
+                            <input type="text" class="form-control" name="codigo_barras" placeholder="Opcional">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">QR Code</label>
-                            <input type="text" class="form-control" name="qr_code" placeholder="Conteúdo do QR Code (opcional)">
+                            <label class="form-label">Conteúdo do QR Code</label>
+                            <input type="text" class="form-control" name="qr_code" maxlength="62" placeholder="Vazio = usa o código da etiqueta">
                         </div>
                     </div>
 
-                    <!-- Status -->
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Status</label>
@@ -105,7 +102,6 @@
                         </div>
                     </div>
 
-                    <!-- Observações -->
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <label class="form-label">Observações</label>
@@ -113,7 +109,6 @@
                         </div>
                     </div>
 
-                    <!-- Botões -->
                     <div class="row">
                         <div class="col-12">
                             <button type="submit" class="btn btn-primary btn-wave">
@@ -129,9 +124,8 @@
         </div>
     </div>
 </div>
-<!-- Fim::row -->
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ DOMAIN }}/view/assets/js/recebimento/etiquetas/create.js"></script>
-{% endblock %} 
+<script src="{{ PATH }}/view/assets/js/recebimento/etiquetas/form.js?v={{ VERSION }}"></script>
+{% endblock %}

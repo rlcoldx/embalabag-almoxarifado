@@ -6,7 +6,7 @@
     <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
         <div>
             <p class="fw-semibold fs-18 mb-0">Conferir NFE #{{ nfe.numero_nfe }}</p>
-            <span class="fs-semibold text-muted">Conferir produtos recebidos da nota fiscal eletrônica.</span>
+            <span class="fs-semibold">Conferir produtos recebidos da nota fiscal eletrônica.</span>
         </div>
         <div class="btn-list mt-md-0 mt-2">
             <a href="{{ DOMAIN }}/conferencia" class="btn btn-outline-secondary btn-wave">
@@ -64,16 +64,28 @@
     </div>
     <!-- Fim::row -->
 
-    <form id="formConferencia" method="POST" action="{{ DOMAIN }}/conferencia/salvar">
+    <form id="formConferencia" method="POST" action="{{ DOMAIN }}/conferencia/store">
         <input type="hidden" name="nfe_id" value="{{ nfe.id }}">
+        <div class="row mb-3">
+            {% include 'components/partials/select-responsavel.twig' with {
+                field_name: 'usuario_conferente_id',
+                field_label: 'Responsável pela conferência',
+                selected_id: session[BASE ~ 'user_id'],
+                required: true,
+                col_class: 'col-md-4'
+            } %}
+        </div>
         
         <!-- Início::row -->
-        <div class="row">
+        <div class="row" id="conferenciaPage" data-nfe-id="{{ nfe.id }}">
             <div class="col-12">
                 <div class="card custom-card">
                     <div class="card-header">
                         <h3 class="card-title">Conferir Produtos</h3>
                         <div class="card-options">
+                            <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="abrirConferenciaRapida()">
+                                <i class="fas fa-barcode me-1"></i>Conferir por SKU
+                            </button>
                             <button type="button" class="btn btn-sm btn-outline-success" onclick="aprovarTodos()">
                                 <i class="fas fa-check me-1"></i>Aprovar Todos
                             </button>
@@ -100,19 +112,20 @@
                                 </thead>
                                 <tbody>
                                     {% for item in itens %}
-                                    <tr data-item-id="{{ item.id }}">
+                                    <tr data-item-nfe-id="{{ item.item_nfe_id }}" data-produto-id="{{ item.produto_id }}" data-variacao-id="{{ item.variacao_id }}" data-sku="{{ item.sku }}">
+                                        <input type="hidden" name="itens[{{ loop.index0 }}][item_nfe_id]" value="{{ item.item_nfe_id }}">
                                         <input type="hidden" name="itens[{{ loop.index0 }}][produto_id]" value="{{ item.produto_id }}">
                                         <input type="hidden" name="itens[{{ loop.index0 }}][variacao_id]" value="{{ item.variacao_id }}">
                                         <input type="hidden" name="itens[{{ loop.index0 }}][quantidade_prevista]" value="{{ item.quantidade }}">
                                         
                                         <td>
                                             <strong>{{ item.nome_produto }}</strong><br>
-                                            <small class="text-muted">{{ item.categoria }}</small>
+                                            <small>{{ item.categoria }}</small>
                                         </td>
                                         <td>{{ item.sku }}</td>
                                         <td>
                                             {{ item.tamanho }}<br>
-                                            <small class="text-muted">{{ item.cor }}</small>
+                                            <small>{{ item.cor }}</small>
                                         </td>
                                         <td class="text-center">
                                             <span class="badge bg-info">{{ item.quantidade }}</span>
@@ -181,7 +194,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="mb-1">Resumo da Conferência</h6>
-                                <p class="text-muted mb-0">
+                                <p class="mb-0">
                                     Total de itens: <strong>{{ itens|length }}</strong> | 
                                     Aprovados: <span id="totalAprovados" class="text-success fw-semibold">0</span> | 
                                     Rejeitados: <span id="totalRejeitados" class="text-danger fw-semibold">0</span>
@@ -202,6 +215,8 @@
         </div>
         <!-- Fim::row -->
     </form>
+
+    {% include 'components/partials/modal-conferencia-rapida.twig' %}
 
 {% endblock %}
 

@@ -6,9 +6,10 @@
             <div class="col-xxl-6 col-xl-7 col-lg-7 col-md-7 col-sm-8 col-12">
                 <div class="p-5">
                     <div class="mb-3 text-center">
-                        <img src="{{ DOMAIN}}/view/assets/ynex/assets/images/brand-logos/logo.svg" alt="Logo" class="authentication-brand img-fluid">
+                        <img src="{{ DOMAIN}}/view/assets/ynex/assets/images/brand-logos/logo-on-light.svg" alt="Logo" class="authentication-brand desktop-logo img-fluid">
+                        <img src="{{ DOMAIN}}/view/assets/ynex/assets/images/brand-logos/logo.svg" alt="Logo" class="authentication-brand desktop-dark img-fluid">
                     </div>
-                    <p class="mb-3 text-muted op-7 fw-normal">Bem-vindo! Faça login para continuar.</p>
+                    <p class="mb-3 op-7 fw-normal">Bem-vindo! Faça login para continuar.</p>
                     {% if error %}
                         <div class="alert alert-danger">{{ error }}</div>
                     {% endif %}
@@ -26,7 +27,10 @@
                         </div>
                         <div class="mb-3 form-check">
                             <input class="form-check-input" type="checkbox" name="remember" id="remember">
-                            <label class="form-check-label text-muted fw-normal" for="remember">Lembrar-me</label>
+                            <label class="form-check-label fw-normal" for="remember">Lembrar-me</label>
+                        </div>
+                        <div class="mb-3 text-end">
+                            <a href="{{ DOMAIN }}/login/recover" class="fw-normal">Esqueci minha senha</a>
                         </div>
                         <div class="d-grid mt-2">
                             <button type="submit" class="btn btn-lg btn-primary" id="loginBtn">

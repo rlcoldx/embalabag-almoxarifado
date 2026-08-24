@@ -21,7 +21,7 @@ class ConferenciaRecebimento extends Model
             SELECT 
                 cr.*,
                 COALESCE(nfe.numero_nfe, '-') as numero_nfe,
-                COALESCE(nfe.fornecedor_nome, '-') as fornecedor_nome,
+                COALESCE(f.nome, '-') as fornecedor_nome,
                 COALESCE(p.nome, '-') as produto_nome,
                 COALESCE(p.SKU, '-') as produto_sku,
                 COALESCE(pv.tamanho, '-') as tamanho,
@@ -29,6 +29,7 @@ class ConferenciaRecebimento extends Model
                 COALESCE(u.nome, '-') as usuario_nome
             FROM conferencia_recebimento cr
             LEFT JOIN notas_fiscais_eletronicas nfe ON cr.nfe_id = nfe.id
+            LEFT JOIN usuarios f ON nfe.fornecedor_id = f.id
             LEFT JOIN produtos p ON cr.produto_id = p.id
             LEFT JOIN produtos_variations pv ON cr.variacao_id = pv.id
             LEFT JOIN cores c ON pv.cor = c.id
@@ -48,7 +49,7 @@ class ConferenciaRecebimento extends Model
             SELECT 
                 cr.*,
                 nfe.numero_nfe,
-                nfe.fornecedor_nome,
+                f.nome as fornecedor_nome,
                 nfe.data_emissao,
                 p.nome as produto_nome,
                 p.SKU as produto_sku,
@@ -59,6 +60,7 @@ class ConferenciaRecebimento extends Model
                 u.nome as usuario_nome
             FROM conferencia_recebimento cr
             LEFT JOIN notas_fiscais_eletronicas nfe ON cr.nfe_id = nfe.id
+            LEFT JOIN usuarios f ON nfe.fornecedor_id = f.id
             LEFT JOIN produtos p ON cr.produto_id = p.id
             LEFT JOIN produtos_variations pv ON cr.variacao_id = pv.id
             LEFT JOIN cores c ON pv.cor = c.id
@@ -104,19 +106,46 @@ class ConferenciaRecebimento extends Model
             SELECT 
                 cr.*,
                 nfe.numero_nfe,
-                nfe.fornecedor_nome,
+                f.nome as fornecedor_nome,
                 p.nome as produto_nome,
                 p.SKU as produto_sku,
                 pv.tamanho,
                 c.nome as cor_nome
             FROM conferencia_recebimento cr
             LEFT JOIN notas_fiscais_eletronicas nfe ON cr.nfe_id = nfe.id
+            LEFT JOIN usuarios f ON nfe.fornecedor_id = f.id
             LEFT JOIN produtos p ON cr.produto_id = p.id
             LEFT JOIN produtos_variations pv ON cr.variacao_id = pv.id
             LEFT JOIN cores c ON pv.cor = c.id
             WHERE cr.status_conferencia IN ('pendente', 'em_andamento')
             ORDER BY cr.created_at ASC
         ");
+        return $this->read;
+    }
+
+    /**
+     * Buscar conferência existente para item da NF-e
+     */
+    public function getConferenciaExistente(int $nfeId, int $produtoId, int $variacaoId, ?int $itemNfeId = null): Read
+    {
+        $this->read = new Read();
+
+        if ($itemNfeId) {
+            $this->read->FullRead("
+                SELECT * FROM conferencia_recebimento
+                WHERE nfe_id = :nfe_id AND item_nfe_id = :item_nfe_id
+                LIMIT 1
+            ", "nfe_id={$nfeId}&item_nfe_id={$itemNfeId}");
+            return $this->read;
+        }
+
+        $this->read->FullRead("
+            SELECT * FROM conferencia_recebimento
+            WHERE nfe_id = :nfe_id
+              AND produto_id = :produto_id
+              AND variacao_id = :variacao_id
+            LIMIT 1
+        ", "nfe_id={$nfeId}&produto_id={$produtoId}&variacao_id={$variacaoId}");
         return $this->read;
     }
 
@@ -138,6 +167,14 @@ class ConferenciaRecebimento extends Model
         $this->update = new Update();
         $this->update->ExeUpdate('conferencia_recebimento', $dados, "WHERE id = :id", "id={$id}");
         return $this->update;
+    }
+
+    public function excluirConferencia(int $id): bool
+    {
+        $delete = new Delete();
+        $delete->ExeDelete('conferencia_recebimento_historico', 'WHERE conferencia_id = :id', "id={$id}");
+        $delete->ExeDelete('conferencia_recebimento', 'WHERE id = :id', "id={$id}");
+        return (bool) $delete->getResult();
     }
 
     /**
@@ -259,5 +296,239 @@ class ConferenciaRecebimento extends Model
         
         $result = $this->read->getResult();
         return $result[0] ?? [];
+    }
+
+    /**
+     * Contagem por status de conferência (dashboard)
+     */
+    public function getCountByStatus(string $status): int
+    {
+        $this->read = new Read();
+
+        if ($status === 'pendente') {
+            $this->read->FullRead("
+                SELECT COUNT(*) as total
+                FROM conferencia_recebimento
+                WHERE status_conferencia IN ('pendente', 'em_andamento')
+            ");
+        } else {
+            $this->read->FullRead("
+                SELECT COUNT(*) as total
+                FROM conferencia_recebimento
+                WHERE status_conferencia = :status
+            ", "status={$status}");
+        }
+
+        $result = $this->read->getResult();
+        return $result ? (int) $result[0]['total'] : 0;
+    }
+
+    /**
+     * Estatísticas por qualidade para gráficos do dashboard
+     */
+    public function getEstatisticasPorQualidade(): array
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT status_qualidade, COUNT(*) as total
+            FROM conferencia_recebimento
+            WHERE status_qualidade IS NOT NULL AND status_qualidade != ''
+            GROUP BY status_qualidade
+            ORDER BY total DESC
+        ");
+
+        $result = $this->read->getResult();
+        $estatisticas = [];
+
+        if ($result) {
+            foreach ($result as $row) {
+                $estatisticas[$row['status_qualidade']] = (int) $row['total'];
+            }
+        }
+
+        return $estatisticas;
+    }
+
+    /**
+     * Conferências recentes formatadas para o dashboard
+     */
+    public function getRecentes(int $limit = 5): array
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT
+                cr.*,
+                COALESCE(nfe.numero_nfe, '-') as numero_nfe,
+                COALESCE(p.nome, '-') as produto_nome,
+                COALESCE(u.nome, '-') as usuario_nome
+            FROM conferencia_recebimento cr
+            LEFT JOIN notas_fiscais_eletronicas nfe ON cr.nfe_id = nfe.id
+            LEFT JOIN produtos p ON cr.produto_id = p.id
+            LEFT JOIN usuarios u ON cr.usuario_conferente_id = u.id
+            ORDER BY cr.data_conferencia DESC, cr.created_at DESC
+            LIMIT :limit
+        ", "limit={$limit}");
+
+        $result = $this->read->getResult();
+        if (!$result) {
+            return [];
+        }
+
+        return array_map(function (array $row) {
+            return [
+                'id' => $row['id'],
+                'produto' => $row['produto_nome'],
+                'numero_nf' => $row['numero_nfe'],
+                'quantidade_recebida' => (int) ($row['quantidade_conferida'] ?? $row['quantidade_recebida'] ?? 0),
+                'quantidade_esperada' => (int) ($row['quantidade_prevista'] ?? 0),
+                'status_qualidade' => $row['status_qualidade'] ?? 'pendente',
+                'status_conferencia' => $row['status_conferencia'] ?? 'pendente',
+                'data_conferencia' => $row['data_conferencia'] ?? $row['created_at'],
+                'usuario_nome' => $row['usuario_nome'],
+            ];
+        }, $result);
+    }
+
+    /**
+     * Relatório de conferências com filtros
+     */
+    public function gerarRelatorioConferencia(array $filtros = []): array
+    {
+        $this->read = new Read();
+        $sql = "
+            SELECT cr.*,
+                   nfe.numero_nfe,
+                   f.nome as fornecedor_nome,
+                   p.nome as produto_nome,
+                   p.SKU as produto_sku,
+                   pv.tamanho,
+                   c.nome as cor_nome,
+                   u.nome as usuario_nome
+            FROM conferencia_recebimento cr
+            LEFT JOIN notas_fiscais_eletronicas nfe ON cr.nfe_id = nfe.id
+            LEFT JOIN usuarios f ON nfe.fornecedor_id = f.id
+            LEFT JOIN produtos p ON cr.produto_id = p.id
+            LEFT JOIN produtos_variations pv ON cr.variacao_id = pv.id
+            LEFT JOIN cores c ON pv.cor = c.id
+            LEFT JOIN usuarios u ON cr.usuario_conferente_id = u.id
+            WHERE 1=1
+        ";
+        $params = '';
+
+        if (!empty($filtros['data_inicio'])) {
+            $sql .= " AND DATE(cr.data_conferencia) >= :data_inicio";
+            $params .= "data_inicio={$filtros['data_inicio']}&";
+        }
+
+        if (!empty($filtros['data_fim'])) {
+            $sql .= " AND DATE(cr.data_conferencia) <= :data_fim";
+            $params .= "data_fim={$filtros['data_fim']}&";
+        }
+
+        if (!empty($filtros['periodo']) && empty($filtros['data_inicio']) && empty($filtros['data_fim'])) {
+            $dias = (int) $filtros['periodo'];
+            if ($dias > 0) {
+                $sql .= " AND cr.data_conferencia >= DATE_SUB(CURDATE(), INTERVAL {$dias} DAY)";
+            }
+        }
+
+        if (!empty($filtros['status_conferencia'])) {
+            $sql .= " AND cr.status_conferencia = :status_conferencia";
+            $params .= "status_conferencia={$filtros['status_conferencia']}&";
+        }
+
+        if (!empty($filtros['status'])) {
+            $sql .= " AND cr.status_conferencia = :status";
+            $params .= "status={$filtros['status']}&";
+        }
+
+        if (!empty($filtros['status_qualidade'])) {
+            $sql .= " AND cr.status_qualidade = :status_qualidade";
+            $params .= "status_qualidade={$filtros['status_qualidade']}&";
+        }
+
+        if (!empty($filtros['fornecedor'])) {
+            $sql .= " AND f.nome LIKE :fornecedor";
+            $params .= "fornecedor=%{$filtros['fornecedor']}%&";
+        }
+
+        if (!empty($filtros['fornecedor_nome'])) {
+            $sql .= " AND f.nome LIKE :fornecedor_nome";
+            $params .= "fornecedor_nome=%{$filtros['fornecedor_nome']}%&";
+        }
+
+        if (!empty($filtros['conferente'])) {
+            $sql .= " AND cr.usuario_conferente_id = :conferente";
+            $params .= "conferente={$filtros['conferente']}&";
+        }
+
+        $sql .= " ORDER BY cr.data_conferencia DESC, cr.created_at DESC";
+
+        $this->read->FullRead($sql, rtrim($params, '&'));
+        $result = $this->read->getResult() ?: [];
+
+        $headers = ['ID', 'NFE', 'Fornecedor', 'Produto', 'SKU', 'Qtd. Prevista', 'Qtd. Conferida', 'Status', 'Qualidade', 'Integridade', 'Data', 'Usuário'];
+        $rows = [];
+
+        foreach ($result as $row) {
+            $rows[] = [
+                $row['id'],
+                $row['numero_nfe'] ?? '-',
+                $row['fornecedor_nome'] ?? '-',
+                $row['produto_nome'] ?? '-',
+                $row['produto_sku'] ?? '-',
+                $row['quantidade_prevista'] ?? 0,
+                $row['quantidade_conferida'] ?? 0,
+                $row['status_conferencia'] ?? '-',
+                $row['status_qualidade'] ?? '-',
+                $row['status_integridade'] ?? '-',
+                $row['data_conferencia'] ?? '-',
+                $row['usuario_nome'] ?? '-',
+            ];
+        }
+
+        return [
+            'dados' => $result,
+            'headers' => $headers,
+            'data' => $rows,
+            'total_registros' => count($result),
+            'total_conferencias' => count($result),
+            'conferencias_aprovadas' => count(array_filter($result, fn($item) => ($item['status_qualidade'] ?? '') === 'aprovado')),
+            'conferencias_rejeitadas' => count(array_filter($result, fn($item) => ($item['status_qualidade'] ?? '') === 'reprovado')),
+            'periodo' => [
+                'inicio' => $filtros['data_inicio'] ?? null,
+                'fim' => $filtros['data_fim'] ?? null,
+                'dias' => $filtros['periodo'] ?? null,
+            ],
+        ];
+    }
+
+    /**
+     * Dados agregados para gráficos do relatório de conferência
+     */
+    public function getGraficosRelatorio(array $filtros = []): array
+    {
+        $relatorio = $this->gerarRelatorioConferencia($filtros);
+        $dados = $relatorio['dados'];
+
+        $status = ['pendente' => 0, 'em_andamento' => 0, 'concluida' => 0, 'cancelada' => 0];
+        $qualidade = ['aprovado' => 0, 'reprovado' => 0, 'pendente' => 0];
+
+        foreach ($dados as $row) {
+            $st = $row['status_conferencia'] ?? 'pendente';
+            if (isset($status[$st])) {
+                $status[$st]++;
+            }
+
+            $q = $row['status_qualidade'] ?? 'pendente';
+            if (isset($qualidade[$q])) {
+                $qualidade[$q]++;
+            }
+        }
+
+        return [
+            'status' => $status,
+            'qualidade' => $qualidade,
+        ];
     }
 }

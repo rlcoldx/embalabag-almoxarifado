@@ -1,0 +1,43 @@
+{% if menu_permissions.dashboard_produtos or menu_permissions.dashboard_armazenagens or menu_permissions.recebimento_dashboard or menu_permissions.dashboard_movimentacoes %}
+<li class="slide has-sub {{ dashboard_open ? 'active open' : '' }}">
+    <a href="javascript:void(0);" class="side-menu__item">
+        <i class="fa-light fa-chart-line side-menu__icon"></i>
+        <span class="side-menu__label">Dashboard</span>
+        <i class="fa-light fa-chevron-right side-menu__angle"></i>
+    </a>
+    <ul class="slide-menu">
+        {% if menu_permissions.dashboard_produtos %}
+        <li class="slide {{ menu and menu == 'dashboard_produtos' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/dashboard/produtos" class="side-menu__item">
+                <i class="fa-light fa-box side-menu__icon"></i>
+                <span class="side-menu__label">Produtos</span>
+            </a>
+        </li>
+        {% endif %}
+        {% if menu_permissions.dashboard_armazenagens %}
+        <li class="slide {{ menu and menu == 'dashboard_armazenagens' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/dashboard/armazenagens" class="side-menu__item">
+                <i class="fa-light fa-warehouse side-menu__icon"></i>
+                <span class="side-menu__label">Armazenagens</span>
+            </a>
+        </li>
+        {% endif %}
+        {% if menu_permissions.recebimento_dashboard %}
+        <li class="slide {{ menu and menu == 'recebimento_dashboard' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/recebimento/dashboard" class="side-menu__item">
+                <i class="fa-light fa-truck-ramp-box side-menu__icon"></i>
+                <span class="side-menu__label">Recebimento</span>
+            </a>
+        </li>
+        {% endif %}
+        {% if menu_permissions.dashboard_movimentacoes %}
+        <li class="slide {{ menu and menu == 'dashboard_movimentacoes' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/dashboard/movimentacoes" class="side-menu__item">
+                <i class="fa-light fa-arrows-up-down-left-right side-menu__icon"></i>
+                <span class="side-menu__label">Movimentações</span>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</li>
+{% endif %}

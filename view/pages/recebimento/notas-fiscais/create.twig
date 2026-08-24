@@ -9,7 +9,7 @@
 <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
     <div>
         <p class="fw-semibold fs-18 mb-0">Nova Nota Fiscal</p>
-        <span class="fs-semibold text-muted">Cadastre uma nova nota fiscal eletrônica.</span>
+        <span class="fs-semibold">Cadastre uma nova nota fiscal eletrônica.</span>
     </div>
     <div class="btn-list mt-md-0 mt-2">
         <a href="{{ DOMAIN }}/recebimento/notas-fiscais" class="btn btn-outline-primary btn-wave">
@@ -70,7 +70,9 @@
                             <label class="form-label">Pedido Relacionado</label>
                             <select class="form-select" name="pedido_id">
                                 <option value="">Selecione um pedido</option>
-                                <!-- Opções carregadas via AJAX -->
+                                {% for pedido in pedidos %}
+                                <option value="{{ pedido.id }}">{{ pedido.codigo|default(pedido.id) }} — {{ pedido.nome_cliente|default('') }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -106,6 +108,12 @@
                                 <option value="finalizada">Finalizada</option>
                             </select>
                         </div>
+                        {% include 'components/partials/select-responsavel.twig' with {
+                            field_name: 'usuario_recebimento',
+                            field_label: 'Responsável pelo recebimento',
+                            selected_id: session[BASE ~ 'user_id'],
+                            required: true
+                        } %}
                     </div>
 
                     <!-- Botões -->
@@ -125,8 +133,4 @@
     </div>
 </div>
 <!-- Fim::row -->
-{% endblock %}
-
-{% block scripts %}
-<script src="{{ DOMAIN }}/view/assets/js/recebimento/notas-fiscais/create.js"></script>
 {% endblock %} 

@@ -346,7 +346,10 @@ class DataTableHelper
                 switch ($filter['type']) {
                     case 'select':
                     case 'text':
-                        $conditions[] = "{$filterName} = :filter_{$filterName}";
+                        if (!empty($filter['options']['skip_column'])) {
+                            break;
+                        }
+                        $conditions[] = "{$this->table}.{$filterName} = :filter_{$filterName}";
                         break;
                     case 'like':
                         $conditions[] = "{$filterName} LIKE :filter_{$filterName}";
@@ -439,6 +442,9 @@ class DataTableHelper
             switch ($filter['type']) {
                 case 'select':
                 case 'text':
+                    if (!empty($filter['options']['skip_column'])) {
+                        break;
+                    }
                     $params["filter_{$filterName}"] = $filterValue;
                     break;
                 case 'like':

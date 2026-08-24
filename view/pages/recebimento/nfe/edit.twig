@@ -1,0 +1,155 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Editar NF-e {{ nfe.numero_nfe }}{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Editar NF-e {{ nfe.numero_nfe }}</p>
+        <span class="fs-semibold">Atualize os dados principais da nota fiscal.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento/nfe/show/{{ nfe.id }}" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-eye me-2"></i>Ver Detalhes
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card custom-card">
+            <div class="card-body">
+                <form id="formNfeEdit">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label required">Número da NF-e</label>
+                            <input type="text" class="form-control" name="numero_nfe" value="{{ nfe.numero_nfe }}" required>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label required">Chave de Acesso</label>
+                            <input type="text" class="form-control" name="chave_acesso" value="{{ nfe.chave_acesso }}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label required">Data Emissão</label>
+                            <input type="date" class="form-control" name="data_emissao" value="{{ nfe.data_emissao }}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label required">Valor Total</label>
+                            <input type="number" class="form-control" name="valor_total" step="0.01" min="0" value="{{ nfe.valor_total }}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label required">Fornecedor</label>
+                            <select class="form-select" name="fornecedor_id" required>
+                                {% for fornecedor in fornecedores %}
+                                <option value="{{ fornecedor.id }}" {{ nfe.fornecedor_id == fornecedor.id ? 'selected' : '' }}>{{ fornecedor.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="pendente" {{ nfe.status == 'pendente' ? 'selected' : '' }}>Pendente</option>
+                                <option value="conferida" {{ nfe.status == 'conferida' ? 'selected' : '' }}>Conferida</option>
+                                <option value="finalizada" {{ nfe.status == 'finalizada' ? 'selected' : '' }}>Finalizada</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Pedido vinculado</label>
+                            <select class="form-select" name="pedido_id">
+                                <option value="">Sem pedido</option>
+                                {% if nfe.pedido_id %}
+                                <option value="{{ nfe.pedido_id }}" selected>{{ nfe.pedido_codigo|default(nfe.pedido_id) }}</option>
+                                {% endif %}
+                                {% for pedido in pedidos %}
+                                {% if pedido.id != nfe.pedido_id %}
+                                <option value="{{ pedido.id }}">{{ pedido.codigo }} - {{ pedido.nome_cliente|default('') }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% include 'components/partials/select-responsavel.twig' with {
+                            field_name: 'usuario_recebimento_id',
+                            field_label: 'Responsável pelo recebimento',
+                            selected_id: nfe.usuario_recebimento_id,
+                            required: true,
+                            col_class: 'col-md-6'
+                        } %}
+                        <div class="col-md-12">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="3">{{ nfe.observacoes }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{{ DOMAIN }}/recebimento/nfe/show/{{ nfe.id }}" class="btn btn-light">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">Itens (somente leitura)</div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th class="text-center">Qtd</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in itens %}
+                            <tr>
+                                <td>{{ item.nome_produto|default('-') }}</td>
+                                <td class="text-center">{{ item.quantidade }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="2" class="text-center py-3">Sem itens</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('formNfeEdit');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const body = new URLSearchParams(formData).toString();
+
+        fetch(buildUrl('/recebimento/nfe/update/{{ nfe.id }}'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body,
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({ icon: 'success', title: 'Sucesso', text: data.message }).then(() => {
+                    window.location.href = data.redirect || buildUrl('/recebimento/nfe/show/{{ nfe.id }}');
+                });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Erro', text: data.error || 'Erro ao salvar.' });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

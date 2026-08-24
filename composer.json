@@ -23,7 +23,8 @@
     "ext-gd": "*",
     "ext-json": "*",
     "ext-iconv": "*",
-    "codeinc/strip-accents": "^1.1"
+    "codeinc/strip-accents": "^1.1",
+    "chillerlan/php-qrcode": "^4.3"
   },
   "autoload": {
     "psr-4": {

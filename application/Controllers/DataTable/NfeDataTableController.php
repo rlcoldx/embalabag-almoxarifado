@@ -77,6 +77,10 @@ class NfeDataTableController extends Controller
         if (!empty($_POST['data_fim'])) {
             $filtros['data_fim'] = $_POST['data_fim'];
         }
+
+        if (!empty($_POST['usuario_recebimento_id'])) {
+            $filtros['usuario_recebimento_id'] = $_POST['usuario_recebimento_id'];
+        }
         
         return $filtros;
     }
@@ -101,6 +105,10 @@ class NfeDataTableController extends Controller
             
             // Data fim
             if (isset($filtros['data_fim']) && $item['data_recebimento'] > $filtros['data_fim']) {
+                return false;
+            }
+
+            if (isset($filtros['usuario_recebimento_id']) && (int) $item['usuario_recebimento_id'] !== (int) $filtros['usuario_recebimento_id']) {
                 return false;
             }
             

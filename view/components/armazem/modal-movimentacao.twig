@@ -18,11 +18,18 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="movimentacaoProduto" class="form-label required">Produto (SKU)</label>
-                                <select class="form-control select2-ajax" id="movimentacaoProduto" name="id_produto" 
-                                        data-placeholder="Digite para buscar o produto..." required>
-                                    <option value=""></option>
-                                </select>
-                                <small class="form-hint">Digite o nome ou SKU do produto para buscar</small>
+                                <div class="d-flex gap-2">
+                                    <div class="flex-grow-1">
+                                        <select class="form-control select2-ajax" id="movimentacaoProduto" name="id_produto"
+                                                data-placeholder="Digite para buscar o produto..." required>
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-outline-primary" type="button" id="btnScannerMovimentacao" data-scanner-tipo="movimentacao" title="Escanear código">
+                                        <i class="fas fa-barcode"></i>
+                                    </button>
+                                </div>
+                                <small class="form-hint">Digite o nome ou SKU, ou use o scanner</small>
                             </div>
                         </div>
                         <div class="col-md-6">

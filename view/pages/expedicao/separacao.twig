@@ -1,0 +1,88 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Separação {{ pedido.codigo }}{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Separação — {{ pedido.codigo }}</p>
+        <span class="fs-semibold">Destino: {{ pedido.base_destino|default('-') }} · SIGE: {{ pedido.codigoSige|default('-') }}</span>
+    </div>
+    <div>
+        <a href="{{ DOMAIN }}/expedicao/etiqueta/{{ pedido.id }}" class="btn btn-outline-primary btn-wave me-2">Etiqueta interna</a>
+        <a href="{{ DOMAIN }}/expedicao/separacao" class="btn btn-outline-secondary btn-wave">Voltar</a>
+    </div>
+</div>
+
+{% if session.error %}
+<div class="alert alert-danger">{{ session.error }}</div>
+{% endif %}
+<div id="expedicao-msg" class="alert d-none"></div>
+
+<div class="card custom-card">
+    <div class="card-header">
+        <div class="card-title">Itens para separar</div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Qtd</th>
+                        <th>Endereço</th>
+                        <th>Trocar endereço</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in itens %}
+                    <tr>
+                        <td>
+                            <strong>{{ item.produto_nome|default('-') }}</strong><br>
+                            <small>{{ item.produto_sku|default('') }}</small>
+                        </td>
+                        <td>{{ item.quantidade }}</td>
+                        <td>{{ item.endereco_novo ?: item.endereco_origem ?: '-' }}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <select class="form-select form-select-sm" data-endereco-item="{{ item.id }}">
+                                    <option value="">Selecionar</option>
+                                    {% for endereco in enderecos %}
+                                    <option value="{{ endereco.id }}">{{ endereco.codigo }}{% if endereco.status == 'bloqueado' %} (bloqueado){% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-trocar-endereco="{{ item.id }}">Trocar</button>
+                            </div>
+                        </td>
+                        <td>
+                            {% if item.status == 'separado' %}
+                                <span class="badge bg-success-transparent">Separado</span>
+                            {% else %}
+                                <span class="badge bg-warning-transparent">Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if item.status != 'separado' %}
+                            <button type="button" class="btn btn-sm btn-success btn-wave" data-separar-item="{{ item.id }}">Separar</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="text-center py-4">Nenhum item. Inicie a separação pelo pedido aprovado.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer text-end">
+        <form method="post" action="{{ DOMAIN }}/expedicao/separacao/concluir/{{ pedido.id }}">
+            <button type="submit" class="btn btn-primary btn-wave">Concluir separação</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/expedicao/expedicao.js?v={{ VERSION }}"></script>
+{% endblock %}

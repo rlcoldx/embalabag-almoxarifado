@@ -99,6 +99,62 @@ class User extends Model
         return $result === true;
     }
 
+    public function criarTokenResetSenha(string $email): ?string
+    {
+        $usuario = $this->emailExist($email)->getResult()[0] ?? null;
+        if (!$usuario || ($usuario['status'] ?? '') !== 'ativo' || (string)($usuario['tipo'] ?? '') === '4') {
+            return null;
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $this->update = new Update();
+        $this->update->ExeUpdate($this->table, [
+            'reset_token' => hash('sha256', $token),
+            'reset_token_expira' => date('Y-m-d H:i:s', time() + 3600),
+        ], 'WHERE id = :id', 'id=' . (int)$usuario['id']);
+
+        if ($this->update->getResult() !== true) {
+            return null;
+        }
+
+        return $token;
+    }
+
+    public function getUsuarioPorTokenReset(string $token): ?array
+    {
+        if ($token === '') {
+            return null;
+        }
+
+        $hash = hash('sha256', $token);
+        $agora = date('Y-m-d H:i:s');
+        $read = new Read();
+        $read->FullRead(
+            "SELECT * FROM usuarios WHERE reset_token = :token AND reset_token_expira >= :agora LIMIT 1",
+            "token={$hash}&agora={$agora}"
+        );
+        $result = $read->getResult();
+
+        return $result[0] ?? null;
+    }
+
+    public function redefinirSenhaPorToken(string $token, string $password): bool
+    {
+        $usuario = $this->getUsuarioPorTokenReset($token);
+        if (!$usuario) {
+            return false;
+        }
+
+        $this->update = new Update();
+        $this->update->ExeUpdate($this->table, [
+            'senha' => sha1($password),
+            'reset_token' => null,
+            'reset_token_expira' => null,
+        ], 'WHERE id = :id', 'id=' . (int)$usuario['id']);
+
+        return $this->update->getResult() === true;
+    }
+
     public function updateLastAccess(int $userId): bool
     {
         $data = ['ultimo_acesso' => date('Y-m-d H:i:s')];
@@ -122,6 +178,20 @@ class User extends Model
             ORDER BY u.nome ASC
         ");
         return $this->read;
+    }
+
+    public function getUsuariosAtivos(): array
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT id, nome, email
+            FROM usuarios
+            WHERE status = 'ativo'
+              AND tipo IN ('1', '2')
+            ORDER BY nome ASC
+        ");
+
+        return $this->read->getResult() ?: [];
     }
 
     public function getUsersByType(string $tipo): Read

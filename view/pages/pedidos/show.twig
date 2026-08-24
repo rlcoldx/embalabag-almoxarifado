@@ -1,0 +1,171 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Pedido {{ pedido.codigo }}{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Pedido {{ pedido.codigo }}</p>
+        <span class="badge {{ pedido.status_pedido|pedidoStatusColor }}-transparent">
+            {{ pedido.status_pedido|pedidoStatusName }}
+        </span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        {% if permissions.can.pedidos.edit %}
+        <a href="{{ DOMAIN }}/pedidos/edit/{{ pedido.id }}" class="btn btn-outline-primary btn-wave me-2">
+            <i class="fas fa-edit me-2"></i>Editar
+        </a>
+        {% endif %}
+        {% if permissions.can.pedidos.approve and pedido.status_pedido == '1' %}
+        <button type="button" class="btn btn-success btn-wave me-2" id="btnAprovarPedido">
+            <i class="fas fa-check me-2"></i>Aprovar
+        </button>
+        {% endif %}
+        {% if permissions.can.pedidos.cancel and pedido.status_pedido != '0' and pedido.status_pedido != '9' %}
+        <button type="button" class="btn btn-outline-danger btn-wave me-2" id="btnCancelarPedido">
+            <i class="fas fa-ban me-2"></i>Cancelar
+        </button>
+        {% endif %}
+        {% if pedido.status_pedido == '2' %}
+        <a href="{{ DOMAIN }}/expedicao/separacao/iniciar/{{ pedido.id }}" class="btn btn-primary btn-wave me-2">
+            <i class="fas fa-boxes me-2"></i>Separar
+        </a>
+        <a href="{{ DOMAIN }}/expedicao/etiqueta/{{ pedido.id }}" class="btn btn-outline-primary btn-wave me-2">
+            <i class="fas fa-tag me-2"></i>Etiqueta interna
+        </a>
+        <a href="{{ DOMAIN }}/expedicao/bipagem" class="btn btn-outline-info btn-wave me-2">
+            <i class="fas fa-barcode me-2"></i>Bipar SIGE
+        </a>
+        {% endif %}
+        <a href="{{ DOMAIN }}/pedidos" class="btn btn-outline-secondary btn-wave">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card custom-card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-info-circle me-2"></i>Informações</div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Fornecedor / Solicitante</label>
+                        <p class="mb-0 fs-16">{{ pedido.nome_cliente|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Prioridade</label>
+                        <p class="mb-0 fs-16">{{ pedido.prioridade|default('Normal') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Base Solicitante</label>
+                        <p class="mb-0 fs-16">{{ pedido.base_solicitante|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Base Destino</label>
+                        <p class="mb-0 fs-16">{{ pedido.base_destino|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Código SIGE</label>
+                        <p class="mb-0 fs-16">{{ pedido.codigoSige|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Etiqueta cia aérea</label>
+                        <p class="mb-0 fs-16">{{ pedido.etiqueta_cia_aerea|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Previsão de Entrega</label>
+                        <p class="mb-0 fs-16">{{ pedido.previsao_entrega|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Responsável</label>
+                        <p class="mb-0 fs-16">{{ pedido.usuario_nome|default(pedido.nome_colaborador)|default('-') }}</p>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-semibold">Observações</label>
+                        <p class="mb-0 fs-16">{{ pedido.observacoes|default('Nenhuma observação') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-box me-2"></i>Itens do Pedido</div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>SKU</th>
+                                <th class="text-center">Qtd</th>
+                                <th class="text-end">Valor Unit.</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if itens|length > 0 %}
+                                {% for item in itens %}
+                                <tr>
+                                    <td>{{ item.produto_nome|default('-') }}</td>
+                                    <td>{{ item.produto_sku|default('-') }}</td>
+                                    <td class="text-center">{{ item.qty }}</td>
+                                    <td class="text-end">R$ {{ item.valor_unidade|number_format(2, ',', '.') }}</td>
+                                    <td class="text-end">R$ {{ item.valor_total|number_format(2, ',', '.') }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">Nenhum item neste pedido</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-chart-bar me-2"></i>Resumo</div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Valor Total</label>
+                    <p class="mb-0 fs-20 fw-semibold text-primary">R$ {{ pedido.valor_total|default('0')|number_format(2, ',', '.') }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Criado em</label>
+                    <p class="mb-0 fs-16">{{ pedido.date_create|default('-') }}</p>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-semibold">Status</label>
+                    <p class="mb-0">
+                        <span class="badge {{ pedido.status_pedido|pedidoStatusColor }}-transparent">
+                            {{ pedido.status_pedido|pedidoStatusName }}
+                        </span>
+                        {% if pedido.status_expedicao %}
+                        <span class="badge bg-info-transparent">{{ pedido.status_expedicao }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/pedidos/show.js?v={{ VERSION }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initPedidoShow({ pedidoId: {{ pedido.id }} });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Bipar SIGE{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Bipar pedido SIGE e etiqueta da cia aérea</p>
+        <span class="fs-semibold">Cruza o código do SIGE com a etiqueta da companhia.</span>
+    </div>
+</div>
+
+{% if not sige_ok %}
+<div class="alert alert-warning">
+    SIGE Cloud ainda sem token no <code>config.php</code>. A busca usa pedidos já cadastrados no almoxarifado.
+</div>
+{% endif %}
+
+<div id="expedicao-msg" class="alert d-none"></div>
+
+<div class="card custom-card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Código do pedido SIGE</label>
+                <input type="text" id="bipar-sige" class="form-control" autofocus>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Etiqueta da cia aérea</label>
+                <input type="text" id="bipar-cia" class="form-control">
+            </div>
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="bipar-importar">
+            <label class="form-check-label" for="bipar-importar">Se não existir localmente, importar do SIGE</label>
+        </div>
+        <button type="button" class="btn btn-primary btn-wave" id="btn-bipar">Bipar e vincular</button>
+    </div>
+</div>
+
+<div id="bipar-resultado" class="card custom-card mt-3 d-none">
+    <div class="card-body" id="bipar-resultado-body"></div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/expedicao/expedicao.js?v={{ VERSION }}"></script>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Movimentação #{{ movimentacao.id }}{% endblock %}
+{% block content %}
+
+{% set tipoLabels = {
+    put_away: 'Put-away',
+    transferencia: 'Transferência',
+    reposicao: 'Reposição',
+    ajuste: 'Ajuste'
+} %}
+{% set statusClass = movimentacao.status == 'concluida' ? 'success' : (movimentacao.status == 'em_andamento' ? 'info' : (movimentacao.status == 'cancelada' ? 'danger' : 'warning')) %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Movimentação #{{ movimentacao.id }}</p>
+        <span class="badge bg-{{ statusClass }}-transparent">
+            {{ movimentacao.status|replace({'_': ' '})|capitalize }}
+        </span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        {% if movimentacao.status == 'pendente' and permissions.can.movimentacoes.edit %}
+        <button type="button" class="btn btn-success btn-wave me-2" id="btnExecutarMovimentacao" data-id="{{ movimentacao.id }}">
+            <i class="fas fa-play me-2"></i>Executar
+        </button>
+        <a href="{{ DOMAIN }}/recebimento/movimentacoes/edit/{{ movimentacao.id }}" class="btn btn-outline-primary btn-wave me-2">
+            <i class="fas fa-edit me-2"></i>Editar
+        </a>
+        {% endif %}
+        <a href="{{ DOMAIN }}/recebimento/movimentacoes" class="btn btn-outline-secondary btn-wave">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card custom-card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-info-circle me-2"></i>Informações da Movimentação</div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Tipo</label>
+                        <p class="mb-0 fs-16">{{ tipoLabels[movimentacao.tipo_movimentacao]|default(movimentacao.tipo_movimentacao|replace({'_': ' '})|capitalize) }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Nota Fiscal</label>
+                        <p class="mb-0 fs-16">{{ movimentacao.numero_nf|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Produto</label>
+                        <p class="mb-0 fs-16">{{ movimentacao.descricao_produto|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Código</label>
+                        <p class="mb-0 fs-16">{{ movimentacao.codigo_produto|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Fornecedor</label>
+                        <p class="mb-0 fs-16">{{ movimentacao.fornecedor|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Usuário</label>
+                        <p class="mb-0 fs-16">{{ movimentacao.usuario_movimentacao_nome|default('-') }}</p>
+                    </div>
+                    <div class="col-md-12 mb-0">
+                        <label class="form-label fw-semibold">Motivo</label>
+                        <p class="mb-3 fs-16">{{ movimentacao.motivo|default('Não informado') }}</p>
+                        <label class="form-label fw-semibold">Observações</label>
+                        <p class="mb-0 fs-16">{{ movimentacao.observacoes|default('Nenhuma observação') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card custom-card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-warehouse me-2"></i>Localização</div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Origem</label>
+                    <p class="mb-0 fs-16">
+                        {% if movimentacao.armazenagem_origem_codigo %}
+                            {{ movimentacao.armazenagem_origem_codigo }} — {{ movimentacao.armazenagem_origem_descricao|default('') }}
+                        {% else %}
+                            Recebimento (sem origem)
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-semibold">Destino</label>
+                    <p class="mb-0 fs-16">
+                        {% if movimentacao.armazenagem_destino_codigo %}
+                            {{ movimentacao.armazenagem_destino_codigo }} — {{ movimentacao.armazenagem_destino_descricao|default('') }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-boxes me-2"></i>Quantidade e Data</div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Quantidade Movimentada</label>
+                    <p class="mb-0 fs-20 fw-semibold text-primary">{{ movimentacao.quantidade_movimentada|default(0) }}</p>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-semibold">Data da Movimentação</label>
+                    <p class="mb-0 fs-16">{{ movimentacao.data_movimentacao ? movimentacao.data_movimentacao|date('d/m/Y H:i') : '-' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/recebimento/movimentacoes/show.js?v={{ VERSION }}"></script>
+{% endblock %}

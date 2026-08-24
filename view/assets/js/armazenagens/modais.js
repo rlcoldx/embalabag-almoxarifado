@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="d-flex align-items-center">
                 <div class="flex-grow-1">
                     <div class="fw-semibold">${produto.data.SKU}</div>
-                    <div class="text-muted small">${produto.data.nome}</div>
+                    <div class="small">${produto.data.nome}</div>
                 </div>
                 <div class="text-end">
                     <span class="badge bg-primary">${produto.data.categoria || 'N/A'}</span>
@@ -524,6 +524,44 @@ document.addEventListener('DOMContentLoaded', function() {
     $(document).ready(function() {
         initializeModaisArmazem();
     });
+
+    window.aplicarProdutoPorSku = function (sku, modalId, selectSelector) {
+        if (!sku) {
+            return;
+        }
+
+        fetch(buildUrl('/api/produtos/sku/' + encodeURIComponent(sku)))
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                const produto = data.data || data.produto;
+                if (!data.success || !produto) {
+                    Swal.fire('Produto não encontrado', data.error || data.message || 'SKU não localizado.', 'warning');
+                    return;
+                }
+
+                const $select = $(selectSelector);
+                if ($select.length && $select.hasClass('select2-hidden-accessible')) {
+                    const label = (produto.SKU || sku) + ' - ' + (produto.nome || '');
+                    const option = new Option(label, produto.id, true, true);
+                    $select.empty().append(option).trigger('change');
+                    $select.trigger({
+                        type: 'select2:select',
+                        params: { data: { id: produto.id, text: label, data: produto } }
+                    });
+                    return;
+                }
+
+                if ($select.length) {
+                    $select.val(produto.id);
+                }
+
+                carregarVariacoesProduto(produto.id, modalId);
+                exibirInfoProduto(produto, modalId);
+            })
+            .catch(function () {
+                Swal.fire('Erro', 'Erro ao buscar produto pelo código.', 'error');
+            });
+    };
 
     // Exportar funções para uso global
     window.ModaisArmazem = {

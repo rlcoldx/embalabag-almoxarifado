@@ -7,6 +7,7 @@ use Agencia\Close\Models\Movimentacao\MovimentacaoInterna;
 use Agencia\Close\Models\NotaFiscal\NotaFiscal;
 use Agencia\Close\Models\Armazenagem\Armazenagem;
 use Agencia\Close\Helpers\User\PermissionHelper;
+use Agencia\Close\Helpers\User\ResponsavelHelper;
 
 class MovimentacoesController extends Controller
 {
@@ -14,13 +15,13 @@ class MovimentacoesController extends Controller
     {
         $this->checkSession();
         $this->setParams($params);
-        
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('movimentacao', 'visualizar')) {
             echo 'Sem permissão para acessar este módulo.';
             return;
         }
-        
+
         $this->render('pages/recebimento/movimentacoes/index.twig', [
             'menu' => 'recebimento_movimentacoes'
         ]);
@@ -30,23 +31,24 @@ class MovimentacoesController extends Controller
     {
         $this->checkSession();
         $this->setParams($params);
-        
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('movimentacao', 'criar')) {
             echo 'Sem permissão para criar movimentações.';
             return;
         }
-        
-        $this->render('pages/recebimento/movimentacoes/create.twig', [
-            'menu' => 'recebimento_movimentacoes'
-        ]);
+
+        $this->render('pages/recebimento/movimentacoes/create.twig', array_merge(
+            $this->getFormLists(),
+            ['menu' => 'recebimento_movimentacoes']
+        ));
     }
 
     public function store(array $params)
     {
         $this->checkSession();
         $this->setParams($params);
-        
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('movimentacao', 'criar')) {
             $this->responseJson([
@@ -55,60 +57,61 @@ class MovimentacoesController extends Controller
             ]);
             return;
         }
-        
+
+        $data = $this->montarDadosMovimentacao($_POST);
+        $erro = $this->validarDadosMovimentacao($data);
+        if ($erro) {
+            $this->responseJson(['success' => false, 'message' => $erro]);
+            return;
+        }
+
+        $executarAgora = ($_POST['status'] ?? '') === 'concluida' || !empty($_POST['executar_agora']);
+        $data['status'] = 'pendente';
+
         $movimentacao = new MovimentacaoInterna();
-        
-        $data = [
-            'item_nf_id' => $_POST['item_nf_id'] ?? null,
-            'tipo_movimentacao' => $_POST['tipo_movimentacao'] ?? '',
-            'armazenagem_origem_id' => $_POST['armazenagem_origem_id'] ?? null,
-            'armazenagem_destino_id' => $_POST['armazenagem_destino_id'] ?? null,
-            'quantidade_movimentada' => $_POST['quantidade_movimentada'] ?? 0,
-            'motivo' => $_POST['motivo'] ?? '',
-            'observacoes' => $_POST['observacoes'] ?? '',
-            'usuario_movimentacao_id' => $_SESSION[BASE.'user_id'] ?? null,
-            'data_movimentacao' => date('Y-m-d H:i:s'),
-            'status' => 'pendente'
-        ];
-        
-        if ($movimentacao->create($data)) {
-            $this->responseJson([
-                'success' => true,
-                'message' => 'Movimentação criada com sucesso!'
-            ]);
-        } else {
+        $id = $movimentacao->create($data);
+
+        if (!$id) {
             $this->responseJson([
                 'success' => false,
                 'message' => 'Erro ao criar movimentação.'
             ]);
+            return;
         }
+
+        if ($executarAgora && !$movimentacao->executar((int)$id)) {
+            $this->responseJson([
+                'success' => true,
+                'message' => 'Movimentação criada, mas não foi possível executá-la automaticamente.',
+                'redirect' => DOMAIN . '/recebimento/movimentacoes/show/' . $id
+            ]);
+            return;
+        }
+
+        $this->responseJson([
+            'success' => true,
+            'message' => $executarAgora ? 'Movimentação criada e executada com sucesso!' : 'Movimentação criada com sucesso!',
+            'redirect' => DOMAIN . '/recebimento/movimentacoes/show/' . $id
+        ]);
     }
 
     public function show(array $params)
     {
         $this->checkSession();
         $this->setParams($params);
-        
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('movimentacao', 'visualizar')) {
             echo 'Sem permissão para visualizar movimentações.';
             return;
         }
-        
-        $id = $params['id'] ?? null;
-        if (!$id) {
-            echo 'ID da movimentação não informado.';
-            return;
-        }
-        
-        $movimentacao = new MovimentacaoInterna();
-        $dados = $movimentacao->getById($id);
-        
+
+        $dados = $this->getMovimentacaoOrFail($params['id'] ?? null);
         if (!$dados) {
             echo 'Movimentação não encontrada.';
             return;
         }
-        
+
         $this->render('pages/recebimento/movimentacoes/show.twig', [
             'menu' => 'recebimento_movimentacoes',
             'movimentacao' => $dados
@@ -119,38 +122,33 @@ class MovimentacoesController extends Controller
     {
         $this->checkSession();
         $this->setParams($params);
-        
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('movimentacao', 'editar')) {
             echo 'Sem permissão para editar movimentações.';
             return;
         }
-        
-        $id = $params['id'] ?? null;
-        if (!$id) {
-            echo 'ID da movimentação não informado.';
-            return;
-        }
-        
-        $movimentacao = new MovimentacaoInterna();
-        $dados = $movimentacao->getById($id);
-        
+
+        $dados = $this->getMovimentacaoOrFail($params['id'] ?? null);
         if (!$dados) {
             echo 'Movimentação não encontrada.';
             return;
         }
-        
-        $this->render('pages/recebimento/movimentacoes/edit.twig', [
-            'menu' => 'recebimento_movimentacoes',
-            'movimentacao' => $dados
-        ]);
+
+        $this->render('pages/recebimento/movimentacoes/edit.twig', array_merge(
+            $this->getFormLists(),
+            [
+                'menu' => 'recebimento_movimentacoes',
+                'movimentacao' => $dados
+            ]
+        ));
     }
 
     public function update(array $params)
     {
         $this->checkSession();
         $this->setParams($params);
-        
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('movimentacao', 'editar')) {
             $this->responseJson([
@@ -159,32 +157,48 @@ class MovimentacoesController extends Controller
             ]);
             return;
         }
-        
+
         $id = $params['id'] ?? null;
-        if (!$id) {
+        $atual = $this->getMovimentacaoOrFail($id);
+        if (!$atual) {
             $this->responseJson([
                 'success' => false,
-                'message' => 'ID da movimentação não informado.'
+                'message' => 'Movimentação não encontrada.'
             ]);
             return;
         }
-        
-        $movimentacao = new MovimentacaoInterna();
-        
+
+        if (in_array($atual['status'], ['concluida', 'cancelada'], true)) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Não é possível editar uma movimentação concluída ou cancelada.'
+            ]);
+            return;
+        }
+
         $data = [
-            'tipo_movimentacao' => $_POST['tipo_movimentacao'] ?? '',
-            'armazenagem_origem_id' => $_POST['armazenagem_origem_id'] ?? null,
-            'armazenagem_destino_id' => $_POST['armazenagem_destino_id'] ?? null,
-            'quantidade_movimentada' => $_POST['quantidade_movimentada'] ?? 0,
-            'motivo' => $_POST['motivo'] ?? '',
-            'observacoes' => $_POST['observacoes'] ?? '',
-            'updated_at' => date('Y-m-d H:i:s')
+            'tipo_movimentacao' => $_POST['tipo_movimentacao'] ?? $atual['tipo_movimentacao'],
+            'armazenagem_origem_id' => $this->toNullableInt($_POST['armazenagem_origem_id'] ?? null),
+            'armazenagem_destino_id' => $this->toNullableInt($_POST['armazenagem_destino_id'] ?? null),
+            'quantidade_movimentada' => (int)($_POST['quantidade_movimentada'] ?? 0),
+            'motivo' => trim($_POST['motivo'] ?? ''),
+            'observacoes' => trim($_POST['observacoes'] ?? ''),
         ];
-        
-        if ($movimentacao->update($id, $data)) {
+
+        $erro = $this->validarDadosMovimentacao(array_merge($data, [
+            'item_nf_id' => $atual['item_nf_id']
+        ]));
+        if ($erro) {
+            $this->responseJson(['success' => false, 'message' => $erro]);
+            return;
+        }
+
+        $movimentacao = new MovimentacaoInterna();
+        if ($movimentacao->update((int)$id, $data)) {
             $this->responseJson([
                 'success' => true,
-                'message' => 'Movimentação atualizada com sucesso!'
+                'message' => 'Movimentação atualizada com sucesso!',
+                'redirect' => DOMAIN . '/recebimento/movimentacoes/show/' . $id
             ]);
         } else {
             $this->responseJson([
@@ -198,7 +212,7 @@ class MovimentacoesController extends Controller
     {
         $this->checkSession();
         $this->setParams($params);
-        
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('movimentacao', 'excluir')) {
             $this->responseJson([
@@ -207,7 +221,7 @@ class MovimentacoesController extends Controller
             ]);
             return;
         }
-        
+
         $id = $params['id'] ?? null;
         if (!$id) {
             $this->responseJson([
@@ -216,10 +230,10 @@ class MovimentacoesController extends Controller
             ]);
             return;
         }
-        
+
         $movimentacao = new MovimentacaoInterna();
-        
-        if ($movimentacao->delete($id)) {
+
+        if ($movimentacao->delete((int)$id)) {
             $this->responseJson([
                 'success' => true,
                 'message' => 'Movimentação excluída com sucesso!'
@@ -227,7 +241,7 @@ class MovimentacoesController extends Controller
         } else {
             $this->responseJson([
                 'success' => false,
-                'message' => 'Erro ao excluir movimentação.'
+                'message' => 'Erro ao excluir movimentação. Movimentações concluídas não podem ser excluídas.'
             ]);
         }
     }
@@ -236,7 +250,7 @@ class MovimentacoesController extends Controller
     {
         $this->checkSession();
         $this->setParams($params);
-        
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('movimentacao', 'executar')) {
             $this->responseJson([
@@ -245,7 +259,7 @@ class MovimentacoesController extends Controller
             ]);
             return;
         }
-        
+
         $id = $params['id'] ?? null;
         if (!$id) {
             $this->responseJson([
@@ -254,18 +268,19 @@ class MovimentacoesController extends Controller
             ]);
             return;
         }
-        
+
         $movimentacao = new MovimentacaoInterna();
-        
-        if ($movimentacao->executar($id)) {
+
+        if ($movimentacao->executar((int)$id)) {
             $this->responseJson([
                 'success' => true,
-                'message' => 'Movimentação executada com sucesso!'
+                'message' => 'Movimentação executada com sucesso!',
+                'redirect' => DOMAIN . '/recebimento/movimentacoes/show/' . $id
             ]);
         } else {
             $this->responseJson([
                 'success' => false,
-                'message' => 'Erro ao executar movimentação.'
+                'message' => 'Erro ao executar movimentação. Verifique se ela está pendente.'
             ]);
         }
     }
@@ -274,21 +289,24 @@ class MovimentacoesController extends Controller
     {
         $this->checkSession();
         $this->setParams($params);
-        
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('movimentacao', 'criar')) {
             echo 'Sem permissão para realizar put-away.';
             return;
         }
-        
-        $this->render('pages/recebimento/movimentacoes/put-away.twig');
+
+        $this->render('pages/recebimento/movimentacoes/put-away.twig', array_merge(
+            $this->getFormLists(),
+            ['menu' => 'recebimento_movimentacoes']
+        ));
     }
 
     public function realizarPutAway(array $params)
     {
         $this->checkSession();
         $this->setParams($params);
-        
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('movimentacao', 'criar')) {
             $this->responseJson([
@@ -297,54 +315,61 @@ class MovimentacoesController extends Controller
             ]);
             return;
         }
-        
-        $movimentacao = new MovimentacaoInterna();
-        
-        $data = [
-            'item_nf_id' => $_POST['item_nf_id'] ?? null,
+
+        $data = $this->montarDadosMovimentacao($_POST, [
             'tipo_movimentacao' => 'put_away',
             'armazenagem_origem_id' => null,
-            'armazenagem_destino_id' => $_POST['armazenagem_destino_id'] ?? null,
-            'quantidade_movimentada' => $_POST['quantidade_movimentada'] ?? 0,
-            'motivo' => 'Put-away automático',
-            'observacoes' => $_POST['observacoes'] ?? '',
-            'usuario_movimentacao_id' => $_SESSION[BASE.'user_id'] ?? null,
-            'data_movimentacao' => date('Y-m-d H:i:s'),
-            'status' => 'concluida'
-        ];
-        
-        if ($movimentacao->create($data)) {
-            $this->responseJson([
-                'success' => true,
-                'message' => 'Put-away realizado com sucesso!'
-            ]);
-        } else {
+            'motivo' => trim($_POST['motivo'] ?? '') ?: 'Put-away de recebimento',
+        ]);
+
+        $erro = $this->validarDadosMovimentacao($data);
+        if ($erro) {
+            $this->responseJson(['success' => false, 'message' => $erro]);
+            return;
+        }
+
+        $movimentacao = new MovimentacaoInterna();
+        $id = $movimentacao->realizarPutAway($data);
+
+        if (!$id) {
             $this->responseJson([
                 'success' => false,
-                'message' => 'Erro ao realizar put-away.'
+                'message' => 'Erro ao realizar put-away. Verifique o item e a armazenagem de destino.'
             ]);
+            return;
         }
+
+        $movimentacao->executar((int)$id);
+
+        $this->responseJson([
+            'success' => true,
+            'message' => 'Put-away realizado com sucesso!',
+            'redirect' => DOMAIN . '/recebimento/movimentacoes/show/' . $id
+        ]);
     }
 
     public function transferencia(array $params)
     {
         $this->checkSession();
         $this->setParams($params);
-        
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('movimentacao', 'criar')) {
             echo 'Sem permissão para realizar transferências.';
             return;
         }
-        
-        $this->render('pages/recebimento/movimentacoes/transferencia.twig');
+
+        $this->render('pages/recebimento/movimentacoes/transferencia.twig', array_merge(
+            $this->getFormLists(),
+            ['menu' => 'recebimento_movimentacoes']
+        ));
     }
 
     public function realizarTransferencia(array $params)
     {
         $this->checkSession();
         $this->setParams($params);
-        
+
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('movimentacao', 'criar')) {
             $this->responseJson([
@@ -353,32 +378,125 @@ class MovimentacoesController extends Controller
             ]);
             return;
         }
-        
-        $movimentacao = new MovimentacaoInterna();
-        
-        $data = [
-            'item_nf_id' => $_POST['item_nf_id'] ?? null,
+
+        $data = $this->montarDadosMovimentacao($_POST, [
             'tipo_movimentacao' => 'transferencia',
-            'armazenagem_origem_id' => $_POST['armazenagem_origem_id'] ?? null,
-            'armazenagem_destino_id' => $_POST['armazenagem_destino_id'] ?? null,
-            'quantidade_movimentada' => $_POST['quantidade_movimentada'] ?? 0,
-            'motivo' => $_POST['motivo'] ?? 'Transferência entre armazenagens',
-            'observacoes' => $_POST['observacoes'] ?? '',
-            'usuario_movimentacao_id' => $_SESSION[BASE.'user_id'] ?? null,
-            'data_movimentacao' => date('Y-m-d H:i:s'),
-            'status' => 'concluida'
-        ];
-        
-        if ($movimentacao->create($data)) {
-            $this->responseJson([
-                'success' => true,
-                'message' => 'Transferência realizada com sucesso!'
-            ]);
-        } else {
+            'motivo' => trim($_POST['motivo'] ?? '') ?: 'Transferência entre armazenagens',
+        ]);
+
+        $erro = $this->validarDadosMovimentacao($data, true);
+        if ($erro) {
+            $this->responseJson(['success' => false, 'message' => $erro]);
+            return;
+        }
+
+        $data['status'] = 'pendente';
+
+        $movimentacao = new MovimentacaoInterna();
+        $id = $movimentacao->create($data);
+
+        if (!$id) {
             $this->responseJson([
                 'success' => false,
                 'message' => 'Erro ao realizar transferência.'
             ]);
+            return;
         }
+
+        $movimentacao->executar((int)$id);
+
+        $this->responseJson([
+            'success' => true,
+            'message' => 'Transferência realizada com sucesso!',
+            'redirect' => DOMAIN . '/recebimento/movimentacoes/show/' . $id
+        ]);
     }
-} 
+
+    private function getFormLists(): array
+    {
+        $armazenagem = new Armazenagem();
+        $notaFiscal = new NotaFiscal();
+
+        return [
+            'armazenagens' => $armazenagem->getArmazenagensAtivas()->getResult() ?: [],
+            'itens' => $notaFiscal->getItensParaMovimentacao()->getResult() ?: [],
+            'notas' => $notaFiscal->getAllNotasFiscais()->getResult() ?: [],
+            'usuarios_responsaveis' => ResponsavelHelper::listar(),
+        ];
+    }
+
+    private function getMovimentacaoOrFail($id): ?array
+    {
+        if (!$id) {
+            return null;
+        }
+
+        $movimentacao = new MovimentacaoInterna();
+        $result = $movimentacao->getById((int)$id)->getResult();
+
+        return $result ? $result[0] : null;
+    }
+
+    private function montarDadosMovimentacao(array $post, array $overrides = []): array
+    {
+        $data = [
+            'item_nf_id' => $this->toNullableInt($post['item_nf_id'] ?? null),
+            'tipo_movimentacao' => $overrides['tipo_movimentacao'] ?? ($post['tipo_movimentacao'] ?? ''),
+            'armazenagem_origem_id' => array_key_exists('armazenagem_origem_id', $overrides)
+                ? $overrides['armazenagem_origem_id']
+                : $this->toNullableInt($post['armazenagem_origem_id'] ?? null),
+            'armazenagem_destino_id' => $this->toNullableInt($post['armazenagem_destino_id'] ?? null),
+            'quantidade_movimentada' => (int)($post['quantidade_movimentada'] ?? 0),
+            'motivo' => $overrides['motivo'] ?? trim($post['motivo'] ?? ''),
+            'observacoes' => trim($post['observacoes'] ?? ''),
+            'usuario_movimentacao' => ResponsavelHelper::idFromPost('usuario_movimentacao', (int) ($_SESSION[BASE . 'user_id'] ?? 0)),
+            'data_movimentacao' => date('Y-m-d H:i:s'),
+            'status' => 'pendente',
+        ];
+
+        return $data;
+    }
+
+    private function validarDadosMovimentacao(array $data, bool $origemObrigatoria = false): ?string
+    {
+        if (empty($data['item_nf_id'])) {
+            return 'Selecione o item da nota fiscal.';
+        }
+
+        if (empty($data['tipo_movimentacao'])) {
+            return 'Selecione o tipo de movimentação.';
+        }
+
+        if (empty($data['armazenagem_destino_id'])) {
+            return 'Selecione a armazenagem de destino.';
+        }
+
+        if ($data['quantidade_movimentada'] <= 0) {
+            return 'A quantidade movimentada deve ser maior que zero.';
+        }
+
+        $precisaOrigem = $origemObrigatoria || in_array($data['tipo_movimentacao'], ['transferencia', 'reposicao'], true);
+        if ($precisaOrigem && empty($data['armazenagem_origem_id'])) {
+            return 'Selecione a armazenagem de origem.';
+        }
+
+        if (!empty($data['armazenagem_origem_id']) && (int)$data['armazenagem_origem_id'] === (int)$data['armazenagem_destino_id']) {
+            return 'A armazenagem de origem e destino não podem ser iguais.';
+        }
+
+        if (empty($data['usuario_movimentacao'])) {
+            return 'Usuário da movimentação não identificado.';
+        }
+
+        return null;
+    }
+
+    private function toNullableInt($value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return (int)$value;
+    }
+}

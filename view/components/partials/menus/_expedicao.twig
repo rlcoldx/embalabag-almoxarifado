@@ -1,0 +1,76 @@
+{% if menu_permissions.expedicao %}
+<li class="slide__category"><span class="category-name">Expedição</span></li>
+<li class="slide has-sub {{ expedicao_open ? 'active open' : '' }}">
+    <a href="javascript:void(0);" class="side-menu__item">
+        <i class="fa-light fa-plane-departure side-menu__icon"></i>
+        <span class="side-menu__label">Expedição</span>
+        <i class="fa-light fa-chevron-right side-menu__angle"></i>
+    </a>
+    <ul class="slide-menu">
+        <li class="slide {{ menu and menu == 'expedicao' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/expedicao" class="side-menu__item">
+                <i class="fa-light fa-gauge side-menu__icon"></i>
+                <span class="side-menu__label">Painel</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'expedicao_aprovados' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/expedicao/aprovados" class="side-menu__item">
+                <i class="fa-light fa-circle-check side-menu__icon"></i>
+                <span class="side-menu__label">Pedidos aprovados</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'expedicao_separacao' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/expedicao/separacao" class="side-menu__item">
+                <i class="fa-light fa-boxes-stacked side-menu__icon"></i>
+                <span class="side-menu__label">Separação</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'expedicao_embalagem' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/expedicao/embalagem" class="side-menu__item">
+                <i class="fa-light fa-box-open side-menu__icon"></i>
+                <span class="side-menu__label">Embalagem</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'expedicao_conferencia' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/expedicao/conferencia" class="side-menu__item">
+                <i class="fa-light fa-barcode side-menu__icon"></i>
+                <span class="side-menu__label">Conferência de saída</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'expedicao_romaneios' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/expedicao/romaneios" class="side-menu__item">
+                <i class="fa-light fa-file-lines side-menu__icon"></i>
+                <span class="side-menu__label">Romaneios</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'expedicao_bipagem' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/expedicao/bipagem" class="side-menu__item">
+                <i class="fa-light fa-qrcode side-menu__icon"></i>
+                <span class="side-menu__label">Bipar SIGE</span>
+            </a>
+        </li>
+        {% if menu_permissions.encomendas %}
+        <li class="slide {{ menu and menu == 'expedicao_encomendas' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/expedicao/encomendas" class="side-menu__item">
+                <i class="fa-light fa-clock side-menu__icon"></i>
+                <span class="side-menu__label">Encomendas</span>
+            </a>
+        </li>
+        {% endif %}
+        {% if menu_permissions.avarias %}
+        <li class="slide {{ menu and menu == 'expedicao_avarias' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/expedicao/avarias" class="side-menu__item">
+                <i class="fa-light fa-triangle-exclamation side-menu__icon"></i>
+                <span class="side-menu__label">Avarias</span>
+            </a>
+        </li>
+        {% endif %}
+        <li class="slide {{ menu and menu == 'expedicao_relatorio' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/expedicao/relatorio-separacao" class="side-menu__item">
+                <i class="fa-light fa-chart-bar side-menu__icon"></i>
+                <span class="side-menu__label">Relatório de separação</span>
+            </a>
+        </li>
+    </ul>
+</li>
+{% endif %}

@@ -12,6 +12,8 @@ $router->post("/cargos/store", "CargosController:store");
 // Rota principal
 $router->get("/users", "UsersController:index");
 $router->get("/cargos", "CargosController:index");
+$router->get("/permissoes", "PermissoesController:index");
+$router->get("/log-acessos", "LogAcessosController:index");
 
 // Rotas com parâmetros por último (devem vir DEPOIS das rotas específicas)
 $router->get("/users/edit/{id}", "UsersController:edit");

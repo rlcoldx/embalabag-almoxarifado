@@ -2,10 +2,13 @@
 <aside class="app-sidebar sticky" id="sidebar">
     <!-- Start::main-sidebar-header -->
     <div class="main-sidebar-header">
-        <a href="index.html" class="header-logo">
-            <img src="{{ PATH }}/view/assets/ynex/assets/images/brand-logos/logo-dark.svg" alt="logo" class="desktop-dark">
-            <img src="{{ PATH }}/view/assets/ynex/assets/images/brand-logos/logo-dark.svg" alt="logo" class="toggle-dark">
+        <a href="{{ DOMAIN }}" class="header-logo">
+            <img src="{{ PATH }}/view/assets/ynex/assets/images/brand-logos/logo-on-light.svg" alt="logo" class="desktop-logo">
+            <img src="{{ PATH }}/view/assets/ynex/assets/images/brand-logos/logo-on-light.svg" alt="logo" class="toggle-logo">
+            <img src="{{ PATH }}/view/assets/ynex/assets/images/brand-logos/logo.svg" alt="logo" class="desktop-dark">
+            <img src="{{ PATH }}/view/assets/ynex/assets/images/brand-logos/logo.svg" alt="logo" class="toggle-dark">
             <img src="{{ PATH }}/view/assets/ynex/assets/images/brand-logos/logo.svg" alt="logo" class="desktop-white">
+            <img src="{{ PATH }}/view/assets/ynex/assets/images/brand-logos/logo.svg" alt="logo" class="toggle-white">
         </a>
     </div>
     <!-- End::main-sidebar-header -->
@@ -29,6 +32,8 @@
                     </a>
                 </li>
                 <!-- End::slide -->
+                {% include 'components/partials/menus/_menu_state.twig' %}
+                {% include 'components/partials/menus/dashboard.twig' %}
                 {% if session[BASE ~ 'user_tipo'] == 1 %}
                     {% include 'components/partials/menus/admin.twig' %}
                 {% endif %}

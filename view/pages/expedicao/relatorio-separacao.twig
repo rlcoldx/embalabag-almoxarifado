@@ -1,0 +1,58 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Relatório de separação{% endblock %}
+{% block styles %}
+<style>
+@media print {
+    .page-header-breadcrumb, .app-sidebar, .app-header, footer, .no-print { display: none !important; }
+}
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Relatório de separação</p>
+        <span class="fs-semibold">Pedidos em picking e já separados.</span>
+    </div>
+    <a href="{{ DOMAIN }}/expedicao/relatorio-separacao?print=1" class="btn btn-outline-primary btn-wave no-print" onclick="window.print(); return false;">Imprimir</a>
+</div>
+
+{% for pedido in pedidos %}
+<div class="card custom-card mb-3">
+    <div class="card-header">
+        <div class="card-title">{{ pedido.codigo }} — {{ pedido.status_expedicao }} — {{ pedido.base_destino|default('-') }}</div>
+    </div>
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>SKU</th>
+                    <th>Qtd</th>
+                    <th>Endereço</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in pedido.itens|default([]) %}
+                <tr>
+                    <td>{{ item.produto_nome }}</td>
+                    <td>{{ item.produto_sku }}</td>
+                    <td>{{ item.quantidade }}</td>
+                    <td>{{ item.endereco_novo ?: item.endereco_origem ?: '-' }}</td>
+                    <td>{{ item.status }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center py-3">Sem itens de separação.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card custom-card">
+    <div class="card-body text-center py-4">Nenhum pedido em separação no momento.</div>
+</div>
+{% endfor %}
+
+{% endblock %}

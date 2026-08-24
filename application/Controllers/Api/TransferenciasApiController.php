@@ -7,13 +7,18 @@ use Agencia\Close\Helpers\User\PermissionHelper;
 use Agencia\Close\Conn\Create;
 use Agencia\Close\Conn\Read;
 use Agencia\Close\Conn\Update;
+use Agencia\Close\Models\Transferencias\Transferencias;
 
 class TransferenciasApiController extends Controller
 {
     public function criar()
     {
+        $this->checkSession();
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('transferencias', 'criar')) {
+        if (
+            !$permissionHelper->userHasPermission('movimentacoes', 'criar')
+            && !$permissionHelper->userHasPermission('armazenagens', 'transferir')
+        ) {
             return $this->jsonResponse(['success' => false, 'message' => 'Sem permissão']);
         }
 
@@ -166,6 +171,29 @@ class TransferenciasApiController extends Controller
         } catch (\Exception $e) {
             return $this->jsonResponse(['success' => false, 'message' => 'Erro interno: ' . $e->getMessage()]);
         }
+    }
+
+    public function getTransferenciasArmazenagem($params)
+    {
+        $this->checkSession();
+        $permissionHelper = new PermissionHelper();
+        if (
+            !$permissionHelper->userHasPermission('armazenagens', 'visualizar')
+            && !$permissionHelper->userHasPermission('movimentacoes', 'visualizar')
+        ) {
+            return $this->jsonResponse(['success' => false, 'message' => 'Sem permissão']);
+        }
+
+        $armazenagemId = (int)($params['id'] ?? 0);
+        if ($armazenagemId <= 0) {
+            return $this->jsonResponse(['success' => false, 'message' => 'ID da armazenagem não informado']);
+        }
+
+        $transferencias = new Transferencias();
+        return $this->jsonResponse([
+            'success' => true,
+            'transferencias' => $transferencias->getTransferenciasByArmazenagem($armazenagemId)->getResult() ?? []
+        ]);
     }
 
     private function atualizarCapacidadeArmazenagem($armazenagemId)

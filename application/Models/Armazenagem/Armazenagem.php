@@ -82,6 +82,24 @@ class Armazenagem extends Model
         return $this->read;
     }
 
+    public function getSkuPorArmazenagens(): array
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT e.armazenagem_id, p.SKU as sku, p.nome as nome_produto, SUM(e.quantidade) as quantidade
+            FROM estoque e
+            INNER JOIN produtos p ON CAST(e.id_produto AS UNSIGNED) = p.id
+            WHERE e.quantidade > 0 AND e.status = 'ativo' AND p.status <> 'Deletado'
+            GROUP BY e.armazenagem_id, p.id, p.SKU, p.nome
+            ORDER BY p.nome
+        ");
+        $grouped = [];
+        foreach ($this->read->getResult() ?: [] as $row) {
+            $grouped[(int)$row['armazenagem_id']][] = $row;
+        }
+        return $grouped;
+    }
+
     public function createArmazenagem(array $data): int|false
     {
         $this->create = new Create();
@@ -102,7 +120,12 @@ class Armazenagem extends Model
     {
         // Verificar se há itens alocados nesta armazenagem
         $this->read = new Read();
-        $this->read->FullRead("SELECT COUNT(*) as total FROM itens_nf WHERE armazenagem_id = :id AND status = 'alocado'", "id={$id}");
+        $this->read->FullRead("
+            SELECT (
+                (SELECT COUNT(*) FROM pedidos_nf WHERE armazenagem_id = :id AND status = 'alocado')
+                + (SELECT COUNT(*) FROM estoque WHERE armazenagem_id = :id2 AND status = 'ativo' AND quantidade > 0)
+            ) as total
+        ", "id={$id}&id2={$id}");
         $result = $this->read->getResult();
         
         if ($result && $result[0]['total'] > 0) {

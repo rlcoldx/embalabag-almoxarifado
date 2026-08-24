@@ -69,12 +69,20 @@ class Produtos extends Model
         //RETORNA O ITEM SALVO
         $read = new Read();
         $read->FullRead("SELECT * FROM produtos ORDER BY id DESC LIMIT 1");
-        $produto = $read->getResult()[0];
+        $resultado = $read->getResult();
+        if (!$resultado) {
+            return $read;
+        }
+        $produto = $resultado[0];
 
         // SALVAR BLACKLIST DE EMPRESAS SE EXISTIR
         if (isset($params['empresas_blacklist'])) {
             $this->saveBlacklist($produto['id'], $params['empresas_blacklist']);
         }
+
+        $this->registrarHistoricoProduto(function () use ($produto) {
+            (new ProdutoHistorico())->registrarCriacao((int)$produto['id'], $produto);
+        });
 
         return $read;
     }
@@ -84,6 +92,10 @@ class Produtos extends Model
         //SALVA EDIÇÃO DO PRODUTO
         $update = new Update();
         $id = $params['id'];
+        $anterior = $this->getProduto($id)->getResult()[0] ?? [];
+        $relacionadosAlterados = isset($params['variavel'])
+            || isset($params['preco_empresa'])
+            || isset($params['categories_id']);
 
         if (isset($params['variavel']) && is_array($params['variavel']) && count($params['variavel']) > 0) {
             
@@ -208,6 +220,10 @@ class Produtos extends Model
         }
 
         $update->ExeUpdate('produtos', $params, 'WHERE `id` = :id', "id={$id}");
+        $novo = $this->getProduto($id)->getResult()[0] ?? [];
+        $this->registrarHistoricoProduto(function () use ($id, $anterior, $novo, $relacionadosAlterados) {
+            (new ProdutoHistorico())->registrarAtualizacao((int)$id, $anterior, $novo, $relacionadosAlterados);
+        });
         return $update;
     }
 
@@ -264,7 +280,8 @@ class Produtos extends Model
     public function excluirProduto($id_produto)
     {
         $read = new Read();
-        
+        $produtoAnterior = $this->getProduto($id_produto)->getResult()[0] ?? [];
+
         // Buscar todos os estoques do produto antes de deletar
         $read->FullRead("
             SELECT id, armazenagem_id, variacao_id, quantidade 
@@ -301,6 +318,23 @@ class Produtos extends Model
         
         // Marcar estoque como inativo para que não conte mais na capacidade das armazenagens
         $read->FullRead("UPDATE `estoque` SET `status` = 'inativo' WHERE `id_produto` = :id_produto", "id_produto={$id_produto}");
+
+        if ($produtoAnterior) {
+            $this->registrarHistoricoProduto(function () use ($id_produto, $produtoAnterior) {
+                (new ProdutoHistorico())->registrarExclusao((int)$id_produto, $produtoAnterior);
+            });
+        }
+
+        return true;
+    }
+
+    private function registrarHistoricoProduto(callable $callback): void
+    {
+        try {
+            $callback();
+        } catch (\Throwable $exception) {
+            // O cadastro do produto não deve falhar se o histórico ainda não existir.
+        }
     }
 
     public function saveCategory($id_produto, $categorias)
@@ -363,13 +397,21 @@ class Produtos extends Model
     public function getProdutosEstoqueBaixo(): Read
     {
         $read = new Read();
-        $read->FullRead("SELECT p.*, c.nome as categoria_nome 
-                        FROM produtos p 
-                        LEFT JOIN categorias c ON c.id = p.categoria_id 
-                        WHERE p.status <> 'Deletado' 
-                        AND p.estoque_atual <= p.estoque_minimo 
-                        AND p.estoque_minimo > 0 
-                        ORDER BY p.estoque_atual ASC, p.nome ASC");
+        $read->FullRead("SELECT
+                            p.id,
+                            p.nome,
+                            p.SKU,
+                            COALESCE(p.SKU, CONCAT('#', p.id)) as codigo,
+                            MIN(pv.estoque) as estoque_atual,
+                            MIN(IF(pv.estoque_minimo > 0, pv.estoque_minimo, 1)) as estoque_minimo,
+                            c.nome as categoria_nome
+                        FROM produtos p
+                        INNER JOIN produtos_variations pv ON pv.id_produto = p.id
+                        LEFT JOIN categorias c ON c.id = p.categoria_id
+                        WHERE p.status <> 'Deletado'
+                          AND pv.estoque <= IF(pv.estoque_minimo > 0, pv.estoque_minimo, 1)
+                        GROUP BY p.id, p.nome, p.SKU, c.nome
+                        ORDER BY estoque_atual ASC, p.nome ASC");
         return $read;
     }
 
@@ -377,49 +419,61 @@ class Produtos extends Model
     public function adicionarEstoque(array $params): bool
     {
         try {
-            $id_produto = $params['id_produto'];
-            $quantidade = (int)$params['quantidade'];
-            $tipo = $params['tipo'] ?? 'entrada'; // entrada ou saida
-            $observacao = $params['observacao'] ?? '';
+            $id_produto = (int)($params['id_produto'] ?? $params['produto_id'] ?? 0);
+            $quantidade = (int)($params['quantidade'] ?? 0);
+            $tipo = $params['tipo'] ?? 'entrada';
+            $observacao = $params['observacao'] ?? $params['observacoes'] ?? 'Entrada de estoque';
+            $variacaoId = (int)($params['variacao_id'] ?? 0);
 
-            // Buscar produto atual
-            $produto = new Read();
-            $produto->FullRead("SELECT estoque_atual FROM produtos WHERE id = :id", "id={$id_produto}");
-            $produto_atual = $produto->getResult();
-
-            if (empty($produto_atual)) {
+            if ($id_produto <= 0 || $quantidade <= 0) {
                 return false;
             }
 
-            $estoque_atual = (int)$produto_atual[0]['estoque_atual'];
-            
-            // Calcular novo estoque
-            if ($tipo === 'entrada') {
-                $novo_estoque = $estoque_atual + $quantidade;
+            $produto = new Read();
+            if ($variacaoId > 0) {
+                $produto->FullRead(
+                    "SELECT id, estoque FROM produtos_variations WHERE id = :id AND id_produto = :id_produto LIMIT 1",
+                    "id={$variacaoId}&id_produto={$id_produto}"
+                );
             } else {
-                $novo_estoque = $estoque_atual - $quantidade;
-                if ($novo_estoque < 0) {
-                    $novo_estoque = 0;
-                }
+                $produto->FullRead(
+                    "SELECT id, estoque FROM produtos_variations WHERE id_produto = :id_produto ORDER BY estoque ASC LIMIT 1",
+                    "id_produto={$id_produto}"
+                );
             }
 
-            // Atualizar estoque do produto
-            $update = new Update();
-            $update->ExeUpdate('produtos', ['estoque_atual' => $novo_estoque], 'WHERE id = :id', "id={$id_produto}");
+            $variacao = $produto->getResult()[0] ?? null;
+            if (!$variacao) {
+                return false;
+            }
 
-            // Registrar movimentação de estoque
-            $movimentacao = [
-                'id_produto' => $id_produto,
-                'tipo' => $tipo,
-                'quantidade' => $quantidade,
-                'estoque_anterior' => $estoque_atual,
-                'estoque_atual' => $novo_estoque,
-                'observacao' => $observacao,
-                'data_movimentacao' => date('Y-m-d H:i:s')
-            ];
+            $estoque_atual = (int)$variacao['estoque'];
+            $novo_estoque = $tipo === 'saida'
+                ? max(0, $estoque_atual - $quantidade)
+                : $estoque_atual + $quantidade;
+
+            $update = new Update();
+            $update->ExeUpdate(
+                'produtos_variations',
+                ['estoque' => $novo_estoque],
+                'WHERE id = :id',
+                "id={$variacao['id']}"
+            );
 
             $create = new Create();
-            $create->ExeCreate('produtos_movimentacoes', $movimentacao);
+            $create->ExeCreate('movimentacoes_historico', [
+                'tipo' => $tipo === 'saida' ? 'saida' : 'entrada',
+                'id_produto' => $id_produto,
+                'variacao_id' => $variacao['id'],
+                'quantidade' => $quantidade,
+                'armazenagem_origem_id' => null,
+                'armazenagem_destino_id' => null,
+                'motivo' => 'ajuste',
+                'documento_referencia' => null,
+                'observacoes' => $observacao,
+                'usuario_id' => $_SESSION[BASE . 'user_id'] ?? 1,
+                'data_movimentacao' => date('Y-m-d H:i:s'),
+            ]);
 
             return true;
         } catch (\Exception $e) {

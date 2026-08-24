@@ -1,0 +1,21 @@
+{% set field_name = field_name|default('usuario_responsavel') %}
+{% set field_id = field_id|default(field_name) %}
+{% set field_label = field_label|default('Responsável') %}
+{% set selected_id = selected_id|default('') %}
+{% set required = required|default(false) %}
+{% set col_class = col_class|default('col-md-6') %}
+
+<div class="{{ col_class }}">
+    <label class="form-label" for="{{ field_id }}">
+        {{ field_label }}
+        {% if required %}<span class="text-danger">*</span>{% endif %}
+    </label>
+    <select class="form-select" name="{{ field_name }}" id="{{ field_id }}" {% if required %}required{% endif %}>
+        <option value="">Selecione o responsável</option>
+        {% for usuario in usuarios_responsaveis|default([]) %}
+        <option value="{{ usuario.id }}" {{ (selected_id ~ '') == (usuario.id ~ '') ? 'selected' : '' }}>
+            {{ usuario.nome }}
+        </option>
+        {% endfor %}
+    </select>
+</div>

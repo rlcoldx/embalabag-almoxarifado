@@ -1,3 +1,8 @@
+-- Triggers consolidados de estoque (fonte da verdade).
+-- Aplicar com: php apply_triggers.php
+-- Considera apenas estoque.status = 'ativo' em capacidade_atual e produtos_variations.estoque.
+-- Alinhado a 049_fix_triggers_exclude_deleted_products.sql
+
 -- Remover todos os triggers existentes
 DROP TRIGGER IF EXISTS trigger_estoque_insert;
 DROP TRIGGER IF EXISTS trigger_estoque_update;

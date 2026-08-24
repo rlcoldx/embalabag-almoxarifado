@@ -28,6 +28,9 @@ class ViewPermissionHelper
         
         // Companhias têm acesso limitado (apenas visualização)
         if ($userType === '3') {
+            if ($modulo === 'cia_aerea') {
+                return in_array($acao, ['visualizar', 'receber'], true);
+            }
             return $acao === 'visualizar' && in_array($modulo, ['produtos', 'estoque', 'relatorios']);
         }
         
@@ -244,6 +247,26 @@ class ViewPermissionHelper
                 'relatorios' => [
                     'view' => self::canView('relatorios'),
                     'generate' => self::canExecute('relatorios', 'gerar')
+                ],
+                'pedidos' => [
+                    'view' => self::canView('pedidos'),
+                    'create' => self::canCreate('pedidos'),
+                    'edit' => self::canEdit('pedidos'),
+                    'delete' => self::canDelete('pedidos'),
+                    'approve' => self::canExecute('pedidos', 'aprovar'),
+                    'cancel' => self::canExecute('pedidos', 'cancelar'),
+                ],
+                'expedicao' => [
+                    'view' => self::canView('expedicao'),
+                    'separar' => self::canExecute('expedicao', 'separar'),
+                    'embalar' => self::canExecute('expedicao', 'embalar'),
+                    'conferir' => self::canExecute('expedicao', 'conferir'),
+                    'romaneio' => self::canExecute('expedicao', 'romaneio'),
+                    'bipar' => self::canExecute('expedicao', 'bipar'),
+                ],
+                'cia_aerea' => [
+                    'view' => self::canView('cia_aerea'),
+                    'receber' => self::canExecute('cia_aerea', 'receber'),
                 ],
                 'armazenagens' => [
                     'view' => self::canView('armazenagens'),

@@ -1,16 +1,23 @@
+{% include 'components/partials/menus/_menu_state.twig' %}
 {% if menu_permissions.produtos %}
 <!-- Start::slide__category -->
 <li class="slide__category"><span class="category-name">Produtos</span></li>
 <!-- End::slide__category -->
 
 <!-- Start::slide -->
-<li class="slide has-sub {{ menu and menu == 'produtos' ? 'active open' : '' }}">
+<li class="slide has-sub {{ produtos_open ? 'active open' : '' }}">
     <a href="javascript:void(0);" class="side-menu__item">
         <i class="fa-light fa-box side-menu__icon"></i>
         <span class="side-menu__label">Produtos</span>
         <i class="fa-light fa-chevron-right side-menu__angle"></i>
     </a>
     <ul class="slide-menu">
+        <li class="slide {{ menu and menu == 'dashboard_produtos' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/dashboard/produtos" class="side-menu__item">
+                <i class="fa-light fa-chart-line side-menu__icon"></i>
+                <span class="side-menu__label">Estatísticas</span>
+            </a>
+        </li>
         <li class="slide {{ menu and menu == 'produtos' ? 'active open' : '' }}">
             <a href="{{ DOMAIN }}/produtos" class="side-menu__item">
                 <i class="fa-light fa-list side-menu__icon"></i>
@@ -26,7 +33,7 @@
         </li>
         {% endif %}
         {% if menu_permissions.estoque_baixo %}
-        <li class="slide d-none {{ menu and menu == 'estoque_baixo' ? 'active open' : '' }}">
+        <li class="slide {{ menu and menu == 'estoque_baixo' ? 'active open' : '' }}">
             <a href="{{ DOMAIN }}/produtos/estoque-baixo" class="side-menu__item">
                 <i class="fa-light fa-exclamation-triangle side-menu__icon"></i>
                 <span class="side-menu__label">Estoque Baixo</span>
@@ -38,30 +45,75 @@
 <!-- End::slide -->
 {% endif %}
 
-{% if menu_permissions.armazenagens %}
+{% if menu_permissions.pedidos %}
+<li class="slide__category"><span class="category-name">Pedidos</span></li>
+<li class="slide has-sub {{ pedidos_open ? 'active open' : '' }}">
+    <a href="javascript:void(0);" class="side-menu__item">
+        <i class="fa-light fa-file-invoice side-menu__icon"></i>
+        <span class="side-menu__label">Pedidos de Compra</span>
+        <i class="fa-light fa-chevron-right side-menu__angle"></i>
+    </a>
+    <ul class="slide-menu">
+        <li class="slide {{ menu and menu == 'pedidos' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/pedidos" class="side-menu__item">
+                <i class="fa-light fa-list side-menu__icon"></i>
+                <span class="side-menu__label">Lista de Pedidos</span>
+            </a>
+        </li>
+        {% if menu_permissions.pedidos_new %}
+        <li class="slide {{ menu and menu == 'pedidos_new' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/pedidos/create" class="side-menu__item">
+                <i class="fa-light fa-plus side-menu__icon"></i>
+                <span class="side-menu__label">Novo Pedido</span>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</li>
+{% endif %}
+
+{% if menu_permissions.armazenagens or menu_permissions.transferencias %}
 <!-- Start::slide__category -->
 <li class="slide__category"><span class="category-name">Armazenagens</span></li>
 <!-- End::slide__category -->
 
 <!-- Start::slide -->
-<li class="slide has-sub {{ menu and menu == 'armazenagens' ? 'active open' : '' }}">
+<li class="slide has-sub {{ armazenagens_open ? 'active open' : '' }}">
     <a href="javascript:void(0);" class="side-menu__item">
         <i class="fa-light fa-warehouse side-menu__icon"></i>
         <span class="side-menu__label">Armazenagens</span>
         <i class="fa-light fa-chevron-right side-menu__angle"></i>
     </a>
     <ul class="slide-menu">
+        {% if menu_permissions.dashboard_armazenagens %}
+        <li class="slide {{ menu and menu == 'dashboard_armazenagens' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/dashboard/armazenagens" class="side-menu__item">
+                <i class="fa-light fa-chart-line side-menu__icon"></i>
+                <span class="side-menu__label">Estatísticas</span>
+            </a>
+        </li>
+        {% endif %}
+        {% if menu_permissions.armazenagens %}
         <li class="slide {{ menu and menu == 'armazenagens' ? 'active open' : '' }}">
             <a href="{{ DOMAIN }}/armazenagens" class="side-menu__item">
                 <i class="fa-light fa-list side-menu__icon"></i>
                 <span class="side-menu__label">Lista de Armazenagens</span>
             </a>
         </li>
+        {% endif %}
         {% if menu_permissions.armazenagens_mapa %}
         <li class="slide">
             <a href="{{ DOMAIN }}/armazenagens/mapa" class="side-menu__item">
                 <i class="fa-light fa-map side-menu__icon"></i>
                 <span class="side-menu__label">Mapa de Armazenagens</span>
+            </a>
+        </li>
+        {% endif %}
+        {% if menu_permissions.transferencias %}
+        <li class="slide {{ menu and menu == 'armazenagens_transferencias' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/transferencias" class="side-menu__item">
+                <i class="fa-light fa-arrows-up-down-left-right side-menu__icon"></i>
+                <span class="side-menu__label">Transferências</span>
             </a>
         </li>
         {% endif %}
@@ -76,7 +128,7 @@
 <!-- End::slide__category -->
 
 <!-- Start::slide -->
-<li class="slide has-sub {{ menu and menu == 'conferencia' ? 'active open' : '' }}">
+<li class="slide has-sub {{ conferencia_open ? 'active open' : '' }}">
     <a href="javascript:void(0);" class="side-menu__item">
         <i class="fa-light fa-clipboard-check side-menu__icon"></i>
         <span class="side-menu__label">Conferência</span>
@@ -108,7 +160,7 @@
 <!-- End::slide__category -->
 
 <!-- Start::slide -->
-<li class="slide has-sub {{ menu and menu == 'recebimento' ? 'active open' : '' }}">
+<li class="slide has-sub {{ recebimento_open ? 'active open' : '' }}">
     <a href="javascript:void(0);" class="side-menu__item">
         <i class="fa-light fa-truck-ramp-box side-menu__icon"></i>
         <span class="side-menu__label">Recebimentos</span>
@@ -123,11 +175,25 @@
             </a>
         </li>
         {% endif %}
+        {% if menu_permissions.dashboard_movimentacoes %}
+        <li class="slide {{ menu and menu == 'dashboard_movimentacoes' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/dashboard/movimentacoes" class="side-menu__item">
+                <i class="fa-light fa-chart-simple side-menu__icon"></i>
+                <span class="side-menu__label" title="Estatísticas de movimentações">Estatísticas</span>
+            </a>
+        </li>
+        {% endif %}
         {% if menu_permissions.recebimento_nf %}
         <li class="slide {{ menu and menu == 'recebimento_nf' ? 'active open' : '' }}">
             <a href="{{ DOMAIN }}/recebimento/notas-fiscais" class="side-menu__item">
                 <i class="fa-light fa-receipt side-menu__icon"></i>
                 <span class="side-menu__label">Notas Fiscais</span>
+            </a>
+        </li>
+        <li class="slide {{ menu and menu == 'recebimento_nfe' ? 'active open' : '' }}">
+            <a href="{{ DOMAIN }}/recebimento/nfe" class="side-menu__item">
+                <i class="fa-light fa-file-invoice side-menu__icon"></i>
+                <span class="side-menu__label">NF-e</span>
             </a>
         </li>
         {% endif %}
@@ -151,3 +217,6 @@
 </li>
 <!-- End::slide -->
 {% endif %}
+
+{% include 'components/partials/menus/_expedicao.twig' %}
+{% include 'components/partials/menus/_cia_aerea.twig' %}

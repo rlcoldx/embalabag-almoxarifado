@@ -8,6 +8,7 @@ use Agencia\Close\Conn\Read;
 use Agencia\Close\Conn\Update;
 use Agencia\Close\Conn\Delete;
 use Agencia\Close\Models\Model;
+use Exception;
 
 class PedidosItens extends Model
 {
@@ -18,8 +19,7 @@ class PedidosItens extends Model
             SELECT 
                 pi.*,
                 p.nome as produto_nome,
-                p.codigo as produto_codigo,
-                p.descricao as produto_descricao,
+                p.SKU as produto_sku,
                 u.nome as usuario_nome
             FROM pedidos_itens pi
             LEFT JOIN produtos p ON pi.id_produto = p.id
@@ -37,8 +37,8 @@ class PedidosItens extends Model
             SELECT 
                 pi.*,
                 p.nome as produto_nome,
-                p.codigo as produto_codigo,
-                p.descricao as produto_descricao,
+                p.SKU as produto_codigo,
+                p.nome as produto_descricao,
                 ped.codigo as pedido_codigo,
                 ped.status_pedido as pedido_status
             FROM pedidos_itens pi
@@ -57,7 +57,7 @@ class PedidosItens extends Model
             SELECT 
                 pi.*,
                 p.nome as produto_nome,
-                p.codigo as produto_codigo,
+                p.SKU as produto_codigo,
                 ped.codigo as pedido_codigo,
                 ped.status_pedido as pedido_status,
                 u.nome as usuario_nome
@@ -78,8 +78,8 @@ class PedidosItens extends Model
             SELECT 
                 pi.*,
                 p.nome as produto_nome,
-                p.codigo as produto_codigo,
-                p.descricao as produto_descricao,
+                p.SKU as produto_codigo,
+                p.nome as produto_descricao,
                 ped.codigo as pedido_codigo,
                 ped.status_pedido as pedido_status,
                 u.nome as usuario_nome
@@ -100,8 +100,8 @@ class PedidosItens extends Model
             SELECT 
                 pi.*,
                 p.nome as produto_nome,
-                p.codigo as produto_codigo,
-                p.descricao as produto_descricao
+                p.SKU as produto_codigo,
+                p.nome as produto_descricao
             FROM pedidos_itens pi
             LEFT JOIN produtos p ON pi.id_produto = p.id
             WHERE pi.id_pedido = :pedido_id AND pi.escolhido = 'yes'
@@ -130,7 +130,7 @@ class PedidosItens extends Model
             ];
             
             $create->ExeCreate('pedidos_itens', $item);
-            return $create->getResult();
+            return !empty($create->getResult());
         } catch (Exception $e) {
             return false;
         }

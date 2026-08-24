@@ -1,0 +1,160 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Conferência #{{ conferencia.id }}{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Conferência #{{ conferencia.id }}</p>
+        <span class="badge bg-{{ conferencia.status_conferencia == 'concluida' ? 'success' : (conferencia.status_conferencia == 'em_andamento' ? 'info' : (conferencia.status_conferencia == 'cancelada' ? 'danger' : 'warning')) }}-transparent">
+            {{ conferencia.status_conferencia|replace({'_': ' '})|capitalize }}
+        </span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        {% if permissions.can.conferencia.edit %}
+        <a href="{{ DOMAIN }}/conferencia/edit/{{ conferencia.id }}" class="btn btn-outline-primary btn-wave me-2">
+            <i class="fas fa-edit me-2"></i>Editar
+        </a>
+        {% endif %}
+        <a href="{{ DOMAIN }}/conferencia" class="btn btn-outline-secondary btn-wave">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card custom-card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-info-circle me-2"></i>Informações da Conferência</div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Produto</label>
+                        <p class="mb-0 fs-16">{{ conferencia.produto_nome|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">SKU</label>
+                        <p class="mb-0 fs-16">{{ conferencia.produto_sku|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Variação</label>
+                        <p class="mb-0 fs-16">{{ conferencia.tamanho|default('-') }} / {{ conferencia.cor_nome|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">NF-e</label>
+                        <p class="mb-0 fs-16">
+                            {% if conferencia.nfe_id %}
+                            <a href="{{ DOMAIN }}/recebimento/nfe/show/{{ conferencia.nfe_id }}" class="text-primary">
+                                {{ conferencia.numero_nfe|default(conferencia.nfe_id) }}
+                            </a>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Fornecedor</label>
+                        <p class="mb-0 fs-16">{{ conferencia.fornecedor_nome|default('-') }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Conferente</label>
+                        <p class="mb-0 fs-16">{{ conferencia.usuario_nome|default('-') }}</p>
+                    </div>
+                    <div class="col-md-12 mb-0">
+                        <label class="form-label fw-semibold">Observações de Qualidade</label>
+                        <p class="mb-3 fs-16">{{ conferencia.observacoes_qualidade|default('Nenhuma observação') }}</p>
+                        <label class="form-label fw-semibold">Observações de Integridade</label>
+                        <p class="mb-0 fs-16">{{ conferencia.observacoes_integridade|default('Nenhuma observação') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-history me-2"></i>Histórico</div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Ação</th>
+                                <th>Usuário</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if historico|length > 0 %}
+                                {% for item in historico %}
+                                <tr>
+                                    <td>{{ item.acao|default('-')|capitalize }}</td>
+                                    <td>{{ item.usuario_nome|default('-') }}</td>
+                                    <td>{{ item.data_acao ? item.data_acao|date('d/m/Y H:i') : '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4">Nenhum histórico registrado</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card custom-card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-boxes me-2"></i>Quantidades</div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Prevista</label>
+                    <p class="mb-0 fs-16">{{ conferencia.quantidade_prevista|default(0) }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Recebida</label>
+                    <p class="mb-0 fs-16">{{ conferencia.quantidade_recebida|default(0) }}</p>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-semibold">Conferida</label>
+                    <p class="mb-0 fs-20 fw-semibold text-primary">{{ conferencia.quantidade_conferida|default(0) }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-clipboard-check me-2"></i>Status</div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Qualidade</label>
+                    <p class="mb-0">
+                        <span class="badge bg-{{ conferencia.status_qualidade == 'aprovado' ? 'success' : (conferencia.status_qualidade == 'reprovado' ? 'danger' : 'warning') }}-transparent">
+                            {{ conferencia.status_qualidade|default('pendente')|capitalize }}
+                        </span>
+                    </p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Integridade</label>
+                    <p class="mb-0">
+                        <span class="badge bg-{{ conferencia.status_integridade == 'integro' ? 'success' : (conferencia.status_integridade == 'danificado' ? 'danger' : 'warning') }}-transparent">
+                            {{ conferencia.status_integridade|default('integro')|replace({'_': ' '})|capitalize }}
+                        </span>
+                    </p>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-semibold">Data da Conferência</label>
+                    <p class="mb-0 fs-16">{{ conferencia.data_conferencia ? conferencia.data_conferencia|date('d/m/Y H:i') : '-' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

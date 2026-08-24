@@ -29,7 +29,7 @@ class MovimentacaoInterna extends Model
             INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
             LEFT JOIN armazenagens a1 ON mi.armazenagem_origem_id = a1.id
             INNER JOIN armazenagens a2 ON mi.armazenagem_destino_id = a2.id
-            INNER JOIN usuarios u ON mi.usuario_movimentacao = u.id
+            LEFT JOIN usuarios u ON mi.usuario_movimentacao = u.id
             ORDER BY mi.data_movimentacao DESC
         ");
         return $this->read;
@@ -50,11 +50,11 @@ class MovimentacaoInterna extends Model
                    a2.descricao as armazenagem_destino_descricao,
                    u.nome as usuario_movimentacao_nome
             FROM movimentacoes_internas mi
-            INNER JOIN pedidos_nf pnf ON mi.item_nf_id = pnf.id
-            INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
+            LEFT JOIN pedidos_nf pnf ON mi.item_nf_id = pnf.id
+            LEFT JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
             LEFT JOIN armazenagens a1 ON mi.armazenagem_origem_id = a1.id
-            INNER JOIN armazenagens a2 ON mi.armazenagem_destino_id = a2.id
-            INNER JOIN usuarios u ON mi.usuario_movimentacao = u.id
+            LEFT JOIN armazenagens a2 ON mi.armazenagem_destino_id = a2.id
+            LEFT JOIN usuarios u ON mi.usuario_movimentacao = u.id
             WHERE mi.id = :id
         ", "id={$id}");
         return $this->read;
@@ -73,7 +73,7 @@ class MovimentacaoInterna extends Model
             FROM movimentacoes_internas mi
             LEFT JOIN armazenagens a1 ON mi.armazenagem_origem_id = a1.id
             INNER JOIN armazenagens a2 ON mi.armazenagem_destino_id = a2.id
-            INNER JOIN usuarios u ON mi.usuario_movimentacao = u.id
+            LEFT JOIN usuarios u ON mi.usuario_movimentacao = u.id
             WHERE mi.item_nf_id = :item_nf_id
             ORDER BY mi.data_movimentacao DESC
         ", "item_nf_id={$itemNfId}");
@@ -98,7 +98,7 @@ class MovimentacaoInterna extends Model
             INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
             LEFT JOIN armazenagens a1 ON mi.armazenagem_origem_id = a1.id
             INNER JOIN armazenagens a2 ON mi.armazenagem_destino_id = a2.id
-            INNER JOIN usuarios u ON mi.usuario_movimentacao = u.id
+            LEFT JOIN usuarios u ON mi.usuario_movimentacao = u.id
             WHERE mi.armazenagem_origem_id = :armazenagem_id OR mi.armazenagem_destino_id = :armazenagem_id
             ORDER BY mi.data_movimentacao DESC
         ", "armazenagem_id={$armazenagemId}");
@@ -123,7 +123,7 @@ class MovimentacaoInterna extends Model
             INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
             LEFT JOIN armazenagens a1 ON mi.armazenagem_origem_id = a1.id
             INNER JOIN armazenagens a2 ON mi.armazenagem_destino_id = a2.id
-            INNER JOIN usuarios u ON mi.usuario_movimentacao = u.id
+            LEFT JOIN usuarios u ON mi.usuario_movimentacao = u.id
             WHERE mi.tipo_movimentacao = :tipo
             ORDER BY mi.data_movimentacao DESC
         ", "tipo={$tipo}");
@@ -254,7 +254,7 @@ class MovimentacaoInterna extends Model
             INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
             LEFT JOIN armazenagens a1 ON mi.armazenagem_origem_id = a1.id
             INNER JOIN armazenagens a2 ON mi.armazenagem_destino_id = a2.id
-            INNER JOIN usuarios u ON mi.usuario_movimentacao = u.id
+            LEFT JOIN usuarios u ON mi.usuario_movimentacao = u.id
             WHERE 1=1
         ";
         $params = "";
@@ -380,7 +380,7 @@ class MovimentacaoInterna extends Model
             INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
             LEFT JOIN armazenagens a1 ON mi.armazenagem_origem_id = a1.id
             INNER JOIN armazenagens a2 ON mi.armazenagem_destino_id = a2.id
-            INNER JOIN usuarios u ON mi.usuario_movimentacao = u.id
+            LEFT JOIN usuarios u ON mi.usuario_movimentacao = u.id
             ORDER BY mi.data_movimentacao DESC
             LIMIT :limit
         ", "limit={$limit}");
@@ -452,7 +452,7 @@ class MovimentacaoInterna extends Model
             INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
             LEFT JOIN armazenagens a1 ON mi.armazenagem_origem_id = a1.id
             INNER JOIN armazenagens a2 ON mi.armazenagem_destino_id = a2.id
-            INNER JOIN usuarios u ON mi.usuario_movimentacao = u.id
+            LEFT JOIN usuarios u ON mi.usuario_movimentacao = u.id
             WHERE 1=1
         ";
         $params = "";

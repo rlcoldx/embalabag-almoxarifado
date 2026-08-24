@@ -3,13 +3,6 @@
 namespace Agencia\Close\Services\Home;
 
 use Agencia\Close\Conn\Read;
-use Agencia\Close\Models\Produtos\Produtos;
-use Agencia\Close\Models\Armazenagem\Armazenagem;
-use Agencia\Close\Models\Recebimento\Recebimento;
-use Agencia\Close\Models\Conferencia\Conferencia;
-use Agencia\Close\Models\Movimentacao\Movimentacao;
-use Agencia\Close\Models\NotaFiscal\NotaFiscal;
-use Agencia\Close\Models\Pedidos\Pedidos;
 
 class HomeStatsService
 {
@@ -25,7 +18,8 @@ class HomeStatsService
             'pedidos' => $this->getPedidosStats(),
             'usuarios' => $this->getUsuariosStats(),
             'estoque' => $this->getEstoqueStats(),
-            'recentes' => $this->getAtividadesRecentes()
+            'recentes' => $this->getAtividadesRecentes(),
+            'expedicao' => $this->getExpedicaoStats(),
         ];
     }
 
@@ -33,23 +27,22 @@ class HomeStatsService
     {
         $read = new Read();
         
-        // Total de produtos
         $read->ExeRead("produtos", "WHERE status <> 'Deletado'");
         $totalProdutos = $read->getRowCount();
         
-        // Produtos ativos
         $read->ExeRead("produtos", "WHERE status = 'Publicado'");
         $produtosAtivos = $read->getRowCount();
         
-        // Produtos rascunho
         $read->ExeRead("produtos", "WHERE status = 'Rascunho'");
         $produtosRascunho = $read->getRowCount();
         
-        // Produtos com estoque baixo (usando campo 'estoque' da tabela produtos_variations)
-        $read->FullRead("SELECT COUNT(*) as total FROM produtos_variations WHERE estoque <= 10 AND estoque > 0");
+        $read->FullRead("SELECT COUNT(DISTINCT p.id) as total
+            FROM produtos p
+            INNER JOIN produtos_variations pv ON pv.id_produto = p.id
+            WHERE p.status <> 'Deletado'
+              AND pv.estoque <= IF(pv.estoque_minimo > 0, pv.estoque_minimo, 1)");
         $estoqueBaixo = $read->getResult()[0]['total'] ?? 0;
         
-        // Produtos sem estoque
         $read->ExeRead("produtos_variations", "WHERE estoque = 0 OR estoque IS NULL");
         $semEstoque = $read->getRowCount();
         
@@ -66,22 +59,17 @@ class HomeStatsService
     {
         $read = new Read();
         
-        // Total de armazenagens
         $read->ExeRead("armazenagens");
         $totalArmazenagens = $read->getRowCount();
         
-        // Capacidade total (usando campo 'capacidade_maxima')
         $read->FullRead("SELECT SUM(capacidade_maxima) as capacidade_total FROM armazenagens WHERE status = 'ativo'");
         $capacidadeTotal = $read->getResult()[0]['capacidade_total'] ?? 0;
         
-        // Capacidade utilizada (usando campo 'capacidade_atual')
         $read->FullRead("SELECT SUM(capacidade_atual) as capacidade_utilizada FROM armazenagens WHERE status = 'ativo'");
         $capacidadeUtilizada = $read->getResult()[0]['capacidade_utilizada'] ?? 0;
         
-        // Percentual de ocupação
         $percentualOcupacao = $capacidadeTotal > 0 ? round(($capacidadeUtilizada / $capacidadeTotal) * 100, 1) : 0;
         
-        // Top 5 armazéns mais lotados
         $read->FullRead("SELECT 
             a.codigo as nome_armazem,
             a.tipo as tipo_armazem,
@@ -111,20 +99,15 @@ class HomeStatsService
     {
         $read = new Read();
         
-        // Como não existe tabela 'recebimentos', vamos usar 'notas_fiscais' como base
-        // Total de notas fiscais (que representam recebimentos)
         $read->ExeRead("notas_fiscais");
         $totalRecebimentos = $read->getRowCount();
         
-        // Recebimentos hoje (notas fiscais recebidas hoje)
         $read->FullRead("SELECT COUNT(*) as total FROM notas_fiscais WHERE DATE(data_recebimento) = CURDATE()");
         $recebimentosHoje = $read->getResult()[0]['total'] ?? 0;
         
-        // Recebimentos este mês
         $read->FullRead("SELECT COUNT(*) as total FROM notas_fiscais WHERE MONTH(data_recebimento) = MONTH(CURDATE()) AND YEAR(data_recebimento) = YEAR(CURDATE())");
         $recebimentosMes = $read->getResult()[0]['total'] ?? 0;
         
-        // Recebimentos pendentes
         $read->ExeRead("notas_fiscais", "WHERE status = 'pendente'");
         $recebimentosPendentes = $read->getRowCount();
         
@@ -140,20 +123,17 @@ class HomeStatsService
     {
         $read = new Read();
         
-        // Total de conferências
-        $read->ExeRead("conferencia_produtos");
-        $totalConferencias = $read->getRowCount();
+        $read->FullRead("SELECT COUNT(*) as total FROM conferencia_recebimento");
+        $totalConferencias = $read->getResult()[0]['total'] ?? 0;
         
-        // Conferências hoje
-        $read->FullRead("SELECT COUNT(*) as total FROM conferencia_produtos WHERE DATE(data_conferencia) = CURDATE()");
+        $read->FullRead("SELECT COUNT(*) as total FROM conferencia_recebimento WHERE DATE(data_conferencia) = CURDATE()");
         $conferenciasHoje = $read->getResult()[0]['total'] ?? 0;
         
-        // Conferências este mês
-        $read->FullRead("SELECT COUNT(*) as total FROM conferencia_produtos WHERE MONTH(data_conferencia) = MONTH(CURDATE()) AND YEAR(data_conferencia) = YEAR(CURDATE())");
+        $read->FullRead("SELECT COUNT(*) as total FROM conferencia_recebimento WHERE MONTH(data_conferencia) = MONTH(CURDATE()) AND YEAR(data_conferencia) = YEAR(CURDATE())");
         $conferenciasMes = $read->getResult()[0]['total'] ?? 0;
         
-        // Conferências pendentes (não há campo status, então vamos considerar todas como concluídas)
-        $conferenciasPendentes = 0;
+        $read->FullRead("SELECT COUNT(*) as total FROM conferencia_recebimento WHERE status_conferencia IN ('pendente', 'em_andamento')");
+        $conferenciasPendentes = $read->getResult()[0]['total'] ?? 0;
         
         return [
             'total' => $totalConferencias,
@@ -167,31 +147,49 @@ class HomeStatsService
     {
         $read = new Read();
         
-        // Total de movimentações
         $read->ExeRead("movimentacoes");
         $totalMovimentacoes = $read->getRowCount();
         
-        // Movimentações hoje
         $read->FullRead("SELECT COUNT(*) as total FROM movimentacoes WHERE DATE(created_at) = CURDATE()");
         $movimentacoesHoje = $read->getResult()[0]['total'] ?? 0;
         
-        // Movimentações este mês
         $read->FullRead("SELECT COUNT(*) as total FROM movimentacoes WHERE MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())");
         $movimentacoesMes = $read->getResult()[0]['total'] ?? 0;
         
-        // Entradas vs Saídas (usando campo 'tipo' correto)
         $read->FullRead("SELECT 
             SUM(CASE WHEN tipo = 'entrada' THEN quantidade ELSE 0 END) as entradas,
             SUM(CASE WHEN tipo = 'saida' THEN quantidade ELSE 0 END) as saidas
             FROM movimentacoes");
         $result = $read->getResult()[0] ?? ['entradas' => 0, 'saidas' => 0];
+
+        $read->FullRead("SELECT COUNT(*) as total FROM movimentacoes_internas");
+        $internasTotal = $read->getResult()[0]['total'] ?? 0;
+
+        $read->FullRead("SELECT COUNT(*) as total FROM movimentacoes_internas WHERE DATE(data_movimentacao) = CURDATE()");
+        $internasHoje = $read->getResult()[0]['total'] ?? 0;
+
+        $read->FullRead("SELECT COUNT(*) as total FROM movimentacoes_internas WHERE MONTH(data_movimentacao) = MONTH(CURDATE()) AND YEAR(data_movimentacao) = YEAR(CURDATE())");
+        $internasMes = $read->getResult()[0]['total'] ?? 0;
+
+        $read->FullRead("SELECT 
+            SUM(CASE WHEN tipo_movimentacao = 'put_away' THEN 1 ELSE 0 END) as put_away,
+            SUM(CASE WHEN tipo_movimentacao = 'transferencia' THEN 1 ELSE 0 END) as transferencia,
+            SUM(CASE WHEN tipo_movimentacao = 'reposicao' THEN 1 ELSE 0 END) as reposicao
+            FROM movimentacoes_internas");
+        $internasTipos = $read->getResult()[0] ?? [];
         
         return [
             'total' => $totalMovimentacoes,
             'hoje' => $movimentacoesHoje,
             'este_mes' => $movimentacoesMes,
             'entradas' => $result['entradas'] ?? 0,
-            'saidas' => $result['saidas'] ?? 0
+            'saidas' => $result['saidas'] ?? 0,
+            'internas_total' => $internasTotal,
+            'internas_hoje' => $internasHoje,
+            'internas_mes' => $internasMes,
+            'put_away' => $internasTipos['put_away'] ?? 0,
+            'transferencia' => $internasTipos['transferencia'] ?? 0,
+            'reposicao' => $internasTipos['reposicao'] ?? 0
         ];
     }
 
@@ -199,19 +197,15 @@ class HomeStatsService
     {
         $read = new Read();
         
-        // Total de notas fiscais
         $read->ExeRead("notas_fiscais");
         $totalNFs = $read->getRowCount();
         
-        // NFs este mês
         $read->FullRead("SELECT COUNT(*) as total FROM notas_fiscais WHERE MONTH(data_emissao) = MONTH(CURDATE()) AND YEAR(data_emissao) = YEAR(CURDATE())");
         $nfsMes = $read->getResult()[0]['total'] ?? 0;
         
-        // Valor total das NFs
         $read->FullRead("SELECT SUM(valor_total) as valor_total FROM notas_fiscais");
         $valorTotal = $read->getResult()[0]['valor_total'] ?? 0;
         
-        // NFs pendentes
         $read->ExeRead("notas_fiscais", "WHERE status = 'pendente'");
         $nfsPendentes = $read->getRowCount();
         
@@ -226,23 +220,16 @@ class HomeStatsService
     private function getPedidosStats(): array
     {
         $read = new Read();
-        
-        // Total de pedidos
-        $read->ExeRead("pedidos");
-        $totalPedidos = $read->getRowCount();
-        
-        // Pedidos este mês
+
+        $read->FullRead("SELECT COUNT(*) as total FROM pedidos");
+        $totalPedidos = $read->getResult()[0]['total'] ?? 0;
+
         $read->FullRead("SELECT COUNT(*) as total FROM pedidos WHERE MONTH(data_pedido) = MONTH(CURDATE()) AND YEAR(data_pedido) = YEAR(CURDATE())");
         $pedidosMes = $read->getResult()[0]['total'] ?? 0;
-        
-        // Pedidos pendentes
-        $read->ExeRead("pedidos", "WHERE status = 'pendente'");
-        $pedidosPendentes = $read->getRowCount();
-        
-        // Pedidos aprovados
-        $read->ExeRead("pedidos", "WHERE status = 'aprovado'");
-        $pedidosAprovados = $read->getRowCount();
-        
+
+        $pedidosPendentes = $this->countPedidosByStatus($read, '1', 'pendente');
+        $pedidosAprovados = $this->countPedidosByStatus($read, '2', 'aprovado');
+
         return [
             'total' => $totalPedidos,
             'este_mes' => $pedidosMes,
@@ -251,19 +238,29 @@ class HomeStatsService
         ];
     }
 
+    private function countPedidosByStatus(Read $read, string $statusPedido, string $statusTextual): int
+    {
+        $read->FullRead("SELECT COUNT(*) as total FROM pedidos WHERE status_pedido = :status", "status={$statusPedido}");
+        $porStatusPedido = (int) ($read->getResult()[0]['total'] ?? 0);
+
+        if ($porStatusPedido > 0) {
+            return $porStatusPedido;
+        }
+
+        $read->ExeRead("pedidos", "WHERE status = '{$statusTextual}'");
+        return $read->getRowCount();
+    }
+
     private function getUsuariosStats(): array
     {
         $read = new Read();
         
-        // Total de usuários
         $read->ExeRead("usuarios");
         $totalUsuarios = $read->getRowCount();
         
-        // Usuários ativos
         $read->ExeRead("usuarios", "WHERE status = 'ativo'");
         $usuariosAtivos = $read->getRowCount();
         
-        // Usuários online (últimas 24h) - usando campo 'data_acesso' correto
         $read->FullRead("SELECT COUNT(*) as total FROM log_acessos WHERE data_acesso >= DATE_SUB(NOW(), INTERVAL 24 HOUR) AND status = 'sucesso'");
         $usuariosOnline = $read->getResult()[0]['total'] ?? 0;
         
@@ -278,18 +275,19 @@ class HomeStatsService
     {
         $read = new Read();
         
-        // Valor total do estoque (usando campo 'estoque' e 'valor' corretos)
         $read->FullRead("SELECT SUM(pv.estoque * COALESCE(CAST(p.valor AS DECIMAL(10,2)), 0)) as valor_total 
                         FROM produtos_variations pv 
                         LEFT JOIN produtos p ON pv.id_produto = p.id 
                         WHERE pv.estoque > 0");
         $valorEstoque = $read->getResult()[0]['valor_total'] ?? 0;
         
-        // Produtos com estoque crítico (estoque <= 10)
-        $read->FullRead("SELECT COUNT(*) as total FROM produtos_variations WHERE estoque <= 10 AND estoque > 0");
+        $read->FullRead("SELECT COUNT(DISTINCT p.id) as total
+            FROM produtos p
+            INNER JOIN produtos_variations pv ON pv.id_produto = p.id
+            WHERE p.status <> 'Deletado'
+              AND pv.estoque <= IF(pv.estoque_minimo > 0, pv.estoque_minimo, 1)");
         $estoqueCritico = $read->getResult()[0]['total'] ?? 0;
         
-        // Produtos sem estoque
         $read->ExeRead("produtos_variations", "WHERE estoque = 0 OR estoque IS NULL");
         $semEstoque = $read->getRowCount();
         
@@ -300,34 +298,87 @@ class HomeStatsService
         ];
     }
 
+    private function getExpedicaoStats(): array
+    {
+        try {
+            $read = new Read();
+            $read->FullRead("
+                SELECT a.*, p.codigo as pedido_codigo, nf.numero as nf_numero
+                FROM pedido_alertas a
+                LEFT JOIN pedidos p ON p.id = a.pedido_id
+                LEFT JOIN notas_fiscais nf ON nf.id = a.nota_fiscal_id
+                WHERE a.lido = 0
+                ORDER BY a.created_at DESC
+                LIMIT 20
+            ");
+            $alertas = $read->getResult() ?: [];
+
+            $read->FullRead("
+                SELECT pi.*, p.nome as produto_nome, ped.codigo as pedido_codigo, ped.id as pedido_id,
+                       COALESCE(pi.previsao_chegada, ped.previsao_entrega) as previsao
+                FROM pedidos_itens pi
+                LEFT JOIN produtos p ON p.id = pi.id_produto
+                LEFT JOIN pedidos ped ON ped.id = pi.id_pedido
+                WHERE pi.encomenda = 'yes'
+                  AND COALESCE(pi.previsao_chegada, ped.previsao_entrega) IS NOT NULL
+                  AND COALESCE(pi.previsao_chegada, ped.previsao_entrega) <> ''
+                  AND STR_TO_DATE(COALESCE(pi.previsao_chegada, ped.previsao_entrega), '%Y-%m-%d') < CURDATE()
+                LIMIT 20
+            ");
+            $encomendas = $read->getResult() ?: [];
+
+            return [
+                'alertas' => $alertas,
+                'encomendas_atrasadas' => $encomendas,
+            ];
+        } catch (\Throwable $exception) {
+            return ['alertas' => [], 'encomendas_atrasadas' => []];
+        }
+    }
+
     private function getAtividadesRecentes(): array
     {
         $read = new Read();
         
-        // Últimas movimentações
         $read->FullRead("SELECT m.*, p.nome as produto_nome, u.nome as usuario_nome 
                         FROM movimentacoes m 
                         LEFT JOIN produtos p ON m.produto_id = p.id 
                         LEFT JOIN usuarios u ON m.usuario_id = u.id 
                         ORDER BY m.created_at DESC LIMIT 5");
-        $movimentacoesRecentes = $read->getResult();
+        $movimentacoesRecentes = $read->getResult() ?: [];
+
+        $read->FullRead("SELECT
+                            COALESCE(pnf.descricao_produto, 'N/A') as produto_nome,
+                            mi.tipo_movimentacao as tipo,
+                            mi.quantidade_movimentada as quantidade,
+                            u.nome as usuario_nome,
+                            mi.data_movimentacao as created_at
+                        FROM movimentacoes_internas mi
+                        LEFT JOIN pedidos_nf pnf ON mi.item_nf_id = pnf.id
+                        LEFT JOIN usuarios u ON mi.usuario_movimentacao = u.id
+                        ORDER BY mi.data_movimentacao DESC LIMIT 5");
+        $movimentacoesInternasRecentes = $read->getResult() ?: [];
         
-        // Últimos recebimentos (usando notas fiscais)
         $read->FullRead("SELECT nf.*, u.nome as usuario_nome 
                         FROM notas_fiscais nf 
                         LEFT JOIN usuarios u ON nf.usuario_recebimento = u.id 
                         ORDER BY nf.data_recebimento DESC LIMIT 5");
         $recebimentosRecentes = $read->getResult();
         
-        // Últimas conferências
-        $read->FullRead("SELECT c.*, u.nome as usuario_nome 
-                        FROM conferencia_produtos c 
-                        LEFT JOIN usuarios u ON c.usuario_conferente = u.id 
-                        ORDER BY c.data_conferencia DESC LIMIT 5");
+        $read->FullRead("SELECT cr.*,
+                        nfe.numero_nfe,
+                        p.nome as produto_nome,
+                        u.nome as usuario_nome
+                        FROM conferencia_recebimento cr
+                        LEFT JOIN notas_fiscais_eletronicas nfe ON cr.nfe_id = nfe.id
+                        LEFT JOIN produtos p ON cr.produto_id = p.id
+                        LEFT JOIN usuarios u ON cr.usuario_conferente_id = u.id
+                        ORDER BY cr.data_conferencia DESC, cr.created_at DESC LIMIT 5");
         $conferenciasRecentes = $read->getResult();
         
         return [
             'movimentacoes' => $movimentacoesRecentes,
+            'movimentacoes_internas' => $movimentacoesInternasRecentes,
             'recebimentos' => $recebimentosRecentes,
             'conferencias' => $conferenciasRecentes
         ];

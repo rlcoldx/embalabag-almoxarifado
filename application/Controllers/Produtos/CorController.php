@@ -9,6 +9,7 @@ class CorController extends Controller
 {
     public function index($params)
     {
+        $this->checkSession();
         $this->setParams($params);
 
         $cor = new Cor();
@@ -18,12 +19,36 @@ class CorController extends Controller
     }
 
 
+    public function criar($params)
+    {
+        $this->index($params);
+    }
+
+    public function buscar($params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+
+        $cor = new Cor();
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true,
+            'cores' => $cor->getCorList()->getResult() ?? []
+        ]);
+    }
+
     public function editar($params)
     {
+        $this->checkSession();
         $this->setParams($params);
 
         $editar = new Cor();
-        $editar = $editar->getCorID($params['id'])->getResult()[0];
+        $resultado = $editar->getCorID($params['id'])->getResult();
+        if (!$resultado) {
+            echo 'Cor não encontrada.';
+            return;
+        }
+        $editar = $resultado[0];
 
         $cor = new Cor();
         $cores_lista = $cor->getCorList()->getResult();
@@ -34,6 +59,7 @@ class CorController extends Controller
 
     public function save($params)
     {
+        $this->checkSession();
         // Para dados JSON, precisamos ler do input stream
         $input = json_decode(file_get_contents('php://input'), true);
         
@@ -54,6 +80,7 @@ class CorController extends Controller
 
     public function save_edit($params)
     {
+        $this->checkSession();
         // Para dados JSON, precisamos ler do input stream
         $input = json_decode(file_get_contents('php://input'), true);
         
@@ -75,6 +102,7 @@ class CorController extends Controller
 
     public function remove_color($params)
     {
+        $this->checkSession();
         $this->setParams($params);
 
         $removerCor = new Cor();

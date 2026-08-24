@@ -16,6 +16,7 @@ $router->get("/produtos", "ProdutosController:index");
 
 // Rotas com parâmetros por último (devem vir DEPOIS das rotas específicas)
 $router->get("/produtos/edit/{id}", "ProdutosController:editar");
+$router->get("/produtos/historico/{id}", "ProdutosController:historico");
 $router->get("/produtos/buscar/{id}", "ProdutosController:buscarProduto");
 $router->post("/produtos/save_draft", "ProdutosController:save_draft");
 $router->post("/produtos/editar/save", "ProdutosController:save_edit");

@@ -37,9 +37,10 @@ class EtiquetasController extends Controller
             return;
         }
         
-        $this->render('pages/recebimento/etiquetas/create.twig', [
-            'menu' => 'recebimento_etiquetas'
-        ]);
+        $this->render('pages/recebimento/etiquetas/create.twig', array_merge(
+            $this->getFormLists(),
+            ['menu' => 'recebimento_etiquetas']
+        ));
     }
 
     public function store(array $params)
@@ -57,26 +58,25 @@ class EtiquetasController extends Controller
         }
         
         $etiqueta = new EtiquetaInterna();
-        
-        $data = [
-            'codigo' => $_POST['codigo'] ?? '',
-            'tipo_etiqueta' => $_POST['tipo_etiqueta'] ?? '',
-            'conteudo' => $_POST['conteudo'] ?? '',
-            'qr_code_data' => $_POST['qr_code_data'] ?? '',
-            'status' => 'ativa',
-            'usuario_criacao' => $_SESSION[BASE.'user_id'] ?? null,
-            'data_impressao' => null
-        ];
-        
-        if ($etiqueta->create($data)) {
+        $data = $this->montarDadosEtiqueta($_POST, $etiqueta);
+
+        $erro = $this->validarDadosEtiqueta($data);
+        if ($erro) {
+            $this->responseJson(['success' => false, 'message' => $erro]);
+            return;
+        }
+
+        $id = $etiqueta->create($data);
+        if ($id) {
             $this->responseJson([
                 'success' => true,
-                'message' => 'Etiqueta criada com sucesso!'
+                'message' => 'Etiqueta criada com sucesso!',
+                'redirect' => DOMAIN . '/recebimento/etiquetas/show/' . $id
             ]);
         } else {
             $this->responseJson([
                 'success' => false,
-                'message' => 'Erro ao criar etiqueta.'
+                'message' => 'Erro ao criar etiqueta. Verifique se o código já existe.'
             ]);
         }
     }
@@ -92,20 +92,12 @@ class EtiquetasController extends Controller
             return;
         }
         
-        $id = $params['id'] ?? null;
-        if (!$id) {
-            echo 'ID da etiqueta não informado.';
-            return;
-        }
-        
-        $etiqueta = new EtiquetaInterna();
-        $dados = $etiqueta->getById($id);
-        
+        $dados = $this->getEtiquetaOrFail($params['id'] ?? null);
         if (!$dados) {
             echo 'Etiqueta não encontrada.';
             return;
         }
-        
+
         $this->render('pages/recebimento/etiquetas/show.twig', [
             'menu' => 'recebimento_etiquetas',
             'etiqueta' => $dados
@@ -123,24 +115,19 @@ class EtiquetasController extends Controller
             return;
         }
         
-        $id = $params['id'] ?? null;
-        if (!$id) {
-            echo 'ID da etiqueta não informado.';
-            return;
-        }
-        
-        $etiqueta = new EtiquetaInterna();
-        $dados = $etiqueta->getById($id);
-        
+        $dados = $this->getEtiquetaOrFail($params['id'] ?? null);
         if (!$dados) {
             echo 'Etiqueta não encontrada.';
             return;
         }
-        
-        $this->render('pages/recebimento/etiquetas/edit.twig', [
-            'menu' => 'recebimento_etiquetas',
-            'etiqueta' => $dados
-        ]);
+
+        $this->render('pages/recebimento/etiquetas/edit.twig', array_merge(
+            $this->getFormLists(),
+            [
+                'menu' => 'recebimento_etiquetas',
+                'etiqueta' => $dados
+            ]
+        ));
     }
 
     public function update(array $params)
@@ -158,28 +145,31 @@ class EtiquetasController extends Controller
         }
         
         $id = $params['id'] ?? null;
-        if (!$id) {
+        $atual = $this->getEtiquetaOrFail($id);
+        if (!$atual) {
             $this->responseJson([
                 'success' => false,
-                'message' => 'ID da etiqueta não informado.'
+                'message' => 'Etiqueta não encontrada.'
             ]);
             return;
         }
-        
+
         $etiqueta = new EtiquetaInterna();
-        
-        $data = [
-            'codigo' => $_POST['codigo'] ?? '',
-            'tipo_etiqueta' => $_POST['tipo_etiqueta'] ?? '',
-            'conteudo' => $_POST['conteudo'] ?? '',
-            'qr_code_data' => $_POST['qr_code_data'] ?? '',
-            'updated_at' => date('Y-m-d H:i:s')
-        ];
-        
-        if ($etiqueta->update($id, $data)) {
+        $data = $this->montarDadosEtiqueta($_POST, $etiqueta, $atual);
+
+        $erro = $this->validarDadosEtiqueta($data, false);
+        if ($erro) {
+            $this->responseJson(['success' => false, 'message' => $erro]);
+            return;
+        }
+
+        unset($data['usuario_criacao']);
+
+        if ($etiqueta->update((int)$id, $data)) {
             $this->responseJson([
                 'success' => true,
-                'message' => 'Etiqueta atualizada com sucesso!'
+                'message' => 'Etiqueta atualizada com sucesso!',
+                'redirect' => DOMAIN . '/recebimento/etiquetas/show/' . $id
             ]);
         } else {
             $this->responseJson([
@@ -342,12 +332,23 @@ class EtiquetasController extends Controller
         
         $etiqueta = new EtiquetaInterna();
         
+        $usuarioId = (int)($_SESSION[BASE.'user_id'] ?? 0);
+        if ($usuarioId <= 0) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Usuário da etiqueta não identificado.'
+            ]);
+            return;
+        }
+
         $data = [
             'codigo' => 'LOC' . $dados['codigo'],
             'tipo_etiqueta' => 'localizacao',
             'conteudo' => $dados['descricao'] . ' - ' . $dados['codigo'],
-            'status' => 'ativa',
-            'usuario_criacao' => $_SESSION[BASE.'user_id'] ?? null
+            'qr_code' => 'LOC' . $dados['codigo'],
+            'codigo_barras' => 'LOC' . $dados['codigo'],
+            'status' => 'criada',
+            'usuario_criacao' => $usuarioId
         ];
         
         if ($etiqueta->create($data)) {
@@ -369,15 +370,23 @@ class EtiquetasController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('etiqueta', 'criar')) {
+        if (
+            !$permissionHelper->userHasPermission('etiqueta', 'criar')
+            && !$permissionHelper->userHasPermission('etiquetas', 'criar')
+        ) {
             $this->responseJson([
                 'success' => false,
                 'message' => 'Sem permissão para gerar etiquetas.'
             ]);
             return;
         }
-        
-        $itemNfId = $params['item_nf_id'] ?? null;
+
+        $itemNfId = $params['item_nf_id']
+            ?? $params['item_id']
+            ?? $_POST['item_id']
+            ?? $_POST['item_nf_id']
+            ?? $_GET['item_id']
+            ?? null;
         if (!$itemNfId) {
             $this->responseJson([
                 'success' => false,
@@ -398,29 +407,24 @@ class EtiquetasController extends Controller
             return;
         }
         
-        $item = $item[0] ?? null;
-        
+        $usuarioId = (int)($_SESSION[BASE . 'user_id'] ?? 0);
         $etiqueta = new EtiquetaInterna();
-        
-        $data = [
-            'codigo' => 'PRO' . $item['codigo_produto'],
-            'tipo_etiqueta' => 'produto',
-            'conteudo' => $item['descricao_produto'] . ' - Qtd: ' . $item['quantidade'],
-            'status' => 'ativa',
-            'usuario_criacao' => $_SESSION[BASE.'user_id'] ?? null
-        ];
-        
-        if ($etiqueta->create($data)) {
+        $etiquetaId = $etiqueta->criarEtiquetaProduto((int)$itemNfId, $usuarioId);
+
+        if ($etiquetaId) {
             $this->responseJson([
                 'success' => true,
-                'message' => 'Etiqueta de produto gerada com sucesso!'
+                'message' => 'Etiqueta de produto gerada com sucesso.',
+                'etiqueta_id' => $etiquetaId,
+                'redirect' => DOMAIN . '/recebimento/etiquetas/show/' . $etiquetaId
             ]);
-        } else {
-            $this->responseJson([
-                'success' => false,
-                'message' => 'Erro ao gerar etiqueta de produto.'
-            ]);
+            return;
         }
+
+        $this->responseJson([
+            'success' => false,
+            'message' => 'Erro ao gerar etiqueta de produto.'
+        ]);
     }
 
     public function gerarLoteArmazenagens(array $params)
@@ -441,6 +445,15 @@ class EtiquetasController extends Controller
         $result = $armazenagem->getAllArmazenagens();
         $armazenagens = $result->getResult();
         
+        $usuarioId = (int)($_SESSION[BASE.'user_id'] ?? 0);
+        if ($usuarioId <= 0) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Usuário da etiqueta não identificado.'
+            ]);
+            return;
+        }
+
         $etiqueta = new EtiquetaInterna();
         $geradas = 0;
         
@@ -449,8 +462,10 @@ class EtiquetasController extends Controller
                 'codigo' => 'LOC' . $arm['codigo'],
                 'tipo_etiqueta' => 'localizacao',
                 'conteudo' => $arm['descricao'] . ' - ' . $arm['codigo'],
-                'status' => 'ativa',
-                'usuario_criacao' => $_SESSION[BASE.'user_id'] ?? null
+                'qr_code' => 'LOC' . $arm['codigo'],
+                'codigo_barras' => 'LOC' . $arm['codigo'],
+                'status' => 'criada',
+                'usuario_criacao' => $usuarioId
             ];
             
             if ($etiqueta->create($data)) {
@@ -482,6 +497,15 @@ class EtiquetasController extends Controller
         $result = $notaFiscal->getAllItens();
         $itens = $result->getResult();
         
+        $usuarioId = (int)($_SESSION[BASE.'user_id'] ?? 0);
+        if ($usuarioId <= 0) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Usuário da etiqueta não identificado.'
+            ]);
+            return;
+        }
+
         $etiqueta = new EtiquetaInterna();
         $geradas = 0;
         
@@ -490,8 +514,10 @@ class EtiquetasController extends Controller
                 'codigo' => 'PRO' . $item['codigo_produto'],
                 'tipo_etiqueta' => 'produto',
                 'conteudo' => $item['descricao_produto'] . ' - Qtd: ' . $item['quantidade'],
-                'status' => 'ativa',
-                'usuario_criacao' => $_SESSION[BASE.'user_id'] ?? null
+                'qr_code' => 'PRO' . $item['codigo_produto'],
+                'codigo_barras' => 'PRO' . $item['codigo_produto'],
+                'status' => 'criada',
+                'usuario_criacao' => $usuarioId
             ];
             
             if ($etiqueta->create($data)) {
@@ -503,5 +529,114 @@ class EtiquetasController extends Controller
             'success' => true,
             'message' => $geradas . ' etiquetas de produtos geradas com sucesso!'
         ]);
+    }
+
+    private function getFormLists(): array
+    {
+        $armazenagem = new Armazenagem();
+        $notaFiscal = new NotaFiscal();
+
+        $itens = method_exists($notaFiscal, 'getItensParaMovimentacao')
+            ? $notaFiscal->getItensParaMovimentacao()->getResult()
+            : $notaFiscal->getAllItens()->getResult();
+
+        return [
+            'armazenagens' => $armazenagem->getArmazenagensAtivas()->getResult() ?: [],
+            'itens' => $itens ?: [],
+        ];
+    }
+
+    private function getEtiquetaOrFail($id): ?array
+    {
+        if (!$id) {
+            return null;
+        }
+
+        $etiqueta = new EtiquetaInterna();
+        $result = $etiqueta->getById((int)$id)->getResult();
+        if (!$result) {
+            return null;
+        }
+
+        $dados = $result[0];
+        $decoded = json_decode($dados['conteudo'] ?? '', true);
+        $dados['conteudo_json'] = is_array($decoded) ? $decoded : null;
+        $dados['qr_code_payload'] = $etiqueta->payloadQrCode($dados);
+        $dados['qr_code_image'] = $etiqueta->gerarQRCode($dados['qr_code_payload']);
+
+        return $dados;
+    }
+
+    private function montarDadosEtiqueta(array $post, EtiquetaInterna $etiqueta, ?array $atual = null): array
+    {
+        $tipo = $post['tipo_etiqueta'] ?? ($atual['tipo_etiqueta'] ?? '');
+        $codigo = trim($post['codigo'] ?? '');
+        if ($codigo === '') {
+            $codigo = $atual['codigo'] ?? $etiqueta->gerarCodigoEtiqueta($tipo ?: 'produto');
+        }
+
+        $statusPermitidos = ['criada', 'impressa', 'aplicada', 'inativa'];
+        $status = $post['status'] ?? ($atual['status'] ?? 'criada');
+        if (!in_array($status, $statusPermitidos, true)) {
+            $status = 'criada';
+        }
+
+        $qrCode = trim($post['qr_code'] ?? ($post['qr_code_data'] ?? ''));
+        if ($qrCode === '' || strpos($qrCode, 'data:image') === 0) {
+            $qrCode = $codigo;
+        }
+
+        return [
+            'codigo' => $codigo,
+            'tipo_etiqueta' => $tipo,
+            'referencia_tipo' => $this->emptyToNull($post['referencia_tipo'] ?? null),
+            'referencia_id' => $this->toNullableInt($post['referencia_id'] ?? null),
+            'conteudo' => trim($post['conteudo'] ?? ''),
+            'codigo_barras' => $this->emptyToNull($post['codigo_barras'] ?? null),
+            'qr_code' => $this->emptyToNull($qrCode),
+            'observacoes' => $this->emptyToNull($post['observacoes'] ?? null),
+            'status' => $status,
+            'usuario_criacao' => $_SESSION[BASE . 'user_id'] ?? null,
+        ];
+    }
+
+    private function validarDadosEtiqueta(array $data, bool $exigeUsuario = true): ?string
+    {
+        if ($data['codigo'] === '') {
+            return 'O código da etiqueta é obrigatório.';
+        }
+
+        if ($data['tipo_etiqueta'] === '') {
+            return 'Selecione o tipo de etiqueta.';
+        }
+
+        if ($data['conteudo'] === '') {
+            return 'O conteúdo da etiqueta é obrigatório.';
+        }
+
+        if ($exigeUsuario && empty($data['usuario_criacao'])) {
+            return 'Usuário da etiqueta não identificado.';
+        }
+
+        return null;
+    }
+
+    private function toNullableInt($value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return (int)$value;
+    }
+
+    private function emptyToNull($value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = trim((string)$value);
+        return $value === '' ? null : $value;
     }
 } 

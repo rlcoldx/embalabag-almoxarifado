@@ -1,0 +1,59 @@
+<!-- Modal para Adicionar Item à NF-e -->
+<div class="modal fade" id="modalAddItem" tabindex="-1" aria-labelledby="modalAddItemLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAddItemLabel">
+                    <i class="fas fa-plus"></i> Adicionar Item
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formAddItem">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="item_sku" class="form-label">SKU do Produto *</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="item_sku" placeholder="Digite ou escaneie o SKU">
+                                    <button class="btn btn-outline-secondary" type="button" id="btnScanSKU">
+                                        <i class="fas fa-barcode"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="item_produto" class="form-label">Produto</label>
+                                <input type="text" class="form-control" id="item_produto" readonly>
+                                <input type="hidden" id="item_produto_id">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="item_variacao" class="form-label">Variação (Tamanho/Cor) *</label>
+                                <select class="form-select" id="item_variacao" required>
+                                    <option value="">Selecione a variação</option>
+                                </select>
+                                <input type="hidden" id="item_variacao_id">
+                            </div>
+                            <div class="mb-3">
+                                <label for="item_quantidade" class="form-label">Quantidade *</label>
+                                <input type="number" class="form-control" id="item_quantidade" min="1" value="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="item_valor_unitario" class="form-label">Valor Unitário *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="number" class="form-control" id="item_valor_unitario" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmarItem">Adicionar Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -308,8 +308,7 @@ function deleteProduto(id_produto) {
 		  if (result.value === true) {
 			let DOMAIN = $('body').data('domain');
             $.ajax({
-                url: DOMAIN + '/produtos/excluir',
-                data: {'id_produto': id_produto},
+                url: DOMAIN + '/produtos/delete/' + id_produto,
                 type: 'post',
                 success: function(data){
                     setTimeout(function(){

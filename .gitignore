@@ -10,3 +10,8 @@ backup
 view/assets/dist
 log_error
 error_log
+/migrations
+/VERIFICACAO.md
+/PENDENTES.md
+/FALTANTES.md
+/CONCLUIDAS.md

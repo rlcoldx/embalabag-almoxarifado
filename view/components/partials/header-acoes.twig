@@ -1,0 +1,28 @@
+{% if menu_permissions.produtos_new or menu_permissions.recebimento_nf or menu_permissions.armazenagens_new or menu_permissions.conferencia_new %}
+<nav class="header-acoes" aria-label="Ações rápidas">
+    {% if menu_permissions.produtos_new %}
+    <a href="{{ DOMAIN }}/produtos/new" class="header-acoes__link">
+        <i class="fas fa-plus"></i>
+        <span>Novo produto</span>
+    </a>
+    {% endif %}
+    {% if menu_permissions.recebimento_nf %}
+    <a href="{{ DOMAIN }}/recebimento/notas-fiscais/create" class="header-acoes__link">
+        <i class="fas fa-truck"></i>
+        <span>Nova nota fiscal</span>
+    </a>
+    {% endif %}
+    {% if menu_permissions.armazenagens_new %}
+    <a href="{{ DOMAIN }}/armazenagens/create" class="header-acoes__link">
+        <i class="fas fa-warehouse"></i>
+        <span>Nova armazenagem</span>
+    </a>
+    {% endif %}
+    {% if menu_permissions.conferencia_new %}
+    <a href="{{ DOMAIN }}/conferencia/create" class="header-acoes__link">
+        <i class="fas fa-clipboard-check"></i>
+        <span>Nova conferência</span>
+    </a>
+    {% endif %}
+</nav>
+{% endif %}

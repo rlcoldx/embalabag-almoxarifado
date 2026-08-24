@@ -102,6 +102,10 @@ function preencherDadosNotaFiscal(notaFiscal) {
     document.getElementById('valor_total').value = notaFiscal.valor_total;
     document.getElementById('status').value = notaFiscal.status;
     document.getElementById('observacoes').value = notaFiscal.observacoes || '';
+    const responsavelSelect = document.getElementById('usuario_recebimento');
+    if (responsavelSelect && notaFiscal.usuario_recebimento) {
+        responsavelSelect.value = notaFiscal.usuario_recebimento;
+    }
     
     // Preencher pedido se existir
     if (notaFiscal.pedido_id) {

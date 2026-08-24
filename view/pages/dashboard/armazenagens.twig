@@ -1,0 +1,105 @@
+{% extends "layout/layoutMaster.twig" %}
+
+{% block title %}Dashboard de Armazenagens - EmbalaBag{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ PATH }}/view/assets/css/home.css?v={{ VERSION }}">
+{% endblock %}
+
+{% block content %}
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Dashboard de Armazenagens</p>
+        <span class="fs-semibold">Ocupação, capacidade e armazéns mais lotados.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/armazenagens" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-warehouse me-2 align-middle d-inline-block"></i>Lista
+        </a>
+        <a href="{{ DOMAIN }}/armazenagens/mapa" class="btn btn-primary btn-wave">
+            <i class="fas fa-map me-2 align-middle d-inline-block"></i>Mapa
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-4 col-lg-6">
+        <div class="card custom-card">
+            <div class="card-body text-center">
+                <h4 class="fw-bold mb-1">{{ stats.armazenagens.total|number_format(0, ',', '.') }}</h4>
+                <span class="home-card-label">Armazenagens</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-6">
+        <div class="card custom-card">
+            <div class="card-body text-center">
+                <h4 class="fw-bold text-primary mb-1">{{ stats.armazenagens.capacidade_total|number_format(0, ',', '.') }}</h4>
+                <span class="home-card-label">Capacidade total</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-6">
+        <div class="card custom-card">
+            <div class="card-body text-center">
+                <h4 class="fw-bold text-info mb-1">{{ stats.armazenagens.capacidade_utilizada|number_format(0, ',', '.') }}</h4>
+                <span class="home-card-label">Utilizada ({{ stats.armazenagens.percentual_ocupacao }}%)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card custom-card">
+    <div class="card-header">
+        <div class="card-title"><i class="fas fa-warehouse me-2"></i>Top 5 armazéns mais lotados</div>
+    </div>
+    <div class="card-body">
+        <div class="mb-4">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-semibold">Ocupação geral</span>
+                <span class="fw-semibold">{{ stats.armazenagens.percentual_ocupacao }}%</span>
+            </div>
+            <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-{{ stats.armazenagens.percentual_ocupacao > 80 ? 'danger' : stats.armazenagens.percentual_ocupacao > 60 ? 'warning' : 'success' }}"
+                     style="width: {{ stats.armazenagens.percentual_ocupacao }}%"></div>
+            </div>
+        </div>
+
+        {% if stats.armazenagens.top_5_lotados %}
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>Armazém</th>
+                        <th class="text-center">Tipo</th>
+                        <th class="text-center">Utilizado</th>
+                        <th class="text-center">Total</th>
+                        <th class="text-center">%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for armazem in stats.armazenagens.top_5_lotados %}
+                    <tr>
+                        <td>
+                            <strong>{{ armazem.nome_armazem }}</strong>
+                            {% if armazem.setor_armazem %}<br><small>{{ armazem.setor_armazem }}</small>{% endif %}
+                        </td>
+                        <td class="text-center">{{ armazem.tipo_armazem|title }}</td>
+                        <td class="text-center">{{ armazem.capacidade_utilizada|number_format(0, ',', '.') }}</td>
+                        <td class="text-center">{{ armazem.capacidade_total|number_format(0, ',', '.') }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-{{ armazem.percentual_ocupacao > 80 ? 'danger' : armazem.percentual_ocupacao > 60 ? 'warning' : 'success' }}-transparent">
+                                {{ armazem.percentual_ocupacao }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="mb-0">Nenhum armazém com estoque encontrado.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

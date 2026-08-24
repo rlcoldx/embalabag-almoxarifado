@@ -377,6 +377,53 @@ function carregarDadosProdutoDetalhes(produtoId, variacaoId) {
             }
         })
         .catch(error => console.error('Erro ao carregar localizações:', error));
+
+    fetch(buildUrl('/produtos/historico/' + produtoId))
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+            if (data.success) {
+                renderizarHistoricoProduto(data.historico || []);
+            }
+        })
+        .catch(function () {
+            const container = document.getElementById('historicoProdutoContainer');
+            if (container) {
+                container.innerHTML = '<p class="mb-0">Não foi possível carregar o histórico.</p>';
+            }
+        });
+}
+
+function renderizarHistoricoProduto(itens) {
+    const container = document.getElementById('historicoProdutoContainer');
+    if (!container) {
+        return;
+    }
+
+    if (!itens || itens.length === 0) {
+        container.innerHTML = '<p class="mb-0">Nenhuma alteração cadastral registrada.</p>';
+        return;
+    }
+
+    let html = '<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr>';
+    html += '<th>Data</th><th>Ação</th><th>Usuário</th><th>Alterações</th></tr></thead><tbody>';
+
+    itens.forEach(function (item) {
+        const mudancas = item.alteracoes_lista || [];
+        let detalhes = '—';
+        if (mudancas.length > 0) {
+            detalhes = '<ul class="mb-0 ps-3">' + mudancas.map(function (mudanca) {
+                return '<li><strong>' + (mudanca.rotulo || mudanca.campo) + ':</strong> '
+                    + (mudanca.anterior || '(vazio)') + ' → ' + (mudanca.novo || '(vazio)') + '</li>';
+            }).join('') + '</ul>';
+        }
+
+        html += '<tr><td>' + (item.created_at || '-') + '</td><td>'
+            + (item.acao_descricao || item.acao || '-') + '</td><td>'
+            + (item.usuario_nome || '-') + '</td><td>' + detalhes + '</td></tr>';
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
 }
 
 /**
@@ -500,11 +547,6 @@ function configurarEventosMovimentacao() {
         });
     }
     
-    // Configurar scanner
-    const scannerBtn = document.querySelector('#modalMovimentacao .btn-outline-primary');
-    if (scannerBtn) {
-        scannerBtn.addEventListener('click', () => abrirScanner('movimentacao'));
-    }
     
     // Configurar envio do formulário
     const form = document.getElementById('formMovimentacao');
@@ -592,50 +634,28 @@ function carregarVariacoes(produtoId) {
         });
 }
 
-/**
- * Abrir scanner
- */
-function abrirScanner(tipo) {
-    // Simular abertura do scanner (implementar com biblioteca real)
-    Swal.fire({
-        title: 'Scanner de Código de Barras',
-        html: `
-            <div class="text-center">
-                <i class="fas fa-barcode fa-3x text-primary mb-3"></i>
-                <p>Posicione o código de barras na frente da câmera</p>
-                <input type="text" id="codigoScanner" class="form-control" placeholder="Ou digite manualmente">
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar',
-        preConfirm: () => {
-            const codigo = document.getElementById('codigoScanner').value;
-            if (!codigo) {
-                Swal.showValidationMessage('Digite ou escaneie um código');
-                return false;
-            }
-            return codigo;
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            confirmarCodigoScanner(result.value, tipo);
-        }
-    });
-}
-
-/**
- * Confirmar código do scanner
- */
-function confirmarCodigoScanner(codigo, tipo) {
-    if (tipo === 'movimentacao') {
-        document.getElementById('movimentacaoProduto').value = codigo;
-        buscarProdutoPorSku();
-    } else if (tipo === 'transferencia') {
-        document.getElementById('transferenciaProduto').value = codigo;
-        buscarProdutoTransferencia();
+window.aplicarCodigoScanner = function (codigo, tipo) {
+    if (!codigo) {
+        return;
     }
-}
+
+    if (typeof window.aplicarProdutoPorSku === 'function') {
+        if (tipo === 'transferencia') {
+            window.aplicarProdutoPorSku(codigo, 'modalTransferencia', '#transferenciaProduto');
+            return;
+        }
+        window.aplicarProdutoPorSku(codigo, 'modalMovimentacao', '#movimentacaoProduto');
+        return;
+    }
+
+    const campo = document.getElementById(tipo === 'transferencia' ? 'transferenciaProduto' : 'movimentacaoProduto');
+    if (campo && campo.tagName === 'INPUT') {
+        campo.value = codigo;
+        if (tipo !== 'transferencia' && typeof buscarProdutoPorSku === 'function') {
+            buscarProdutoPorSku();
+        }
+    }
+};
 
 /**
  * Salvar movimentação

@@ -71,15 +71,7 @@ function initializeCounters() {
     // Lista de IDs dos contadores que devem ser animados
     const counterIds = [
         'contador-produtos-total',
-        'contador-armazenagens-total',
-        'contador-estoque-valor',
-        'contador-usuarios-total',
-        'contador-produtos-ativos',
-        'contador-produtos-rascunho',
-        'contador-produtos-estoque-baixo',
-        'contador-produtos-sem-estoque',
-        'contador-armazenagens-capacidade-total',
-        'contador-armazenagens-capacidade-utilizada'
+        'contador-armazenagens-total'
     ];
     
     counterIds.forEach(id => {
@@ -133,7 +125,7 @@ function animateCounter(element, start, end, duration) {
  * Configurar auto-refresh opcional
  */
 function setupAutoRefresh() {
-    const refreshButton = document.querySelector('a[onclick="window.location.reload()"]');
+    const refreshButton = document.getElementById('btn-atualizar-home');
     
     if (refreshButton) {
         // Adicionar indicador de última atualização

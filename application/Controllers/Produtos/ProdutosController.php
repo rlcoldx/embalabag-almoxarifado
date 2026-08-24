@@ -6,6 +6,8 @@ use Agencia\Close\Controllers\Controller;
 use Agencia\Close\Models\Produtos\Produtos;
 use Agencia\Close\Models\Produtos\Categorias;
 use Agencia\Close\Models\Produtos\Empresas;
+use Agencia\Close\Models\Produtos\ProdutoHistorico;
+use Agencia\Close\Helpers\User\PermissionHelper;
 
 class ProdutosController extends Controller
 {
@@ -15,6 +17,7 @@ class ProdutosController extends Controller
 
   public function index($params)
   {
+    $this->checkSession();
     $this->setParams($params);
 
     $produtos = new Produtos();
@@ -25,6 +28,7 @@ class ProdutosController extends Controller
 
   public function criar($params)
   {
+    $this->checkSession();
     $this->setParams($params);
 
     $cores = new Cor();
@@ -47,11 +51,16 @@ class ProdutosController extends Controller
 
   public function editar($params)
   {
+    $this->checkSession();
     $this->setParams($params);
 
     $produto = new Produtos();
-    $produto = $produto->getProduto($this->params['id']);
-    $produto = $produto->getResult()[0];
+    $produtoResult = $produto->getProduto($this->params['id'])->getResult();
+    if (!$produtoResult) {
+      echo 'Produto não encontrado.';
+      return;
+    }
+    $produto = $produtoResult[0];
 
     $variations = new Produtos();
     $variations = $variations->getProdutoVariations($this->params['id']);
@@ -78,6 +87,19 @@ class ProdutosController extends Controller
     $imagem = $imagens->getProdutoImages($this->params['id'])->getResult();
 
     $categorias_lista = $this->getCategoryList();
+    $historico = [];
+    try {
+      $historico = (new ProdutoHistorico())->getByProduto((int)$this->params['id']);
+    } catch (\Throwable $exception) {
+      $historico = [];
+    }
+
+    $historicoMovimentacao = [];
+    try {
+      $historicoMovimentacao = (new \Agencia\Close\Models\Expedicao\Expedicao())->getHistoricoProduto((int)$this->params['id']);
+    } catch (\Throwable $exception) {
+      $historicoMovimentacao = [];
+    }
 
     $this->render('pages/produtos/form.twig', [
       'menu' => 'produtos',
@@ -88,7 +110,9 @@ class ProdutosController extends Controller
       'empresas' => $empresas,
       'cores' => $cores,
       'categorias' => $categorias_lista,
-      'blacklist_empresas' => $blacklist_ids
+      'blacklist_empresas' => $blacklist_ids,
+      'historico' => $historico,
+      'historico_movimentacao' => $historicoMovimentacao
     ]);
   }
 
@@ -158,6 +182,7 @@ class ProdutosController extends Controller
   //CRIAR O PRODUTO EM RASCUNHO
   public function save_draft($params)
   {
+    $this->checkSession();
     $this->setParams($params);
     $produtos = new Produtos();
     $result = $produtos->createDraft($this->params);
@@ -170,6 +195,7 @@ class ProdutosController extends Controller
   //SALVA O EDITAR DO PRODUTO
   public function save_edit($params)
   {
+    $this->checkSession();
     $this->setParams($params);
     $produtos = new Produtos();
     $result = $produtos->saveEdit($this->params)->getResult();
@@ -184,10 +210,11 @@ class ProdutosController extends Controller
   //EXCLUI O PRODUTO
   public function excluir_produto($params)
   {
+    $this->checkSession();
     $this->setParams($params);
     $excluir = new Produtos();
-    $excluir->excluirProduto($this->params['id']);
-    if ($excluir) {
+    $excluiu = $excluir->excluirProduto($this->params['id']);
+    if ($excluiu) {
       header("Content-Type: application/json");
       echo json_encode([
         'success' => true,
@@ -232,21 +259,57 @@ class ProdutosController extends Controller
   // ESTOQUE BAIXO
   public function estoqueBaixo($params)
   {
+    $this->checkSession();
     $this->setParams($params);
+
+    $permissionHelper = new PermissionHelper();
+    if (!$permissionHelper->userHasPermission('produtos', 'visualizar')) {
+      echo 'Sem permissão para acessar este módulo.';
+      return;
+    }
     
     $produtos = new Produtos();
     $produtos_estoque_baixo = $produtos->getProdutosEstoqueBaixo();
     $produtos_estoque_baixo = $produtos_estoque_baixo->getResult();
 
     $this->render('pages/produtos/estoque-baixo.twig', [
-      'menu' => 'produtos',
-      'produtos' => $produtos_estoque_baixo
+      'menu' => 'estoque_baixo',
+      'produtos' => $produtos_estoque_baixo ?: []
+    ]);
+  }
+
+  public function historico($params)
+  {
+    $this->checkSession();
+    $this->setParams($params);
+
+    $permissionHelper = new PermissionHelper();
+    if (!$permissionHelper->userHasPermission('produtos', 'visualizar')) {
+      $this->responseJson([
+        'success' => false,
+        'message' => 'Sem permissão para acessar este módulo.'
+      ]);
+      return;
+    }
+
+    $produtoId = (int)($this->params['id'] ?? 0);
+    $historico = [];
+    try {
+      $historico = (new ProdutoHistorico())->getByProduto($produtoId);
+    } catch (\Throwable $exception) {
+      $historico = [];
+    }
+
+    $this->responseJson([
+      'success' => true,
+      'historico' => $historico
     ]);
   }
 
   // BUSCAR PRODUTO PARA AJAX
   public function buscarProduto($params)
   {
+    $this->checkSession();
     $this->setParams($params);
     
     $produtos = new Produtos();
@@ -254,6 +317,20 @@ class ProdutosController extends Controller
     $produto = $produto->getResult();
 
     if ($produto) {
+      $read = new \Agencia\Close\Conn\Read();
+      $read->FullRead(
+          "SELECT COALESCE(SUM(estoque), 0) as estoque_atual,
+                  COALESCE(MIN(IF(estoque_minimo > 0, estoque_minimo, 1)), 1) as estoque_minimo
+           FROM produtos_variations
+           WHERE id_produto = :id",
+          "id={$produto[0]['id']}"
+      );
+      $estoque = $read->getResult()[0] ?? [];
+
+      $produto[0]['estoque_atual'] = (int)($estoque['estoque_atual'] ?? 0);
+      $produto[0]['estoque_minimo'] = (int)($estoque['estoque_minimo'] ?? 1);
+      $produto[0]['codigo'] = $produto[0]['SKU'] ?? ($produto[0]['codigo'] ?? '');
+
       header("Content-Type: application/json");
       echo json_encode([
         'success' => true,
@@ -271,10 +348,21 @@ class ProdutosController extends Controller
   // ENTRADA DE ESTOQUE
   public function entradaEstoque($params)
   {
+    $this->checkSession();
     $this->setParams($params);
+
+    $permissionHelper = new PermissionHelper();
+    if (!$permissionHelper->userHasPermission('produtos', 'editar')) {
+      header("Content-Type: application/json");
+      echo json_encode([
+        'success' => false,
+        'message' => 'Sem permissão para atualizar estoque'
+      ]);
+      return;
+    }
     
     $produtos = new Produtos();
-    $result = $produtos->adicionarEstoque($this->params);
+    $result = $produtos->adicionarEstoque(array_merge($this->params, $_POST));
 
     if ($result) {
       header("Content-Type: application/json");
@@ -294,6 +382,7 @@ class ProdutosController extends Controller
   // EXPORTAR ESTOQUE BAIXO
   public function exportarEstoqueBaixo($params)
   {
+    $this->checkSession();
     $this->setParams($params);
     
     $produtos = new Produtos();

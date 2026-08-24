@@ -4,22 +4,21 @@
   /* page loader */
   function hideLoader() {
     const loader = document.getElementById("loader");
-    loader.classList.add("d-none")
+    if (loader) {
+      loader.classList.add("d-none");
+    }
   }
   window.addEventListener("load", hideLoader);
   /* page loader */
 
   /* tooltip */
-  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-  const tooltipList = [...tooltipTriggerList].map(
-    (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
-  );
+  if (typeof bootstrap !== "undefined") {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    [...tooltipTriggerList].forEach((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
 
-  /* popover  */
-  const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
-  const popoverList = [...popoverTriggerList].map(
-    (popoverTriggerEl) => new bootstrap.Popover(popoverTriggerEl)
-  );
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+    [...popoverTriggerList].forEach((popoverTriggerEl) => new bootstrap.Popover(popoverTriggerEl));
+  }
 
   //switcher color pickers
   const pickrContainerPrimary = document.querySelector(".pickr-container-primary");
@@ -151,7 +150,9 @@
       themeContainerBackground.appendChild(button);
     }
   }
-  nanoButtons1[0].click();
+  if (nanoButtons1[0]) {
+    nanoButtons1[0].click();
+  }
   /* for theme background */
 
   /* header theme toggle */
@@ -239,8 +240,7 @@
       localStorage.removeItem("bodyBgRGB");
     }
   }
-  let layoutSetting = document.querySelector(".layout-setting");
-  layoutSetting.addEventListener("click", toggleTheme);
+  /* O toggle do header fica no app.js para não inverter o tema duas vezes. */
   /* header theme toggle */
 
   /* Choices JS */
@@ -258,12 +258,17 @@
   /* Choices JS */
 
   /* footer year */
-  document.getElementById("year").innerHTML = new Date().getFullYear();
+  const yearEl = document.getElementById("year");
+  if (yearEl) {
+    yearEl.innerHTML = new Date().getFullYear();
+  }
   /* footer year */
 
   /* node waves */
-  Waves.attach(".btn-wave", ["waves-light"]);
-  Waves.init();
+  if (typeof Waves !== "undefined") {
+    Waves.attach(".btn-wave", ["waves-light"]);
+    Waves.init();
+  }
   /* node waves */
 
   /* card with close button */
@@ -313,32 +318,27 @@
   /* back to top */
   const scrollToTop = document.querySelector(".scrollToTop");
   const $rootElement = document.documentElement;
-  const $body = document.body;
-  window.onscroll = () => {
-    const scrollTop = window.scrollY || window.pageYOffset;
-    const clientHt = $rootElement.scrollHeight - $rootElement.clientHeight;
-    if (window.scrollY > 100) {
-      scrollToTop.style.display = "flex";
-    } else {
-      scrollToTop.style.display = "none";
-    }
-  };
-  scrollToTop.onclick = () => {
-    window.scrollTo(0, 0);
-  };
+  if (scrollToTop) {
+    window.onscroll = () => {
+      if (window.scrollY > 100) {
+        scrollToTop.style.display = "flex";
+      } else {
+        scrollToTop.style.display = "none";
+      }
+    };
+    scrollToTop.onclick = () => {
+      window.scrollTo(0, 0);
+    };
+  }
   /* back to top */
 
-  /* header dropdowns scroll */
-  var myHeaderShortcut = document.getElementById("header-shortcut-scroll");
-  new SimpleBar(myHeaderShortcut, { autoHide: true });
-
-  var myHeadernotification = document.getElementById(
-    "header-notification-scroll"
-  );
-  new SimpleBar(myHeadernotification, { autoHide: true });
-
-  var myHeaderCart = document.getElementById("header-cart-items-scroll");
-  new SimpleBar(myHeaderCart, { autoHide: true });
+  /* header dropdowns scroll — elementos opcionais do template Ynex */
+  ["header-shortcut-scroll", "header-notification-scroll", "header-cart-items-scroll"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el && typeof SimpleBar !== "undefined") {
+      new SimpleBar(el, { autoHide: true });
+    }
+  });
   /* header dropdowns scroll */
 })();
 
@@ -445,13 +445,13 @@ headerbtn1.forEach((button) => {
 /* for notifications dropdown */
 
 function checkOptions() {
-  // dark
-  if (localStorage.getItem("ynexdarktheme")) {
-    document.querySelector("#switcher-dark-theme").checked = true;
+  const darkTheme = document.querySelector("#switcher-dark-theme");
+  if (localStorage.getItem("ynexdarktheme") && darkTheme) {
+    darkTheme.checked = true;
   }
 
-  //RTL
-  if (localStorage.getItem("ynexrtl")) {
-    document.querySelector("#switcher-rtl").checked = true;
+  const rtl = document.querySelector("#switcher-rtl");
+  if (localStorage.getItem("ynexrtl") && rtl) {
+    rtl.checked = true;
   }
 }

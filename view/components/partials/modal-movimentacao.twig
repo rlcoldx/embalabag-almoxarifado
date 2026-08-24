@@ -21,7 +21,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="movimentacaoProduto" name="sku" 
                                            placeholder="Digite ou escaneie o SKU" required autocomplete="off">
-                                    <button class="btn btn-outline-primary" type="button" onclick="abrirScanner()">
+                                    <button class="btn btn-outline-primary" type="button" id="btnScannerMovimentacao" data-scanner-tipo="movimentacao" title="Escanear código">
                                         <i class="fas fa-barcode"></i>
                                     </button>
                                 </div>
@@ -99,33 +99,4 @@
     </div>
 </div>
 
-<!-- Modal do Scanner -->
-<div class="modal fade" id="modalScanner" tabindex="-1" aria-labelledby="modalScannerLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalScannerLabel">
-                    <i class="fas fa-barcode me-2"></i>Scanner de Código de Barras
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <div id="scannerContainer" class="mb-3">
-                    <div class="scanner-placeholder">
-                        <i class="fas fa-barcode fs-48 text-muted mb-3"></i>
-                        <p class="text-muted">Scanner em desenvolvimento</p>
-                        <p class="text-muted fs-12">Por enquanto, digite o SKU manualmente</p>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="scannerInput" class="form-label">Digite o código:</label>
-                    <input type="text" class="form-control" id="scannerInput" placeholder="Digite o código de barras">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="confirmarCodigoScanner()">Confirmar</button>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'components/partials/modal-scanner.twig' %}

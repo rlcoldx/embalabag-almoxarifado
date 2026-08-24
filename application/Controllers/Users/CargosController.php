@@ -27,6 +27,7 @@ class CargosController extends Controller
 
     public function create(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('cargos', 'criar')) {
@@ -42,6 +43,7 @@ class CargosController extends Controller
 
     public function store(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('cargos', 'criar')) {
@@ -89,6 +91,7 @@ class CargosController extends Controller
 
     public function edit(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('cargos', 'editar')) {
@@ -118,6 +121,7 @@ class CargosController extends Controller
 
     public function update(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('cargos', 'editar')) {
@@ -172,6 +176,7 @@ class CargosController extends Controller
 
     public function delete(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('cargos', 'excluir')) {

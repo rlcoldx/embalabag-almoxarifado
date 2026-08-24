@@ -1,0 +1,165 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Etiqueta {{ etiqueta.codigo }}{% endblock %}
+{% block styles %}
+<style>
+@media print {
+    .page-header-breadcrumb,
+    .app-sidebar,
+    .app-header,
+    footer,
+    .btn-list { display: none !important; }
+}
+</style>
+{% endblock %}
+{% block content %}
+
+{% set tipoLabels = {
+    localizacao: 'Localização',
+    palete: 'Palete',
+    caixa: 'Caixa',
+    produto: 'Produto',
+    armazenagem: 'Armazenagem'
+} %}
+{% set refLabels = {
+    armazenagem: 'Armazenagem',
+    item_nf: 'Item da NF',
+    palete: 'Palete',
+    caixa: 'Caixa'
+} %}
+{% set statusClass = etiqueta.status == 'aplicada' ? 'success' : (etiqueta.status == 'impressa' ? 'info' : (etiqueta.status == 'inativa' ? 'danger' : 'warning')) %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Etiqueta {{ etiqueta.codigo }}</p>
+        <span class="badge bg-{{ statusClass }}-transparent">
+            {{ etiqueta.status|replace({'_': ' '})|capitalize }}
+        </span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        {% if etiqueta.status != 'inativa' %}
+        <button type="button" class="btn btn-outline-primary btn-wave me-2" id="btnImprimirEtiqueta" data-id="{{ etiqueta.id }}">
+            <i class="fas fa-print me-2"></i>Imprimir
+        </button>
+        {% endif %}
+        {% if etiqueta.status != 'aplicada' and etiqueta.status != 'inativa' %}
+        <button type="button" class="btn btn-success btn-wave me-2" id="btnAplicarEtiqueta" data-id="{{ etiqueta.id }}">
+            <i class="fas fa-check me-2"></i>Aplicar
+        </button>
+        {% endif %}
+        {% if permissions.can.etiquetas.edit %}
+        <a href="{{ DOMAIN }}/recebimento/etiquetas/edit/{{ etiqueta.id }}" class="btn btn-outline-primary btn-wave me-2">
+            <i class="fas fa-edit me-2"></i>Editar
+        </a>
+        {% endif %}
+        <a href="{{ DOMAIN }}/recebimento/etiquetas" class="btn btn-outline-secondary btn-wave">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card custom-card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-info-circle me-2"></i>Informações da Etiqueta</div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Código</label>
+                        <p class="mb-0 fs-16">{{ etiqueta.codigo }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Tipo</label>
+                        <p class="mb-0 fs-16">{{ tipoLabels[etiqueta.tipo_etiqueta]|default(etiqueta.tipo_etiqueta|capitalize) }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Referência</label>
+                        <p class="mb-0 fs-16">
+                            {% if etiqueta.referencia_tipo %}
+                                {{ refLabels[etiqueta.referencia_tipo]|default(etiqueta.referencia_tipo) }}
+                                {% if etiqueta.referencia_id %} #{{ etiqueta.referencia_id }}{% endif %}
+                            {% else %}
+                                Sem referência
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Usuário</label>
+                        <p class="mb-0 fs-16">{{ etiqueta.usuario_criacao_nome|default('-') }}</p>
+                    </div>
+                    <div class="col-md-12 mb-0">
+                        <label class="form-label fw-semibold">Conteúdo</label>
+                        {% if etiqueta.conteudo_json %}
+                        <ul class="mb-0 ps-3">
+                            {% for chave, valor in etiqueta.conteudo_json %}
+                            <li>{{ chave|replace({'_': ' '})|capitalize }}: {{ valor }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="mb-0 fs-16">{{ etiqueta.conteudo|default('-') }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-barcode me-2"></i>Códigos</div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <label class="form-label fw-semibold">Código de Barras</label>
+                        <p class="mb-0 fs-16">{{ etiqueta.codigo_barras|default(etiqueta.codigo) }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">QR Code</label>
+                        {% if etiqueta.qr_code_image %}
+                        <div class="mb-2">
+                            <img src="{{ etiqueta.qr_code_image }}" alt="QR Code {{ etiqueta.codigo }}" class="img-fluid border rounded p-2 bg-white" style="max-width: 180px;">
+                        </div>
+                        <p class="mb-0 fs-14">{{ etiqueta.qr_code_payload|default(etiqueta.codigo) }}</p>
+                        {% else %}
+                        <p class="mb-0 fs-16">Não gerado</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card custom-card mb-4">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-clock me-2"></i>Datas</div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Criada em</label>
+                    <p class="mb-0 fs-16">{{ etiqueta.created_at ? etiqueta.created_at|date('d/m/Y H:i') : '-' }}</p>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-semibold">Impressa em</label>
+                    <p class="mb-0 fs-16">{{ etiqueta.data_impressao ? etiqueta.data_impressao|date('d/m/Y H:i') : 'Ainda não impressa' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-sticky-note me-2"></i>Observações</div>
+            </div>
+            <div class="card-body">
+                <p class="mb-0 fs-16">{{ etiqueta.observacoes|default('Nenhuma observação') }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/recebimento/etiquetas/show.js?v={{ VERSION }}"></script>
+{% endblock %}

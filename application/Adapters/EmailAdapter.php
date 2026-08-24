@@ -4,44 +4,49 @@ namespace Agencia\Close\Adapters;
 
 use Agencia\Close\Helpers\Result;
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 class EmailAdapter
 {
     private PHPMailer $mail;
     private Result $result;
-    const Host = MAIL_HOST;
-    const Email = MAIL_EMAIL;
-    const User = MAIL_USER;
-    const Password = MAIL_PASSWORD;
-    const name_site = NAME;
 
-    /**
-     * @throws Exception
-     */
     public function __construct()
     {
         $this->result = new Result();
         $this->mail = new PHPMailer(false);
-        //Server settings
-//        $this->mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
         $this->mail->isSMTP();
-        $this->mail->CharSet = 'UTF-8';//Send using SMTP
-        $this->mail->Host = self::Host;                     //Set the SMTP server to send through
-        $this->mail->SMTPAuth = true;                                   //Enable SMTP authentication
-        $this->mail->Username = self::User;                     //SMTP username
-        $this->mail->Password = self::Password;                               //SMTP password
-        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         //Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
-        $this->mail->Port = 587;
-        $this->mail->setFrom(self::Email, name_site);
+        $this->mail->CharSet = 'UTF-8';
+        $this->mail->Host = $this->config('MAIL_HOST');
+        $this->mail->SMTPAuth = true;
+        $this->mail->Username = $this->config('MAIL_USER');
+        $this->mail->Password = $this->mailPassword();
+        $this->mail->SMTPSecure = $this->mailSecure();
+        $this->mail->Port = (int)$this->config('MAIL_PORT', '587');
+        $this->mail->setFrom($this->mailFrom(), $this->mailFromName());
         $this->mail->isHTML(true);
+    }
+
+    public static function isConfigured(): bool
+    {
+        $value = static function (string $name): string {
+            return defined($name) ? trim((string)constant($name)) : '';
+        };
+
+        $from = $value('MAIL_FROM');
+        if ($from === '') {
+            $from = $value('MAIL_EMAIL');
+        }
+        if ($from === '') {
+            $from = $value('MAIL_USER');
+        }
+
+        return $value('MAIL_HOST') !== '' && $value('MAIL_USER') !== '' && $from !== '';
     }
 
     public function addAddress(string $email)
     {
-        //$this->mail->addAddress('joe@example.net', 'Joe User');     //Add a recipient
-        $this->mail->addAddress($email); //Name is optional
+        $this->mail->addAddress($email);
     }
 
     public function setSubject($subject)
@@ -52,16 +57,23 @@ class EmailAdapter
     public function setBody(string $file, array $data = [])
     {
         $template = new TemplateAdapter();
-        $mail = $template->render($file, $data);
-        $this->mail->Body = $mail;
+        $this->mail->Body = $template->render($file, $data);
     }
 
     public function send($result)
     {
         try {
-            $this->mail->send();
-            $this->result->setError(false);
-            $this->result->setMessage($result);
+            if ($this->mail->send()) {
+                $this->result->setError(false);
+                $this->result->setMessage($result);
+                return;
+            }
+
+            $this->result->setError(true);
+            $this->result->setMessage('Falha ao enviar o E-mail!!!');
+            $this->result->setInfo([
+                'message' => $this->mail->ErrorInfo
+            ]);
         } catch (Exception $e) {
             $this->result->setError(true);
             $this->result->setMessage('Falha ao enviar o E-mail!!!');
@@ -76,14 +88,51 @@ class EmailAdapter
         return $this->result;
     }
 
-    public function o()
+    private function config(string $name, string $default = ''): string
     {
-//            $this->mail->addReplyTo('info@example.com', 'Information');
-//            $this->mail->addCC('cc@example.com');
-//            $this->mail->addBCC('bcc@example.com');
+        if (!defined($name)) {
+            return $default;
+        }
 
-//            //Attachments
-//            $this->mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
-//            $this->mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+        return trim((string)constant($name));
+    }
+
+    private function firstConfig(array $names, string $default = ''): string
+    {
+        foreach ($names as $name) {
+            $value = $this->config($name);
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return $default;
+    }
+
+    private function mailPassword(): string
+    {
+        return $this->firstConfig(['MAIL_PASS', 'MAIL_PASSWORD']);
+    }
+
+    private function mailFrom(): string
+    {
+        return $this->firstConfig(['MAIL_FROM', 'MAIL_EMAIL', 'MAIL_USER']);
+    }
+
+    private function mailFromName(): string
+    {
+        return $this->firstConfig(['MAIL_FROM_NAME', 'NAME'], 'EmbalaBag');
+    }
+
+    private function mailSecure(): string
+    {
+        $secure = strtolower($this->config('MAIL_SECURE'));
+        $port = (int)$this->config('MAIL_PORT', '587');
+
+        if (in_array($secure, ['ssl', 'smtps'], true) || $port === 465) {
+            return PHPMailer::ENCRYPTION_SMTPS;
+        }
+
+        return PHPMailer::ENCRYPTION_STARTTLS;
     }
 }

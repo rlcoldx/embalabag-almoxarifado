@@ -6,6 +6,7 @@ use Agencia\Close\Controllers\Controller;
 use Agencia\Close\Conn\Read;
 use Agencia\Close\Conn\Delete;
 use Agencia\Close\Helpers\Result;
+use Agencia\Close\Helpers\User\PermissionHelper;
 
 class ProdutosApiController extends Controller
 {
@@ -20,14 +21,23 @@ class ProdutosApiController extends Controller
      */
     public function buscar($params)
     {
+        $this->checkSession();
+
         try {
-            $search = $_GET['search'] ?? '';
+            $search = trim($_GET['search'] ?? '');
             $read = new Read();
 
-            if (!empty($search)) {
-                $read->ExeRead("produtos", "WHERE (SKU LIKE '%{$search}%' OR nome LIKE '%{$search}%' OR categoria LIKE '%{$search}%') AND status <> 'Deletado' ORDER BY nome ASC");
+            if ($search !== '') {
+                $term = '%' . $search . '%';
+                $read->FullRead(
+                    "SELECT * FROM produtos
+                     WHERE (SKU LIKE :s1 OR nome LIKE :s2 OR categoria LIKE :s3)
+                       AND status <> 'Deletado'
+                     ORDER BY nome ASC",
+                    "s1={$term}&s2={$term}&s3={$term}"
+                );
             } else {
-                $read->ExeRead("produtos", "WHERE status <> 'Deletado' ORDER BY nome ASC");
+                $read->FullRead("SELECT * FROM produtos WHERE status <> 'Deletado' ORDER BY nome ASC");
             }
 
             $produtos = $read->getResult();
@@ -54,16 +64,21 @@ class ProdutosApiController extends Controller
      */
     public function variacoes($params)
     {
+        $this->checkSession();
+
         try {
-            $produtoId = $params['id'] ?? null;
+            $produtoId = (int)($params['id'] ?? 0);
             
-            if (!$produtoId) {
+            if ($produtoId <= 0) {
                 $this->sendErrorResponse('ID do produto não informado');
                 return;
             }
 
             $read = new Read();
-            $read->ExeRead("produtos_variations", "WHERE id_produto = {$produtoId} ORDER BY cor ASC");
+            $read->FullRead(
+                "SELECT * FROM produtos_variations WHERE id_produto = :id_produto ORDER BY cor ASC",
+                "id_produto={$produtoId}"
+            );
 
             $variacoes = $read->getResult();
             
@@ -94,16 +109,21 @@ class ProdutosApiController extends Controller
      */
     public function porSku($params)
     {
+        $this->checkSession();
+
         try {
-            $sku = $params['sku'] ?? null;
+            $sku = trim($params['sku'] ?? '');
             
-            if (!$sku) {
+            if ($sku === '') {
                 $this->sendErrorResponse('SKU não informado');
                 return;
             }
 
             $read = new Read();
-            $read->ExeRead("produtos", "WHERE SKU = '{$sku}' AND status <> 'Deletado'");
+            $read->FullRead(
+                "SELECT * FROM produtos WHERE SKU = :sku AND status <> 'Deletado'",
+                "sku={$sku}"
+            );
 
             $produto = $read->getResult();
             
@@ -130,17 +150,24 @@ class ProdutosApiController extends Controller
      */
     public function deletarVariacao($params)
     {
+        $this->checkSession();
+        $permissionHelper = new PermissionHelper();
+        if (!$permissionHelper->userHasPermission('produtos', 'editar')) {
+            $this->sendErrorResponse('Sem permissão para excluir variações', 403);
+            return;
+        }
+
         try {
-            $variacaoId = $params['id'] ?? null;
+            $variacaoId = (int)($params['id'] ?? 0);
             
-            if (!$variacaoId) {
+            if ($variacaoId <= 0) {
                 $this->sendErrorResponse('ID da variação não informado');
                 return;
             }
 
             // Verificar se a variação existe
             $read = new Read();
-            $read->ExeRead("produtos_variations", "WHERE id = {$variacaoId}");
+            $read->FullRead("SELECT id FROM produtos_variations WHERE id = :id", "id={$variacaoId}");
             
             if (!$read->getResult()) {
                 $this->sendErrorResponse('Variação não encontrada');

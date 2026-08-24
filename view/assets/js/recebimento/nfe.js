@@ -120,30 +120,38 @@ class NfeManager {
 
     pedidoEncontrado(pedido) {
         $('#pedido_id').val(pedido.id);
-        $('#pedidoNumero').text(pedido.numero_pedido || pedido.codigo);
-        $('#pedidoInfo').show();
-        
-        this.showAlert('Pedido encontrado com sucesso!', 'success');
+        $('#pedidoNumero').text(pedido.codigo || pedido.numero_pedido || pedido.id);
+        $('#pedidoInfo').removeClass('d-none').show();
     }
 
     buscarProdutoPorSKU(sku) {
-        let DOMAIN = document.body.getAttribute('data-domain') || '';
-        if (sku.length < 3) return;
+        if (sku.length < 2) return;
 
-        $.ajax({
-            url: buildUrl(`/produtos/buscar/${sku}`),
-            method: 'GET',
-            success: (response) => {
-                if (response.success && response.produto) {
-                    this.produtoEncontrado(response.produto);
+        fetch(buildUrl('/api/produtos/sku/' + encodeURIComponent(sku)))
+            .then(response => response.json())
+            .then((response) => {
+                if (response.success && response.data) {
+                    this.produtoEncontrado(response.data);
+                    return;
+                }
+                this.buscarProdutoPorTermo(sku);
+            })
+            .catch(() => {
+                this.buscarProdutoPorTermo(sku);
+            });
+    }
+
+    buscarProdutoPorTermo(termo) {
+        fetch(buildUrl('/api/produtos/buscar?search=' + encodeURIComponent(termo)))
+            .then(response => response.json())
+            .then((response) => {
+                if (response.success && response.data && response.data.length > 0) {
+                    this.produtoEncontrado(response.data[0]);
                 } else {
                     this.limparProduto();
                 }
-            },
-            error: () => {
-                this.limparProduto();
-            }
-        });
+            })
+            .catch(() => this.limparProduto());
     }
 
     produtoEncontrado(produto) {
@@ -162,47 +170,31 @@ class NfeManager {
     }
 
     carregarVariacoes(produtoId) {
-        let DOMAIN = document.body.getAttribute('data-domain') || '';
-        $.ajax({
-            url: buildUrl(`/produtos/variacoes/${produtoId}`),
-            method: 'GET',
-            success: (response) => {
-                if (response.success && response.variacoes) {
-                    this.preencherVariacoes(response.variacoes);
+        fetch(buildUrl('/api/produtos/variacoes/' + produtoId))
+            .then(response => response.json())
+            .then((response) => {
+                if (response.success && response.data) {
+                    this.preencherVariacoes(response.data);
                 }
-            },
-            error: () => {
+            })
+            .catch(() => {
                 this.showAlert('Erro ao carregar variações', 'danger');
-            }
-        });
+            });
     }
 
     preencherVariacoes(variacoes) {
         let options = '<option value="">Selecione a variação</option>';
-        
+
         variacoes.forEach(variacao => {
-            const label = `${variacao.tamanho} - ${variacao.cor}`;
-            options += `<option value="${variacao.id}" data-variacao='${JSON.stringify(variacao)}'>${label}</option>`;
+            const label = `${variacao.tamanho || '-'} / ${variacao.cor || '-'}`;
+            options += `<option value="${variacao.id}">${label}</option>`;
         });
-        
+
         $('#item_variacao').html(options);
     }
 
     selecionarVariacao(variacaoId) {
-        if (!variacaoId) {
-            $('#item_variacao_id').val('');
-            return;
-        }
-
-        const option = $(`#item_variacao option[value="${variacaoId}"]`);
-        const variacao = JSON.parse(option.data('variacao'));
-        
-        $('#item_variacao_id').val(variacao.id);
-        
-        // Preencher valor unitário se disponível
-        if (variacao.preco) {
-            $('#item_valor_unitario').val(variacao.preco);
-        }
+        $('#item_variacao_id').val(variacaoId || '');
     }
 
     confirmarItem() {
@@ -355,7 +347,7 @@ class NfeManager {
         this.currentItemIndex = -1;
         this.setupDateDefaults();
         this.atualizarItensContainer();
-        $('#pedidoInfo').hide();
+        $('#pedidoInfo').hide().addClass('d-none');
         $('#pedido_id').val('');
     }
 
@@ -372,6 +364,8 @@ class NfeManager {
             this.showAlert('Adicione pelo menos um item à NF-e', 'warning');
             return;
         }
+
+        $('#formNfeCreate').find('input[name^="itens["]').remove();
 
         // Adicionar itens ao form
         this.itens.forEach((item, index) => {

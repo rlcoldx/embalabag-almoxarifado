@@ -15,7 +15,7 @@
 <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
     <div>
         <p class="fw-semibold fs-18 mb-0">{{ produto.id ? 'Editar Produto' : 'Novo Produto' }}</p>
-        <span class="fs-semibold text-muted">{{ produto.id ? 'Edite as informações do produto' : 'Cadastre um novo produto no sistema' }}</span>
+        <span class="fs-semibold">{{ produto.id ? 'Edite as informações do produto' : 'Cadastre um novo produto no sistema' }}</span>
     </div>
     <div class="btn-list mt-md-0 mt-2">
         <a href="{{ DOMAIN }}/produtos" class="btn btn-outline-secondary btn-wave">
@@ -337,7 +337,7 @@
                     <div class="mb-3">
                         <label class="form-label">Data de Publicação</label>
                         {% if (produto.date_create) %}
-                            <div class="text-muted small mb-2">
+                            <div class="small mb-2">
                                 <i class="fas fa-calendar me-1"></i>Publicado em: {{ produto.date_create|date("d/m/Y H:i", "America/Sao_Paulo") }}
                             </div>
                         {% endif %}
@@ -448,6 +448,103 @@
                     </div>
                 </div>
             </div>
+
+            {% if produto.id %}
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-history me-2"></i>Histórico de alterações
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Ação</th>
+                                    <th>Usuário</th>
+                                    <th>Alterações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if historico|default([])|length > 0 %}
+                                    {% for item in historico %}
+                                    <tr>
+                                        <td>{{ item.created_at ? item.created_at|date('d/m/Y H:i') : '-' }}</td>
+                                        <td>{{ item.acao_descricao|default(item.acao|default('-')) }}</td>
+                                        <td>{{ item.usuario_nome|default('-') }}</td>
+                                        <td>
+                                            {% if item.alteracoes_lista|default([])|length > 0 %}
+                                                <ul class="mb-0 ps-3">
+                                                    {% for mudanca in item.alteracoes_lista %}
+                                                    <li>
+                                                        <strong>{{ mudanca.rotulo|default(mudanca.campo) }}:</strong>
+                                                        {{ mudanca.anterior|default('(vazio)') }} → {{ mudanca.novo|default('(vazio)') }}
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3">Nenhuma alteração registrada ainda.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if produto.id %}
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-right-left me-2"></i>Histórico de entrada e saída
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>Qtd</th>
+                                    <th>Origem</th>
+                                    <th>Destino</th>
+                                    <th>Documento / pedido</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if historico_movimentacao|default([])|length > 0 %}
+                                    {% for mov in historico_movimentacao %}
+                                    <tr>
+                                        <td>{{ mov.data_movimentacao|default('-') }}</td>
+                                        <td>{{ mov.tipo|default('-') }}</td>
+                                        <td>{{ mov.quantidade|default('-') }}</td>
+                                        <td>{{ mov.endereco_origem|default('-') }}</td>
+                                        <td>{{ mov.endereco_destino|default('-') }}</td>
+                                        <td>{{ mov.pedido_codigo|default(mov.documento_referencia)|default('-') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-3">Nenhuma movimentação de estoque registrada.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </form>

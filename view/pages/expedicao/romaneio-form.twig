@@ -1,0 +1,87 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Novo romaneio{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Novo romaneio</p>
+        <span class="fs-semibold">Selecione os pedidos conferidos e a companhia aérea.</span>
+    </div>
+    <a href="{{ DOMAIN }}/expedicao/romaneios" class="btn btn-outline-secondary btn-wave">Voltar</a>
+</div>
+
+{% if session.error %}
+<div class="alert alert-danger">{{ session.error }}</div>
+{% endif %}
+
+<form method="post" action="{{ DOMAIN }}/expedicao/romaneios/salvar">
+    <div class="card custom-card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Tipo</label>
+                    <select name="tipo" class="form-select">
+                        <option value="cia_aerea">Romaneio para cia aérea</option>
+                        <option value="embalagem_cia">Embalagem ↔ Cia aérea</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Companhia</label>
+                    <select name="companhia_id" class="form-select">
+                        <option value="">Sem companhia</option>
+                        {% for cia in companhias %}
+                        <option value="{{ cia.id }}">{{ cia.companhia ?: cia.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Voo</label>
+                    <input type="text" name="voo" class="form-control">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Destino</label>
+                    <input type="text" name="base_destino" class="form-control">
+                </div>
+                <div class="col-12 mb-3">
+                    <label class="form-label">Observações</label>
+                    <textarea name="observacoes" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card custom-card">
+        <div class="card-header"><div class="card-title">Pedidos prontos</div></div>
+        <div class="card-body p-0">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Pedido</th>
+                        <th>SIGE</th>
+                        <th>Destino</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pedido in pedidos %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="pedidos[]" value="{{ pedido.id }}" {% if pedido_pre == pedido.id %}checked{% endif %}>
+                        </td>
+                        <td>{{ pedido.codigo }}</td>
+                        <td>{{ pedido.codigoSige|default('-') }}</td>
+                        <td>{{ pedido.base_destino|default('-') }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center py-4">Nenhum pedido conferido/embalado.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer text-end">
+            <button type="submit" class="btn btn-primary btn-wave">Gerar romaneio</button>
+        </div>
+    </div>
+</form>
+
+{% endblock %}

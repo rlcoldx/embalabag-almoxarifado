@@ -11,6 +11,7 @@ class ArmazenagensApiController extends Controller
 {
     public function listar()
     {
+        $this->checkSession();
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'visualizar')) {
             return $this->jsonResponse(['success' => false, 'message' => 'Sem permissão']);
@@ -31,6 +32,7 @@ class ArmazenagensApiController extends Controller
 
     public function getProdutosArmazenados($params)
     {
+        $this->checkSession();
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'visualizar')) {
             return $this->jsonResponse(['success' => false, 'message' => 'Sem permissão']);
@@ -53,6 +55,7 @@ class ArmazenagensApiController extends Controller
 
     public function getEstatisticas($params)
     {
+        $this->checkSession();
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'visualizar')) {
             return $this->jsonResponse(['success' => false, 'message' => 'Sem permissão']);
@@ -75,6 +78,7 @@ class ArmazenagensApiController extends Controller
 
     public function getMovimentacoes($params)
     {
+        $this->checkSession();
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'visualizar')) {
             return $this->jsonResponse(['success' => false, 'message' => 'Sem permissão']);
@@ -114,6 +118,7 @@ class ArmazenagensApiController extends Controller
 
     public function getTransferencias($params)
     {
+        $this->checkSession();
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'visualizar')) {
             return $this->jsonResponse(['success' => false, 'message' => 'Sem permissão']);
@@ -192,6 +197,7 @@ class ArmazenagensApiController extends Controller
 
     public function getHistorico($params)
     {
+        $this->checkSession();
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'visualizar')) {
             return $this->jsonResponse(['success' => false, 'message' => 'Sem permissão']);
@@ -202,9 +208,8 @@ class ArmazenagensApiController extends Controller
             return $this->jsonResponse(['success' => false, 'message' => 'ID da armazenagem não informado']);
         }
 
-        // Buscar movimentações da armazenagem
-        $movimentacao = new \Agencia\Close\Models\Movimentacao\Movimentacao();
-        $resultMovimentacoes = $movimentacao->getMovimentacoesByArmazenagem((int) $armazenagemId);
+        $armazenagem = new Armazenagem();
+        $resultMovimentacoes = $armazenagem->getMovimentacoesByArmazenagem((int) $armazenagemId);
 
         // Buscar transferências da armazenagem
         $transferencia = new \Agencia\Close\Models\Transferencias\Transferencias();
@@ -217,8 +222,8 @@ class ArmazenagensApiController extends Controller
             foreach ($resultMovimentacoes->getResult() as $mov) {
                 $historico[] = [
                     'tipo' => 'movimentacao',
-                    'titulo' => ucfirst($mov['tipo_movimentacao']) . ' de Produto',
-                    'descricao' => "{$mov['quantidade']} unidades de {$mov['produto_descricao']}",
+                    'titulo' => ucfirst($mov['tipo'] ?? 'movimentacao') . ' de Produto',
+                    'descricao' => ($mov['quantidade'] ?? 0) . ' unidades de ' . ($mov['produto_nome'] ?? ''),
                     'data' => $mov['data_movimentacao'],
                     'usuario' => $mov['usuario_nome']
                 ];
@@ -251,6 +256,7 @@ class ArmazenagensApiController extends Controller
 
     public function getEstoque($params)
     {
+        $this->checkSession();
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('armazenagens', 'visualizar')) {
             return $this->jsonResponse(['success' => false, 'message' => 'Sem permissão']);

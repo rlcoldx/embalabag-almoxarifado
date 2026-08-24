@@ -1,0 +1,60 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">{{ titulo }}</p>
+        <span class="fs-semibold">{{ descricao }}</span>
+    </div>
+    <a href="{{ DOMAIN }}/expedicao" class="btn btn-outline-secondary btn-wave">Voltar</a>
+</div>
+
+{% if session.error %}
+<div class="alert alert-danger">{{ session.error }}</div>
+{% endif %}
+
+<div class="card custom-card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Pedido</th>
+                        <th>SIGE</th>
+                        <th>Destino</th>
+                        <th>Etapa</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if pedidos|length > 0 %}
+                        {% for pedido in pedidos %}
+                        <tr>
+                            <td>
+                                <strong>{{ pedido.codigo }}</strong><br>
+                                <small>{{ pedido.nome_cliente|default('-') }}</small>
+                            </td>
+                            <td>{{ pedido.codigoSige|default('-') }}</td>
+                            <td>{{ pedido.base_destino|default('-') }}</td>
+                            <td>{{ pedido.status_expedicao|default('aprovado') }}</td>
+                            <td class="text-end">
+                                {% if mostrar_etiqueta %}
+                                <a href="{{ DOMAIN }}/expedicao/etiqueta/{{ pedido.id }}" class="btn btn-sm btn-outline-primary btn-wave me-1">Etiqueta</a>
+                                {% endif %}
+                                <a href="{{ acao_url }}/{{ pedido.id }}" class="btn btn-sm btn-primary btn-wave">{{ acao_label }}</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">Nenhum pedido nesta etapa.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

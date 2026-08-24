@@ -4,9 +4,11 @@ namespace Agencia\Close\Controllers\Recebimento;
 
 use Agencia\Close\Controllers\Controller;
 use Agencia\Close\Models\NotaFiscal\NotaFiscal;
-use Agencia\Close\Models\Conferencia\ConferenciaProduto;
+use Agencia\Close\Models\Conferencia\ConferenciaRecebimento;
 use Agencia\Close\Models\Movimentacao\MovimentacaoInterna;
+use Agencia\Close\Models\Transferencias\Transferencias;
 use Agencia\Close\Helpers\User\PermissionHelper;
+use Agencia\Close\Helpers\User\ResponsavelHelper;
 
 class RelatoriosController extends Controller
 {
@@ -16,13 +18,17 @@ class RelatoriosController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'visualizar')) {
+        if (
+            !$permissionHelper->userHasPermission('relatorios', 'visualizar')
+            && !$permissionHelper->userHasPermission('relatorio', 'visualizar')
+        ) {
             echo 'Sem permissão para acessar este módulo.';
             return;
         }
         
         $this->render('pages/recebimento/relatorios/index.twig', [
-            'menu' => 'recebimento_relatorios'
+            'menu' => 'recebimento_relatorios',
+            'usuarios_responsaveis' => ResponsavelHelper::listar()
         ]);
     }
 
@@ -32,7 +38,10 @@ class RelatoriosController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'visualizar')) {
+        if (
+            !$permissionHelper->userHasPermission('relatorios', 'visualizar')
+            && !$permissionHelper->userHasPermission('relatorio', 'visualizar')
+        ) {
             $this->responseJson([
                 'success' => false,
                 'message' => 'Sem permissão para acessar relatórios.'
@@ -57,7 +66,10 @@ class RelatoriosController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'visualizar')) {
+        if (
+            !$permissionHelper->userHasPermission('relatorios', 'visualizar')
+            && !$permissionHelper->userHasPermission('relatorio', 'visualizar')
+        ) {
             $this->responseJson([
                 'success' => false,
                 'message' => 'Sem permissão para acessar relatórios.'
@@ -65,9 +77,12 @@ class RelatoriosController extends Controller
             return;
         }
         
-        $filtros = json_decode(file_get_contents('php://input'), true);
-        
-        $conferencia = new ConferenciaProduto();
+        $filtros = json_decode((string) file_get_contents('php://input'), true);
+        if (!is_array($filtros) || $filtros === []) {
+            $filtros = $_POST ?: $_GET;
+        }
+
+        $conferencia = new ConferenciaRecebimento();
         $relatorio = $conferencia->gerarRelatorioConferencia($filtros);
         
         $this->responseJson([
@@ -82,7 +97,10 @@ class RelatoriosController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'visualizar')) {
+        if (
+            !$permissionHelper->userHasPermission('relatorios', 'visualizar')
+            && !$permissionHelper->userHasPermission('relatorio', 'visualizar')
+        ) {
             $this->responseJson([
                 'success' => false,
                 'message' => 'Sem permissão para acessar relatórios.'
@@ -107,7 +125,10 @@ class RelatoriosController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'visualizar')) {
+        if (
+            !$permissionHelper->userHasPermission('relatorios', 'visualizar')
+            && !$permissionHelper->userHasPermission('relatorio', 'visualizar')
+        ) {
             $this->responseJson([
                 'success' => false,
                 'message' => 'Sem permissão para acessar relatórios.'
@@ -126,13 +147,38 @@ class RelatoriosController extends Controller
         ]);
     }
 
+    public function transferencia(array $params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+
+        if (!$this->podeVisualizarRelatorio()) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Sem permissão para acessar relatórios.'
+            ]);
+            return;
+        }
+
+        $filtros = json_decode((string)file_get_contents('php://input'), true);
+        if (!is_array($filtros)) {
+            $filtros = $_GET;
+        }
+
+        $transferencias = new Transferencias();
+        $this->responseJson([
+            'success' => true,
+            'relatorio' => $transferencias->gerarRelatorioTransferencias($filtros)
+        ]);
+    }
+
     public function exportarRecebimento(array $params)
     {
         $this->checkSession();
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'exportar')) {
+        if (!$this->podeExportarRelatorio()) {
             $this->responseJson([
                 'success' => false,
                 'message' => 'Sem permissão para exportar relatórios.'
@@ -154,7 +200,7 @@ class RelatoriosController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'exportar')) {
+        if (!$this->podeExportarRelatorio()) {
             $this->responseJson([
                 'success' => false,
                 'message' => 'Sem permissão para exportar relatórios.'
@@ -164,7 +210,7 @@ class RelatoriosController extends Controller
         
         $filtros = $_GET;
         
-        $conferencia = new ConferenciaProduto();
+        $conferencia = new ConferenciaRecebimento();
         $dados = $conferencia->gerarRelatorioConferencia($filtros);
         
         $this->exportarExcel($dados, 'relatorio_conferencia');
@@ -176,7 +222,7 @@ class RelatoriosController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'exportar')) {
+        if (!$this->podeExportarRelatorio()) {
             $this->responseJson([
                 'success' => false,
                 'message' => 'Sem permissão para exportar relatórios.'
@@ -198,7 +244,7 @@ class RelatoriosController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'exportar')) {
+        if (!$this->podeExportarRelatorio()) {
             $this->responseJson([
                 'success' => false,
                 'message' => 'Sem permissão para exportar relatórios.'
@@ -214,38 +260,80 @@ class RelatoriosController extends Controller
         $this->exportarExcel($dados, 'relatorio_etiquetas');
     }
 
+    public function exportarTransferencia(array $params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+
+        if (!$this->podeExportarRelatorio()) {
+            $this->responseJson([
+                'success' => false,
+                'message' => 'Sem permissão para exportar relatórios.'
+            ]);
+            return;
+        }
+
+        $transferencias = new Transferencias();
+        $this->exportarExcel($transferencias->gerarRelatorioTransferencias($_GET), 'relatorio_transferencias');
+    }
+
     private function exportarExcel($dados, $nomeArquivo)
     {
-        // Configurar headers para download
         header('Content-Type: application/vnd.ms-excel');
         header('Content-Disposition: attachment; filename="' . $nomeArquivo . '_' . date('Y-m-d') . '.xls"');
         header('Cache-Control: max-age=0');
-        
-        // Gerar conteúdo do Excel
+
+        $headers = $dados['headers'] ?? [];
+        $rows = $dados['data'] ?? [];
+
+        if ($headers === [] && !empty($dados['dados']) && is_array($dados['dados'])) {
+            $headers = array_keys($dados['dados'][0]);
+            $rows = $dados['dados'];
+        }
+
         echo '<table border="1">';
-        
-        // Cabeçalho
-        if (isset($dados['headers'])) {
+
+        if ($headers !== []) {
             echo '<tr>';
-            foreach ($dados['headers'] as $header) {
-                echo '<th>' . $header . '</th>';
+            foreach ($headers as $header) {
+                echo '<th>' . htmlspecialchars((string)$header) . '</th>';
             }
             echo '</tr>';
         }
-        
-        // Dados
-        if (isset($dados['data'])) {
-            foreach ($dados['data'] as $row) {
-                echo '<tr>';
-                foreach ($row as $cell) {
-                    echo '<td>' . $cell . '</td>';
-                }
-                echo '</tr>';
+
+        foreach ($rows as $row) {
+            echo '<tr>';
+            foreach ($row as $cell) {
+                echo '<td>' . htmlspecialchars((string)$cell) . '</td>';
             }
+            echo '</tr>';
         }
-        
+
         echo '</table>';
         exit;
+    }
+
+    private function podeVisualizarRelatorio(): bool
+    {
+        $permissionHelper = new PermissionHelper();
+        return $permissionHelper->userHasPermission('relatorios', 'visualizar')
+            || $permissionHelper->userHasPermission('relatorio', 'visualizar');
+    }
+
+    private function podeExportarRelatorio(): bool
+    {
+        $permissionHelper = new PermissionHelper();
+        return $permissionHelper->userHasPermission('relatorios', 'exportar')
+            || $permissionHelper->userHasPermission('relatorio', 'exportar')
+            || $this->podeVisualizarRelatorio();
+    }
+
+    private function podeImprimirRelatorio(): bool
+    {
+        $permissionHelper = new PermissionHelper();
+        return $permissionHelper->userHasPermission('relatorios', 'imprimir')
+            || $permissionHelper->userHasPermission('relatorio', 'imprimir')
+            || $this->podeVisualizarRelatorio();
     }
 
     public function imprimirRecebimento(array $params)
@@ -254,7 +342,7 @@ class RelatoriosController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'imprimir')) {
+        if (!$this->podeImprimirRelatorio()) {
             echo 'Sem permissão para imprimir relatórios.';
             return;
         }
@@ -276,14 +364,14 @@ class RelatoriosController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'imprimir')) {
+        if (!$this->podeImprimirRelatorio()) {
             echo 'Sem permissão para imprimir relatórios.';
             return;
         }
         
         $filtros = $_GET;
         
-        $conferencia = new ConferenciaProduto();
+        $conferencia = new ConferenciaRecebimento();
         $dados = $conferencia->gerarRelatorioConferencia($filtros);
         
         $this->render('pages/recebimento/relatorios/print/conferencia.twig', [
@@ -298,7 +386,7 @@ class RelatoriosController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'imprimir')) {
+        if (!$this->podeImprimirRelatorio()) {
             echo 'Sem permissão para imprimir relatórios.';
             return;
         }
@@ -320,7 +408,7 @@ class RelatoriosController extends Controller
         $this->setParams($params);
         
         $permissionHelper = new PermissionHelper();
-        if (!$permissionHelper->userHasPermission('relatorio', 'imprimir')) {
+        if (!$this->podeImprimirRelatorio()) {
             echo 'Sem permissão para imprimir relatórios.';
             return;
         }
@@ -333,6 +421,23 @@ class RelatoriosController extends Controller
         $this->render('pages/recebimento/relatorios/print/etiquetas.twig', [
             'dados' => $dados,
             'filtros' => $filtros
+        ]);
+    }
+
+    public function imprimirTransferencia(array $params)
+    {
+        $this->checkSession();
+        $this->setParams($params);
+
+        if (!$this->podeImprimirRelatorio()) {
+            echo 'Sem permissão para imprimir relatórios.';
+            return;
+        }
+
+        $transferencias = new Transferencias();
+        $this->render('pages/recebimento/relatorios/print/transferencia.twig', [
+            'dados' => $transferencias->gerarRelatorioTransferencias($_GET),
+            'filtros' => $_GET
         ]);
     }
 } 

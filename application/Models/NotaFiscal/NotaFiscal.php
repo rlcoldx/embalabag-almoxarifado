@@ -15,7 +15,7 @@ class NotaFiscal extends Model
         $this->read = new Read();
         $this->read->FullRead("
             SELECT nf.*, 
-                   p.numero as numero_pedido,
+                   p.codigo as numero_pedido,
                    u1.nome as usuario_recebimento_nome,
                    u2.nome as usuario_conferencia_nome
             FROM notas_fiscais nf
@@ -32,7 +32,7 @@ class NotaFiscal extends Model
         $this->read = new Read();
         $this->read->FullRead("
             SELECT nf.*, 
-                   p.numero as numero_pedido,
+                   p.codigo as numero_pedido,
                    u1.nome as usuario_recebimento_nome,
                    u2.nome as usuario_conferencia_nome
             FROM notas_fiscais nf
@@ -57,7 +57,7 @@ class NotaFiscal extends Model
         
         $this->read->FullRead("
             SELECT nf.*, 
-                   p.numero as numero_pedido
+                   p.codigo as numero_pedido
             FROM notas_fiscais nf
             LEFT JOIN pedidos p ON nf.pedido_id = p.id
             WHERE {$where}
@@ -70,7 +70,7 @@ class NotaFiscal extends Model
         $this->read = new Read();
         $this->read->FullRead("
             SELECT nf.*, 
-                   p.numero as numero_pedido
+                   p.codigo as numero_pedido
             FROM notas_fiscais nf
             LEFT JOIN pedidos p ON nf.pedido_id = p.id
             WHERE nf.status = :status
@@ -84,7 +84,7 @@ class NotaFiscal extends Model
         $this->read = new Read();
         $this->read->FullRead("
             SELECT nf.*, 
-                   p.numero as numero_pedido
+                   p.codigo as numero_pedido
             FROM notas_fiscais nf
             LEFT JOIN pedidos p ON nf.pedido_id = p.id
             WHERE nf.pedido_id = :pedido_id
@@ -163,7 +163,7 @@ class NotaFiscal extends Model
         $this->read = new Read();
         $sql = "
             SELECT nf.*, 
-                   p.numero as numero_pedido,
+                   p.codigo as numero_pedido,
                    u1.nome as usuario_recebimento_nome,
                    u2.nome as usuario_conferencia_nome
             FROM notas_fiscais nf
@@ -197,6 +197,11 @@ class NotaFiscal extends Model
         if (!empty($filtros['data_fim'])) {
             $sql .= " AND nf.data_emissao <= :data_fim";
             $params .= "data_fim={$filtros['data_fim']}&";
+        }
+
+        if (!empty($filtros['usuario_recebimento'])) {
+            $sql .= " AND nf.usuario_recebimento = :usuario_recebimento";
+            $params .= "usuario_recebimento={$filtros['usuario_recebimento']}&";
         }
         
         $sql .= " ORDER BY nf.data_emissao DESC";
@@ -295,7 +300,7 @@ class NotaFiscal extends Model
         $this->read = new Read();
         $this->read->FullRead("
             SELECT nf.*, 
-                   p.numero as numero_pedido,
+                   p.codigo as numero_pedido,
                    u1.nome as usuario_recebimento_nome
             FROM notas_fiscais nf
             LEFT JOIN pedidos p ON nf.pedido_id = p.id
@@ -324,13 +329,27 @@ class NotaFiscal extends Model
         return $this->read;
     }
 
+    public function getItensParaMovimentacao(): Read
+    {
+        $this->read = new Read();
+        $this->read->FullRead("
+            SELECT pnf.*,
+                   nf.numero as numero_nf,
+                   nf.fornecedor
+            FROM pedidos_nf pnf
+            INNER JOIN notas_fiscais nf ON pnf.nota_fiscal_id = nf.id
+            ORDER BY nf.id DESC, pnf.id DESC
+        ");
+        return $this->read;
+    }
+
     public function gerarRelatorioRecebimento(array $filtros = []): array
     {
         $this->read = new Read();
         $sql = "
             SELECT 
                 nf.*,
-                p.numero as numero_pedido,
+                p.codigo as numero_pedido,
                 u1.nome as usuario_recebimento_nome,
                 u2.nome as usuario_conferencia_nome,
                 COUNT(pnf.id) as total_itens,
@@ -363,6 +382,11 @@ class NotaFiscal extends Model
         if (!empty($filtros['fornecedor'])) {
             $sql .= " AND nf.fornecedor LIKE :fornecedor";
             $params .= "fornecedor=%{$filtros['fornecedor']}%&";
+        }
+
+        if (!empty($filtros['usuario_recebimento'])) {
+            $sql .= " AND nf.usuario_recebimento = :usuario_recebimento";
+            $params .= "usuario_recebimento={$filtros['usuario_recebimento']}&";
         }
         
         $sql .= " GROUP BY nf.id ORDER BY nf.data_emissao DESC";

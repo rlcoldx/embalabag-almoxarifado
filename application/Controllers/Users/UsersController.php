@@ -25,6 +25,7 @@ class UsersController extends Controller
 
     public function create(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('usuarios', 'criar')) {
@@ -40,6 +41,7 @@ class UsersController extends Controller
 
     public function store(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('usuarios', 'criar')) {
@@ -49,6 +51,14 @@ class UsersController extends Controller
             ]);
             return;
         }
+        if (empty($_POST['senha'])) {
+            $this->responseJson([
+                'success' => false,
+                'error' => 'A senha é obrigatória'
+            ]);
+            return;
+        }
+
         $data = [
             'nome' => $_POST['nome'] ?? '',
             'email' => $_POST['email'] ?? '',
@@ -104,6 +114,7 @@ class UsersController extends Controller
 
     public function edit(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('usuarios', 'editar')) {
@@ -131,6 +142,7 @@ class UsersController extends Controller
 
     public function update(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('usuarios', 'editar')) {
@@ -229,6 +241,7 @@ class UsersController extends Controller
 
     public function delete(array $params)
     {
+        $this->checkSession();
         $this->setParams($params);
         $permissionHelper = new PermissionHelper();
         if (!$permissionHelper->userHasPermission('usuarios', 'excluir')) {

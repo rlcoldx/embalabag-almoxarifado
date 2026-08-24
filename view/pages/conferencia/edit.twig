@@ -1,0 +1,110 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Editar Conferência #{{ conferencia.id }}{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Editar Conferência #{{ conferencia.id }}</p>
+        <span class="fs-semibold">Atualize as quantidades e o status de qualidade/integridade.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/conferencia/show/{{ conferencia.id }}" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-eye me-2"></i>Ver Detalhes
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-edit me-2"></i>Dados da Conferência</div>
+            </div>
+            <div class="card-body">
+                <form id="formConferenciaEdit" method="POST" action="{{ DOMAIN }}/conferencia/update/{{ conferencia.id }}">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Produto</label>
+                            <input type="text" class="form-control" value="{{ conferencia.produto_nome }}" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">SKU</label>
+                            <input type="text" class="form-control" value="{{ conferencia.produto_sku }}" disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Variação</label>
+                            <input type="text" class="form-control" value="{{ conferencia.tamanho|default('-') }} / {{ conferencia.cor_nome|default('-') }}" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Qtd. Prevista</label>
+                            <input type="number" class="form-control" value="{{ conferencia.quantidade_prevista|default(0) }}" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Qtd. Recebida</label>
+                            <input type="number" class="form-control" value="{{ conferencia.quantidade_recebida|default(0) }}" disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label required">Qtd. Conferida</label>
+                            <input type="number" class="form-control" name="quantidade_conferida" min="0" required value="{{ conferencia.quantidade_conferida|default(0) }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status Qualidade</label>
+                            <select class="form-select" name="status_qualidade">
+                                <option value="pendente" {{ conferencia.status_qualidade == 'pendente' ? 'selected' : '' }}>Pendente</option>
+                                <option value="aprovado" {{ conferencia.status_qualidade == 'aprovado' ? 'selected' : '' }}>Aprovado</option>
+                                <option value="reprovado" {{ conferencia.status_qualidade == 'reprovado' ? 'selected' : '' }}>Reprovado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status Integridade</label>
+                            <select class="form-select" name="status_integridade">
+                                <option value="integro" {{ conferencia.status_integridade == 'integro' ? 'selected' : '' }}>Íntegro</option>
+                                <option value="parcialmente_danificado" {{ conferencia.status_integridade == 'parcialmente_danificado' ? 'selected' : '' }}>Parcialmente Danificado</option>
+                                <option value="danificado" {{ conferencia.status_integridade == 'danificado' ? 'selected' : '' }}>Danificado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Observações de Qualidade</label>
+                            <textarea class="form-control" name="observacoes_qualidade" rows="3">{{ conferencia.observacoes_qualidade }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Observações de Integridade</label>
+                            <textarea class="form-control" name="observacoes_integridade" rows="3">{{ conferencia.observacoes_integridade }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ DOMAIN }}/conferencia/show/{{ conferencia.id }}" class="btn btn-light">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">Resumo</div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">NF-e</label>
+                    <p class="mb-0 fs-16">{{ conferencia.numero_nfe|default('-') }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Fornecedor</label>
+                    <p class="mb-0 fs-16">{{ conferencia.fornecedor_nome|default('-') }}</p>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-semibold">Conferente</label>
+                    <p class="mb-0 fs-16">{{ conferencia.usuario_nome|default('-') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

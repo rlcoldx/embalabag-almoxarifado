@@ -28,7 +28,7 @@
 <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
     <div>
         <p class="fw-semibold fs-18 mb-0">Estoque Baixo</p>
-        <span class="fs-semibold text-muted">Gerencie produtos com estoque abaixo do mínimo</span>
+        <span class="fs-semibold">Produtos com estoque abaixo do mínimo.</span>
     </div>
     <div class="btn-list mt-md-0 mt-2">
         <button type="button" class="btn btn-outline-primary btn-wave" id="btn-export">
@@ -60,16 +60,16 @@
                                         {% if produto.imagem %}
                                             <img src="{{ PATH }}/{{ produto.imagem }}" alt="{{ produto.nome }}">
                                         {% else %}
-                                            <span class="avatar-initials bg-light text-muted">
+                                            <span class="avatar-initials bg-light">
                                                 <i class="fas fa-box"></i>
                                             </span>
                                         {% endif %}
                                     </div>
                                     <div class="flex-fill">
                                         <h3 class="card-title mb-1">{{ produto.nome }}</h3>
-                                        <div class="text-muted">Código: {{ produto.codigo }}</div>
+                                        <div>Código: {{ produto.codigo|default(produto.SKU|default('-')) }}</div>
                                         {% if produto.categoria_nome %}
-                                            <div class="text-muted">{{ produto.categoria_nome }}</div>
+                                            <div>{{ produto.categoria_nome }}</div>
                                         {% endif %}
                                     </div>
                                     <div class="dropdown">
@@ -92,13 +92,13 @@
                                 <div class="row g-3 mb-3">
                                     <div class="col-6">
                                         <div class="text-center">
-                                            <div class="text-muted fs-12">Estoque Atual</div>
+                                            <div class="fs-12">Estoque Atual</div>
                                             <div class="fs-24 fw-bold text-danger">{{ produto.estoque_atual }}</div>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="text-center">
-                                            <div class="text-muted fs-12">Estoque Mínimo</div>
+                                            <div class="fs-12">Estoque Mínimo</div>
                                             <div class="fs-24 fw-bold text-info">{{ produto.estoque_minimo }}</div>
                                         </div>
                                     </div>
@@ -124,7 +124,7 @@
                             <img src="{{ PATH }}/view/assets/ynex/assets/images/undraw_printing_invoices_5r4r.svg" height="128" alt="">
                         </div>
                         <p class="empty-title">Nenhum produto com estoque baixo</p>
-                        <p class="empty-subtitle text-muted">
+                        <p class="empty-subtitle">
                             Todos os produtos estão com estoque adequado.
                         </p>
                         <div class="empty-action">

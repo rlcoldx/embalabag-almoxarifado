@@ -1,0 +1,130 @@
+{% extends "layout/layoutMaster.twig" %}
+{% block title %}Editar Etiqueta {{ etiqueta.codigo }}{% endblock %}
+{% block content %}
+
+<div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+    <div>
+        <p class="fw-semibold fs-18 mb-0">Editar Etiqueta {{ etiqueta.codigo }}</p>
+        <span class="fs-semibold">Atualize o conteúdo, a referência e o status da etiqueta.</span>
+    </div>
+    <div class="btn-list mt-md-0 mt-2">
+        <a href="{{ DOMAIN }}/recebimento/etiquetas/show/{{ etiqueta.id }}" class="btn btn-outline-primary btn-wave">
+            <i class="fas fa-eye me-2"></i>Ver Detalhes
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-edit me-2"></i>Dados da Etiqueta</div>
+            </div>
+            <div class="card-body">
+                <form id="formEtiqueta" method="POST" action="{{ DOMAIN }}/recebimento/etiquetas/update/{{ etiqueta.id }}">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Etiqueta <span class="text-danger">*</span></label>
+                            <select class="form-select" name="tipo_etiqueta" id="tipoEtiqueta" required>
+                                <option value="localizacao" {{ etiqueta.tipo_etiqueta == 'localizacao' ? 'selected' : '' }}>Localização</option>
+                                <option value="palete" {{ etiqueta.tipo_etiqueta == 'palete' ? 'selected' : '' }}>Palete</option>
+                                <option value="caixa" {{ etiqueta.tipo_etiqueta == 'caixa' ? 'selected' : '' }}>Caixa</option>
+                                <option value="produto" {{ etiqueta.tipo_etiqueta == 'produto' ? 'selected' : '' }}>Produto</option>
+                                <option value="armazenagem" {{ etiqueta.tipo_etiqueta == 'armazenagem' ? 'selected' : '' }}>Armazenagem</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Código</label>
+                            <input type="text" class="form-control" name="codigo" id="codigoEtiqueta" value="{{ etiqueta.codigo }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Referência</label>
+                            <select class="form-select" name="referencia_tipo" id="referenciaTipo">
+                                <option value="">Sem referência</option>
+                                <option value="armazenagem" {{ etiqueta.referencia_tipo == 'armazenagem' ? 'selected' : '' }}>Armazenagem</option>
+                                <option value="item_nf" {{ etiqueta.referencia_tipo == 'item_nf' ? 'selected' : '' }}>Item da NF</option>
+                                <option value="palete" {{ etiqueta.referencia_tipo == 'palete' ? 'selected' : '' }}>Palete</option>
+                                <option value="caixa" {{ etiqueta.referencia_tipo == 'caixa' ? 'selected' : '' }}>Caixa</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Referência</label>
+                            <select class="form-select" name="referencia_id" id="referenciaId">
+                                <option value="">Selecione a referência</option>
+                                {% for armazenagem in armazenagens %}
+                                <option value="{{ armazenagem.id }}" data-tipo="armazenagem" {{ etiqueta.referencia_tipo == 'armazenagem' and etiqueta.referencia_id == armazenagem.id ? 'selected' : '' }}>
+                                    {{ armazenagem.codigo }} — {{ armazenagem.descricao }}
+                                </option>
+                                {% endfor %}
+                                {% for item in itens %}
+                                <option value="{{ item.id }}" data-tipo="item_nf" {{ etiqueta.referencia_tipo == 'item_nf' and etiqueta.referencia_id == item.id ? 'selected' : '' }}>
+                                    NF {{ item.numero_nf }} · {{ item.codigo_produto }} — {{ item.descricao_produto }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Conteúdo da Etiqueta <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="conteudo" id="conteudoEtiqueta" rows="5" required>{{ etiqueta.conteudo }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Código de Barras</label>
+                            <input type="text" class="form-control" name="codigo_barras" value="{{ etiqueta.codigo_barras }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Conteúdo do QR Code</label>
+                            <input type="text" class="form-control" name="qr_code" value="{{ etiqueta.qr_code_payload|default(etiqueta.codigo) }}" maxlength="62">
+                            {% if etiqueta.qr_code_image %}
+                            <img src="{{ etiqueta.qr_code_image }}" alt="QR Code" class="mt-2 border rounded p-2 bg-white" style="max-width: 140px;">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" name="status">
+                                <option value="criada" {{ etiqueta.status == 'criada' ? 'selected' : '' }}>Criada</option>
+                                <option value="impressa" {{ etiqueta.status == 'impressa' ? 'selected' : '' }}>Impressa</option>
+                                <option value="aplicada" {{ etiqueta.status == 'aplicada' ? 'selected' : '' }}>Aplicada</option>
+                                <option value="inativa" {{ etiqueta.status == 'inativa' ? 'selected' : '' }}>Inativa</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" rows="3">{{ etiqueta.observacoes }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ DOMAIN }}/recebimento/etiquetas/show/{{ etiqueta.id }}" class="btn btn-light">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">Resumo</div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Usuário</label>
+                    <p class="mb-0 fs-16">{{ etiqueta.usuario_criacao_nome|default('-') }}</p>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-semibold">Criada em</label>
+                    <p class="mb-0 fs-16">{{ etiqueta.created_at ? etiqueta.created_at|date('d/m/Y H:i') : '-' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ PATH }}/view/assets/js/recebimento/etiquetas/form.js?v={{ VERSION }}"></script>
+{% endblock %}

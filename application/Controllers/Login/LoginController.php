@@ -4,8 +4,7 @@ namespace Agencia\Close\Controllers\Login;
 
 use Agencia\Close\Adapters\TemplateAdapter;
 use Agencia\Close\Helpers\Device\CheckDevice;
-use Agencia\Close\Helpers\User\EmailUser;
-use Agencia\Close\Helpers\User\Identification;
+use Agencia\Close\Adapters\EmailAdapter;
 use Agencia\Close\Models\User\User;
 use Agencia\Close\Models\User\Permissao;
 use Agencia\Close\Models\Log\LogAcesso;
@@ -36,6 +35,113 @@ class LoginController
     {
         $this->setParams($params);
         $this->render('pages/login/recover.twig', []);
+    }
+
+    public function recoverSend(array $params)
+    {
+        $this->setParams($params);
+        $email = trim((string)$this->requestValue('email'));
+
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->responseJson([
+                'success' => false,
+                'error' => 'Informe um e-mail válido.'
+            ]);
+            return;
+        }
+
+        $user = new User();
+        $token = $user->criarTokenResetSenha($email);
+        $mensagemPadrao = 'Se este e-mail estiver cadastrado, você receberá as instruções para redefinir a senha.';
+
+        if ($token) {
+            $resetUrl = DOMAIN . '/login/reset/' . $token;
+            $this->enviarEmailReset($email, $resetUrl);
+
+            $resposta = [
+                'success' => true,
+                'message' => $mensagemPadrao
+            ];
+
+            if (defined('PRODUCTION') && PRODUCTION === false) {
+                $resposta['reset_url'] = $resetUrl;
+            }
+
+            $this->responseJson($resposta);
+            return;
+        }
+
+        $this->responseJson([
+            'success' => true,
+            'message' => $mensagemPadrao
+        ]);
+    }
+
+    public function reset(array $params)
+    {
+        $this->setParams($params);
+        $token = trim((string)($params['token'] ?? ''));
+        $user = new User();
+        $usuario = $user->getUsuarioPorTokenReset($token);
+
+        if (!$usuario) {
+            $this->render('pages/login/reset.twig', [
+                'token_invalido' => true
+            ]);
+            return;
+        }
+
+        $this->render('pages/login/reset.twig', [
+            'token' => $token,
+            'token_invalido' => false
+        ]);
+    }
+
+    public function resetSave(array $params)
+    {
+        $this->setParams($params);
+        $token = trim((string)$this->requestValue('token'));
+        $password = (string)$this->requestValue('password');
+        $confirm = (string)$this->requestValue('password_confirm');
+
+        if ($token === '') {
+            $this->responseJson([
+                'success' => false,
+                'error' => 'Link de redefinição inválido ou expirado.'
+            ]);
+            return;
+        }
+
+        if (strlen($password) < 6) {
+            $this->responseJson([
+                'success' => false,
+                'error' => 'A senha deve ter pelo menos 6 caracteres.'
+            ]);
+            return;
+        }
+
+        if ($password !== $confirm) {
+            $this->responseJson([
+                'success' => false,
+                'error' => 'As senhas não coincidem.'
+            ]);
+            return;
+        }
+
+        $user = new User();
+        if (!$user->redefinirSenhaPorToken($token, $password)) {
+            $this->responseJson([
+                'success' => false,
+                'error' => 'Link de redefinição inválido ou expirado.'
+            ]);
+            return;
+        }
+
+        $this->responseJson([
+            'success' => true,
+            'message' => 'Senha redefinida com sucesso.',
+            'redirect' => DOMAIN . '/login'
+        ]);
     }
 
     public function sign(array $params)
@@ -250,5 +356,35 @@ class LoginController
     {
         $checkDevice = new CheckDevice();
         return $checkDevice->isMobileDevice();
+    }
+
+    private function requestValue(string $key)
+    {
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+        if (stripos($contentType, 'application/json') !== false) {
+            $jsonBody = json_decode((string)file_get_contents('php://input'), true) ?: [];
+            return $jsonBody[$key] ?? '';
+        }
+
+        return $_POST[$key] ?? '';
+    }
+
+    private function enviarEmailReset(string $email, string $resetUrl): void
+    {
+        if (!EmailAdapter::isConfigured()) {
+            return;
+        }
+
+        try {
+            $mail = new EmailAdapter();
+            $mail->addAddress($email);
+            $mail->setSubject('Redefinição de senha — ' . (defined('NAME') ? NAME : 'EmbalaBag'));
+            $mail->setBody('pages/login/email-reset.twig', [
+                'reset_url' => $resetUrl
+            ]);
+            $mail->send('E-mail enviado');
+        } catch (\Throwable $e) {
+            // O formulário não deve quebrar se o SMTP falhar.
+        }
     }
 }

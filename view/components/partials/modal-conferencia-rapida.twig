@@ -3,13 +3,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalConferenciaRapidaLabel">
-                    <i class="fe fe-clipboard me-2"></i>Conferência Rápida de Produto
+                    <i class="fas fa-clipboard-check me-2"></i>Conferência Rápida de Produto
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="formConferenciaRapida">
                     <input type="hidden" id="conferenciaRapidaNfeId" name="nfe_id">
+                    <input type="hidden" id="conferenciaRapidaItemNfeId" name="item_nfe_id">
                     <input type="hidden" id="conferenciaRapidaProdutoId" name="produto_id">
                     <input type="hidden" id="conferenciaRapidaVariacaoId" name="variacao_id">
                     
@@ -19,8 +20,8 @@
                                 <label for="conferenciaRapidaSku" class="form-label">SKU do Produto</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="conferenciaRapidaSku" name="sku" placeholder="Digite ou escaneie o SKU" required>
-                                    <button type="button" class="btn btn-outline-secondary" onclick="abrirScannerConferencia()">
-                                        <i class="fe fe-camera"></i>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="abrirScannerConferencia()" title="Escanear código">
+                                        <i class="fas fa-barcode"></i>
                                     </button>
                                 </div>
                             </div>
@@ -104,10 +105,10 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fe fe-x me-1"></i>Cancelar
+                    <i class="fas fa-times me-1"></i>Cancelar
                 </button>
                 <button type="button" class="btn btn-primary" onclick="salvarConferenciaRapida()">
-                    <i class="fe fe-save me-1"></i>Salvar Conferência
+                    <i class="fas fa-save me-1"></i>Salvar Conferência
                 </button>
             </div>
         </div>
@@ -120,16 +121,16 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalScannerConferenciaLabel">
-                    <i class="fe fe-camera me-2"></i>Scanner de Código de Barras
+                    <i class="fas fa-barcode me-2"></i>Scanner de Código de Barras
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="text-center">
                     <div class="mb-3">
-                        <i class="fe fe-camera fs-1 text-primary"></i>
+                        <i class="fas fa-barcode fs-1 text-primary"></i>
                     </div>
-                    <p class="text-muted">Digite o código do produto:</p>
+                    <p class="text-muted">Digite ou escaneie o código do produto:</p>
                     <input type="text" class="form-control" id="scannerConferenciaInput" placeholder="Digite o SKU ou código de barras" autofocus>
                 </div>
             </div>

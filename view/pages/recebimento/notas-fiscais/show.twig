@@ -9,7 +9,7 @@
 <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
     <div>
         <p class="fw-semibold fs-18 mb-0">Detalhes da Nota Fiscal</p>
-        <span class="fs-semibold text-muted">Visualize as informações completas da nota fiscal.</span>
+        <span class="fs-semibold">Visualize as informações completas da nota fiscal.</span>
     </div>
     <div class="btn-list mt-md-0 mt-2">
         <a href="{{ DOMAIN }}/recebimento/notas-fiscais" class="btn btn-outline-primary btn-wave">
@@ -50,7 +50,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Data de Entrada:</label>
-                        <p class="mb-0">{{ nota_fiscal.data_entrada ? nota_fiscal.data_entrada|date('d/m/Y') : 'N/A' }}</p>
+                        <p class="mb-0">{{ nota_fiscal.data_recebimento ? nota_fiscal.data_recebimento|date('d/m/Y') : 'N/A' }}</p>
                     </div>
                 </div>
 
@@ -70,7 +70,7 @@
                         <label class="form-label fw-semibold">Pedido Relacionado:</label>
                         <p class="mb-0">
                             {% if nota_fiscal.pedido_id %}
-                                <a href="{{ DOMAIN }}/pedidos/{{ nota_fiscal.pedido_id }}" class="text-primary">
+                                <a href="{{ DOMAIN }}/pedidos/show/{{ nota_fiscal.pedido_id }}" class="text-primary">
                                     Pedido #{{ nota_fiscal.pedido_id }}
                                 </a>
                             {% else %}
@@ -105,6 +105,13 @@
                             {{ nota_fiscal.status|title }}
                         </span>
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Recebido por:</label>
+                        <p class="mb-0">{{ nota_fiscal.usuario_recebimento_nome|default('-') }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Data de Criação:</label>
                         <p class="mb-0">{{ nota_fiscal.created_at|date('d/m/Y H:i') }}</p>
@@ -160,14 +167,26 @@
                 </div>
             </div>
             <div class="card-body">
-                <div id="itensNF">
-                    <!-- Itens carregados via AJAX -->
-                    <div class="text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Carregando...</span>
+                {% if itens|length > 0 %}
+                <div class="list-group list-group-flush">
+                    {% for item in itens %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div>
+                                <p class="mb-1 fw-semibold">{{ item.codigo_produto|default('-') }}</p>
+                                <p class="mb-1 fs-14">{{ item.descricao_produto|default('-') }}</p>
+                                <p class="mb-0 fs-13">Qtd: {{ item.quantidade|default(0) }}</p>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary btn-gerar-etiqueta" data-item-id="{{ item.id }}">
+                                <i class="fas fa-qrcode me-1"></i>Etiqueta
+                            </button>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
+                {% else %}
+                <p class="mb-0">Nenhum item vinculado a esta nota fiscal.</p>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -176,5 +195,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ DOMAIN }}/view/assets/js/recebimento/notas-fiscais/show.js"></script>
+<script src="{{ PATH }}/view/assets/js/recebimento/notas-fiscais/show.js?v={{ VERSION }}"></script>
 {% endblock %} 
