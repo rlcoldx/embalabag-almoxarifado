@@ -404,13 +404,15 @@ class Produtos extends Model
                             COALESCE(p.SKU, CONCAT('#', p.id)) as codigo,
                             MIN(pv.estoque) as estoque_atual,
                             MIN(IF(pv.estoque_minimo > 0, pv.estoque_minimo, 1)) as estoque_minimo,
-                            c.nome as categoria_nome
+                            c.nome as categoria_nome,
+                            p.status,
+                            p.date_create
                         FROM produtos p
                         INNER JOIN produtos_variations pv ON pv.id_produto = p.id
                         LEFT JOIN categorias c ON c.id = p.categoria_id
                         WHERE p.status <> 'Deletado'
                           AND pv.estoque <= IF(pv.estoque_minimo > 0, pv.estoque_minimo, 1)
-                        GROUP BY p.id, p.nome, p.SKU, c.nome
+                        GROUP BY p.id, p.nome, p.SKU, c.nome, p.status, p.date_create
                         ORDER BY estoque_atual ASC, p.nome ASC");
         return $read;
     }

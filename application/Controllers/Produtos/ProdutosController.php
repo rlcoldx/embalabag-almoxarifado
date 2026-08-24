@@ -386,8 +386,7 @@ class ProdutosController extends Controller
     $this->setParams($params);
     
     $produtos = new Produtos();
-    $produtos_estoque_baixo = $produtos->getProdutosEstoqueBaixo();
-    $produtos_estoque_baixo = $produtos_estoque_baixo->getResult();
+    $produtos_estoque_baixo = $produtos->getProdutosEstoqueBaixo()->getResult() ?: [];
 
     // Configurar headers para download CSV
     header('Content-Type: text/csv; charset=utf-8');
@@ -410,15 +409,20 @@ class ProdutosController extends Controller
 
     // Dados dos produtos
     foreach ($produtos_estoque_baixo as $produto) {
+      $dataCriacao = $produto['date_create'] ?? '';
+      if ($dataCriacao !== '') {
+        $dataCriacao = date('d/m/Y H:i', strtotime($dataCriacao));
+      }
+
       fputcsv($output, [
-        $produto['id'],
-        $produto['nome'],
+        $produto['id'] ?? '',
+        $produto['nome'] ?? '',
         $produto['SKU'] ?? '',
         $produto['categoria_nome'] ?? '',
         $produto['estoque_atual'] ?? 0,
         $produto['estoque_minimo'] ?? 0,
-        $produto['status'],
-        $produto['date_create']
+        $produto['status'] ?? '',
+        $dataCriacao
       ], ';');
     }
 
