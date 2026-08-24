@@ -25,7 +25,7 @@ function initializeGlobalConfig() {
     window.PATH = document.body.getAttribute('data-path') || '';
 
     // VERSION - Versão do sistema
-    window.VERSION = document.body.getAttribute('data-version') || '1.0.0';
+    window.VERSION = document.body.getAttribute('data-version') || '1.0.1';
 
     // LANGUAGE - Idioma do sistema
     window.LANGUAGE = document.body.getAttribute('data-lang') || 'pt-BR';

@@ -15,7 +15,7 @@
         </div>
     </div>
     {% include 'components/partials/commonjs.twig' %}
-    <script src="{{ PATH }}{{ 'main.js'|hash }}"></script>
+    <script src="{{ PATH }}{{ 'main.js'|hash }}?v={{ VERSION }}"></script>
 </body>
 
 </html>

@@ -31,4 +31,4 @@ define('SIGE_APP', 'API');
 define('COOKIE_EXPIRE', '30');
 define('COOKIE_PATH', '/');
 
-define('VERSION', trim(@file_get_contents(__DIR__ . '/../.git/refs/heads/main')) ?: '1.0.0');
+define('VERSION', '1.0.1');
